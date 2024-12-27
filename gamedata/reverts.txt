@@ -1,0 +1,100 @@
+"Games"
+{
+	"tf"
+	{
+		"Signatures"
+		{
+			"JarExplode"
+			{
+				"library" "server"
+				"linux" "@_Z10JarExplodeiP9CTFPlayerP11CBaseEntityS2_RK6Vectorif7ETFCondfPKcS8_"
+				"windows" "\x2A\x2A\x2A\x2A\x2A\x2A\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xE8\x02\x00\x00"
+			}
+
+			"CTFPlayer::CanDisguise"
+			{
+				"library" "server"
+				"linux" "@_ZN9CTFPlayer11CanDisguiseEv"
+				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x06\x8B\x80\x0C\x01\x00\x00\xFF\xD0\x84\xC0\x74\x2A\x83\xBE\xC8\x22\x00\x00\x08"
+			}
+
+			"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A" //  offset aMultPlayerAimi ; "mult_player_aiming_movespeed"
+				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
+			}
+		}
+
+		"Offsets"
+		{
+			"CTFWeaponBase::PrimaryAttack"
+			{
+				"linux" "292"
+				"windows" "286"
+			}
+
+			"CTFWeaponBase::SecondaryAttack"
+			{
+				"linux" "293"
+				"windows" "287"
+			}
+
+			"CTFBaseRocket::GetRadius"
+			{
+				"linux" "244"
+				"windows" "243"
+			}
+		}
+
+		"Functions"
+		{
+			"CTFWeaponBase::PrimaryAttack"
+			{
+				"offset" "CTFWeaponBase::PrimaryAttack"
+				"hooktype" "entity"
+				"this" "entity"
+				"return" "void"
+			}
+
+			"CTFWeaponBase::SecondaryAttack"
+			{
+				"offset" "CTFWeaponBase::SecondaryAttack"
+				"hooktype" "entity"
+				"this" "entity"
+				"return" "void"
+			}
+
+			"CTFBaseRocket::GetRadius"
+			{
+				"offset" "CTFBaseRocket::GetRadius"
+				"hooktype" "entity"
+				"this" "entity"
+				"return" "float"
+			}
+
+			"CTFPlayer::CanDisguise"
+			{
+				"signature" "CTFPlayer::CanDisguise"
+				"callconv" "thiscall"
+				"this" "entity"
+				"return" "bool"
+			}
+
+			"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+			{
+				"signature" "CTFPlayer::TeamFortress_CalculateMaxSpeed"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "float"
+				"arguments"
+				{
+					"bIgnoreSpecialAbility"
+					{
+						"type" "bool"
+					}
+				}
+			}
+		}
+	}
+}
