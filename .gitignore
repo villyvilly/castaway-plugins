@@ -15,6 +15,10 @@ scripting/*
 !scripting/changelevel.sp
 !scripting/votescramble.sp
 
+!scripting/disablesoul.sp
+!scripting/EdictLimiter.sp
+!scripting/teamcatch.sp
+
 !gamedata/
 gamedata/*
 !gamedata/reverts.txt
