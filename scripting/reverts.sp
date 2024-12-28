@@ -169,6 +169,7 @@ public void OnPluginStart() {
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains");
+	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
@@ -877,6 +878,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_TraceAttack, SDKHookCB_TraceAttack);
 	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_OnTakeDamageAlive);
+	SDKHook(client, SDKHook_GetMaxHealth, SDKHookCB_GetMaxHealth);
 }
 
 public void OnEntityCreated(int entity, const char[] class) {
@@ -1314,6 +1316,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 10, 708, 1.00); // Hold fire to load up to 4 shells
 		TF2Items_SetAttribute(item1, 11, 709, 2.5); // Weapon spread increases as health decreases.
 		TF2Items_SetAttribute(item1, 12, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+	}
+
+	if (
+		ItemIsEnabled("pocket", client) &&
+		StrEqual(class, "tf_weapon_handgun_scout_secondary") &&
+		(index == 773)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 4);
+		TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
+		TF2Items_SetAttribute(item1, 1, 16, 0.0); // heal on hit
+		TF2Items_SetAttribute(item1, 2, 3, 1.0); // clip size
+
+		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
+		// max health, no fall damage, & fire vulnerability handled elsewhere
 	}
 
 	if (
@@ -2354,9 +2372,44 @@ Action SDKHookCB_OnTakeDamageAlive(
 				returnValue = Plugin_Changed;
 			}
 		}
+		{
+			if (
+				ItemIsEnabled("pocket", victim) &&
+				PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
+			) {
+				if (damage_type & (DMG_BURN | DMG_IGNITE)) // 50% fire damage vulnerability.
+				{
+					damage *= 1.50;
+					returnValue = Plugin_Changed;
+				}
+			}
+		}
+	}
+	else
+	{
+		if (
+			ItemIsEnabled("pocket", victim) &&
+			PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
+		) {
+			if (damage_type & DMG_FALL && !attacker) // Fall damage negation.
+			{
+				return Plugin_Handled;
+			}
+		}
 	}
 
 	return returnValue;
+}
+
+Action SDKHookCB_GetMaxHealth(int client, int& maxhealth)
+{
+	if(
+		ItemIsEnabled("pocket", client) &&
+		PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
+	) {
+		maxhealth += 15;
+	}
+	return Plugin_Handled;
 }
 
 Action Command_Menu(int client, int args) {
@@ -2436,6 +2489,27 @@ bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
+}
+
+bool PlayerHasItem(int client, char[] classname, int item_index) {
+	int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+	for (int i;i < length; i++)
+	{
+		int weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
+		if (weapon != -1)
+		{
+			char class[64];
+			GetEntityClassname(weapon, class, sizeof(class));
+			int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+			if(
+				StrEqual(classname, class) &&
+				(item_index == index)
+			) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void PlayerRemoveEquipment(int client) {
