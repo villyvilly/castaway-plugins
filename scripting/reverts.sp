@@ -164,7 +164,7 @@ public void OnPluginStart() {
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death", ITEM_FL_PICKABLE);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, old honorbound, full heal, crits", ITEM_FL_PICKABLE);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", ITEM_FL_PICKABLE);
-	ItemDefine("Loch n Load", "lochload", "Reverted to pre-2014, +20% damage against everything, 2 per clip, increased self damage, no radius penalty");
+	ItemDefine("Loch n Load", "lochload", "Reverted to pre-2014, +20% damage against everything");
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", ITEM_FL_PICKABLE);
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
@@ -1284,12 +1284,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 5);
+		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 2, 1.20); // damage bonus
 		TF2Items_SetAttribute(item1, 1, 137, 1.00); // dmg bonus vs buildings
-		TF2Items_SetAttribute(item1, 2, 207, 1.25); // self damage
-		TF2Items_SetAttribute(item1, 3, 100, 1.00); // radius penalty
-		TF2Items_SetAttribute(item1, 4, 3, 0.50); // clip size
+		// for pre smissmas 2014 loch
+		// TF2Items_SetAttribute(item1, 2, 207, 1.25); // self damage
+		// TF2Items_SetAttribute(item1, 3, 100, 1.00); // radius penalty
+		// TF2Items_SetAttribute(item1, 4, 3, 0.50); // clip size
 	}
 
 	if (
