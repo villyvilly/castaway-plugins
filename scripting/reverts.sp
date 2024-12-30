@@ -2375,13 +2375,12 @@ Action SDKHookCB_OnTakeDamageAlive(
 		{
 			if (
 				ItemIsEnabled("pocket", victim) &&
+				(damage_type & (DMG_BURN | DMG_IGNITE)) &&
 				PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
 			) {
-				if (damage_type & (DMG_BURN | DMG_IGNITE)) // 50% fire damage vulnerability.
-				{
-					damage *= 1.50;
-					returnValue = Plugin_Changed;
-				}
+				// 50% fire damage vulnerability.
+				damage *= 1.50;
+				returnValue = Plugin_Changed;
 			}
 		}
 	}
@@ -2389,12 +2388,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 	{
 		if (
 			ItemIsEnabled("pocket", victim) &&
+			(damage_type & DMG_FALL && !attacker) &&
 			PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
 		) {
-			if (damage_type & DMG_FALL && !attacker) // Fall damage negation.
-			{
-				return Plugin_Handled;
-			}
+			// Fall damage negation.
+			return Plugin_Handled;
 		}
 	}
 
