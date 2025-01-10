@@ -1029,10 +1029,14 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			ItemIsEnabled("critcola", client) &&
 			TF2_GetPlayerClass(client) == TFClass_Scout &&
 			condition == TFCond_MarkedForDeathSilent &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
-			GetGameTickCount() - players[client].ticks_since_attack <=1
+			TF2_IsPlayerInCondition(client, TFCond_CritCola)
 		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+			if (
+				GetGameTickCount() - players[client].ticks_since_attack <= 2 || //occasional drift
+				players[client].ticks_since_attack == 0 //stupid bug
+			) {
+				TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+			}
 		}
 	}
 }
