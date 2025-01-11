@@ -1019,7 +1019,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_RemoveCondition(client, TFCond_FireImmune);
 			TF2_RemoveCondition(client, TFCond_AfterburnImmune);
 
-			TF2_AddCondition(client, TFCond_FireImmune, 3.0, 0);
+			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
 
