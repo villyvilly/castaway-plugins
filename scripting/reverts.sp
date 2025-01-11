@@ -2072,8 +2072,8 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled("sandman", attacker) &&
-					//StrEqual(class, "tf_weapon_bat_wood") &&
-					damage_custom == TF_DMG_CUSTOM_BASEBALL
+					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
+					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
 				) {
 					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
 						players[victim].projectile_touch_frame = 0;
