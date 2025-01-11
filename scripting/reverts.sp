@@ -2072,7 +2072,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled("sandman", attacker) &&
-					StrEqual(class, "tf_weapon_bat_wood") &&
+					//StrEqual(class, "tf_weapon_bat_wood") &&
 					damage_custom == TF_DMG_CUSTOM_BASEBALL
 				) {
 					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
