@@ -178,7 +178,7 @@ public void OnPluginStart() {
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force", ITEM_FL_PICKABLE);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-2013, run to build hype and auto gain minicrits", ITEM_FL_PICKABLE);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed");
-	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 3s, silent killer", ITEM_FL_PICKABLE);
+	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer", ITEM_FL_PICKABLE);
 	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", ITEM_FL_PICKABLE);
 	ItemDefine("Tide Turner", "turner", "Can deal full crits like other shields again");
@@ -198,7 +198,7 @@ public void OnPluginStart() {
 
 	hudsync = CreateHudSynchronizer();
 
-	// cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
+	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
 	cvar_ref_tf_bison_tick_time = FindConVar("tf_bison_tick_time");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
@@ -846,7 +846,7 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", GetConVarBool(cvar_enable));
 
 			// these cvars are changed just-in-time, reset them
-			// SetConVarReset(cvar_ref_tf_airblast_cray);
+			SetConVarReset(cvar_ref_tf_airblast_cray);
 			SetConVarReset(cvar_ref_tf_feign_death_duration);
 			SetConVarReset(cvar_ref_tf_feign_death_speed_duration);
 			SetConVarReset(cvar_ref_tf_feign_death_activate_damage_scale);
@@ -2773,16 +2773,16 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 
 	if (owner > 0) {
-		// if (
-		// 	StrEqual(class, "tf_weapon_flamethrower") ||
-		// 	StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-		// ) {
-		// 	// airblast set type cvar
+		if (
+			StrEqual(class, "tf_weapon_flamethrower") ||
+			StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+		) {
+			// airblast set type cvar
 
-		// 	SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled("airblast", owner));
+			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled("airblast", owner));
 
-		// 	return MRES_Ignored;
-		// }
+			return MRES_Ignored;
+		}
 
 		if (
 			ItemIsEnabled("circuit", owner) &&
