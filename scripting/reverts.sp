@@ -151,6 +151,7 @@ public void OnPluginStart() {
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off");
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
+	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability");
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-toughbreak, 25% movespeed, 10% increased damage taken, no mark-for-death on attack");
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 80% dmg resist for 4s");
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
@@ -1149,6 +1150,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 103, 1.50); // projectile speed increased
+	}
+
+	else if (
+		ItemIsEnabled("claidheamh") &&
+		StrEqual(class, "tf_weapon_sword")
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
+		//health handled elsewhere
 	}
 
 	else if (
@@ -2422,6 +2434,12 @@ Action SDKHookCB_GetMaxHealth(int client, int& maxhealth)
 		PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
 	) {
 		maxhealth += 15;
+	}
+	else if(
+		ItemIsEnabled("claidheamh") &&
+		PlayerHasItem(client,"tf_weapon_sword",327)
+	) {
+		maxhealth -= 15;
 	}
 	return Plugin_Handled;
 }
