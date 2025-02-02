@@ -14,6 +14,8 @@ scripting/*
 !scripting/chat-adverts.sp
 !scripting/changelevel.sp
 !scripting/votescramble.sp
+!scripting/legacy
+!scripting/legacy/*
 
 !scripting/disablesoul.sp
 !scripting/EdictLimiter.sp
@@ -22,3 +24,5 @@ scripting/*
 !gamedata/
 gamedata/*
 !gamedata/reverts.txt
+!gamedata/legacy
+!gamedata/legacy/*

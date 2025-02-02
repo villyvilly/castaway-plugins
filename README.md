@@ -8,6 +8,6 @@ This is not a comprehensive list of all plugins used on the server, however it d
 ## Additional Credits
 Some or all of these plugins have been modified in some way, sometimes in major ways. I do not claim credit for these plugins and all credit goes to their original creators.
 
-* reverts.sp - This plugin is mostly a modification of bakugo's [weapon revert plugin](https://github.com/bakugo/sourcemod-plugins), however in order to add onto it I have occasionally taken some code from NotnHeavy's [gun mettle revert plugin](https://github.com/NotnHeavy/TF2-Pre-Gun-Mettle-Reverts)
+* reverts.sp - This plugin is mostly a modification of bakugo's [weapon revert plugin](https://github.com/bakugo/sourcemod-plugins), however in order to add onto it I have occasionally taken some code from NotnHeavy's gun mettle revert plugin. It has since been deleted from github, however a copy of the code can be found unmodified in the scripting/legacy directory, and the gamedata in gamedata/legacy.
 * votescramble - This plugin comes from the [uncletopia plugin repo](https://github.com/leighmacdonald/uncletopia) 
 * nativevotes-* - This also comes from the uncletopia plugin repo, however it seems to have only been slightly modified by them and as such original credit goes towards Powerlord and AlliedModders 
