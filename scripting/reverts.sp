@@ -1218,7 +1218,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 412, 1.20); // dmg taken increased
+		TF2Items_SetAttribute(item1, 0, 852, 1.20); // dmg taken increased
 		TF2Items_SetAttribute(item1, 1, 855, 0.0); // mod maxhealth drain rate
 	}
 
