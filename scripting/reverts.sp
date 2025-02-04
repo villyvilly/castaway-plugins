@@ -2099,6 +2099,13 @@ Action SDKHookCB_OnTakeDamage(
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
 					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
 				) {
+					PrintToConsole(attacker,"You hit %N with the Sandman! Debug info: touch_frame=%d, tick_count=%d, wlevel=%d, gametime=%f, spawn_time=%f",
+						victim,
+						players[victim].projectile_touch_frame,
+						GetGameTickCount(),
+						GetEntProp(victim, Prop_Data, "m_nWaterLevel"),
+						GetGameTime(),
+						entities[players[victim].projectile_touch_entity].spawn_time);
 					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
 						players[victim].projectile_touch_frame = 0;
 
@@ -2110,7 +2117,6 @@ Action SDKHookCB_OnTakeDamage(
 							stun_amt = (GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time);
 
 							if (stun_amt > 1.0) stun_amt = 1.0;
-
 							if (stun_amt > 0.1) {
 								stun_dur = stun_amt;
 								stun_dur = (stun_dur * 6.0);
