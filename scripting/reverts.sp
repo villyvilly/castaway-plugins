@@ -2099,13 +2099,8 @@ Action SDKHookCB_OnTakeDamage(
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
 					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
 				) {
-					PrintToConsole(attacker,"You hit %N with the Sandman! Debug info: touch_frame=%d, tick_count=%d, wlevel=%d, gametime=%f, spawn_time=%f",
-						victim,
-						players[victim].projectile_touch_frame,
-						GetGameTickCount(),
-						GetEntProp(victim, Prop_Data, "m_nWaterLevel"),
-						GetGameTime(),
-						entities[players[victim].projectile_touch_entity].spawn_time);
+					bool stunned = false;
+					int cur_frame = players[victim].projectile_touch_frame;
 					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
 						players[victim].projectile_touch_frame = 0;
 
@@ -2144,12 +2139,26 @@ Action SDKHookCB_OnTakeDamage(
 									}
 								}
 
+
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
 
+								PrintToConsole(attacker,"Stunned %N for %f seconds",victim,stun_amt);
+								stunned=true;
 								players[victim].stunball_fix_time_bonk = GetGameTime();
 								players[victim].stunball_fix_time_wear = 0.0;
 							}
 						}
+					}
+
+					if(!stunned)
+					{
+						PrintToConsole(attacker,"Failed to stun %N with the Sandman! Debug info: touch_frame=%d, tick_count=%d, wlevel=%d, gametime=%f, spawn_time=%f",
+							victim,
+							cur_frame,
+							GetGameTickCount(),
+							GetEntProp(victim, Prop_Data, "m_nWaterLevel"),
+							GetGameTime(),
+							entities[players[victim].projectile_touch_entity].spawn_time);
 					}
 
 					if (damage == 22.5) {
