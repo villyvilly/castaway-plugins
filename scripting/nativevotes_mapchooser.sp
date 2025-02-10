@@ -201,7 +201,7 @@ public void OnPluginStart()
 	BuildPath(Path_SM, path, sizeof(path), MAPLIST_PATH);
 	if(FileExists(path))
 	{
-		File listfile = OpenFile(MAPLIST_PATH,"r");
+		File listfile = OpenFile(path,"r");
 		char mapname[PLATFORM_MAX_PATH];
 		while(ReadFileLine(listfile,mapname,sizeof(mapname)))
 		{
