@@ -325,8 +325,23 @@ public void OnMapEnd()
 	
 	char map[PLATFORM_MAX_PATH];
 	GetCurrentMap(map, sizeof(map));
-	g_OldMapList.PushString(map);
-				
+
+	bool is_duplicate=false;
+	for(int i=0;i<g_OldMapList.Length;i++)
+	{
+		char mapname[PLATFORM_MAX_PATH];
+		g_OldMapList.GetString(i,mapname,sizeof(mapname));
+		if(StrEqual(mapname,map)) {
+			is_duplicate = true;
+			break;
+		}
+	}
+
+	if(!is_duplicate)
+	{
+		g_OldMapList.PushString(map);	
+	}
+
 	if (g_OldMapList.Length > g_Cvar_ExcludeMaps.IntValue)
 	{
 		g_OldMapList.Erase(0);
