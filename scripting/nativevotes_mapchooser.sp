@@ -205,6 +205,11 @@ public void OnPluginStart()
 		char mapname[PLATFORM_MAX_PATH];
 		while(ReadFileLine(listfile,mapname,sizeof(mapname)))
 		{
+			int length = strlen(mapname);
+			if (mapname[length-1]=='\n')
+			{
+				mapname[length-1]='\0';
+			}
 			g_OldMapList.PushString(mapname);
 		}
 		delete listfile;
