@@ -145,6 +145,7 @@ public void OnPluginStart() {
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges");
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time");
 	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets");
+	ItemDefine("Backburner", "backburner", "Reverted to 119th update, 20% damage bonus, no airblast");
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, fire updraft");
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump");
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo");
@@ -1106,6 +1107,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 419, 25.0); // hype resets on jump
 		TF2Items_SetAttribute(item1, 1, 733, 0.0); // lose hype on take damage
+	}
+
+	else if (
+		ItemIsEnabled("backburner") &&
+		StrEqual(class, "tf_weapon_flamethrower") &&
+		(index == 40 || index == 1146 ) 
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 356, 1.0); // no airblast
+		TF2Items_SetAttribute(item1, 1, 2, 1.2); // 20% increased damage
 	}
 
 	else if (
