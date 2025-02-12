@@ -13,6 +13,7 @@ scripting/*
 !scripting/reverts.sp
 !scripting/chat-adverts.sp
 !scripting/changelevel.sp
+!scripting/votingban.sp
 !scripting/votescramble.sp
 !scripting/legacy
 !scripting/legacy/*
