@@ -342,7 +342,7 @@ public void OnMapEnd()
 		g_OldMapList.PushString(map);	
 	}
 
-	if (g_OldMapList.Length > g_Cvar_ExcludeMaps.IntValue)
+	while (g_OldMapList.Length > g_Cvar_ExcludeMaps.IntValue)
 	{
 		g_OldMapList.Erase(0);
 	}	
