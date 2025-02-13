@@ -27,6 +27,7 @@ Database hDatabase;
 bool g_VotingBan[MAXPLAYERS];
 bool g_NativeVotes;
 bool g_Listener;
+bool g_Registered;
 
 public void OnPluginStart()
 {
@@ -41,6 +42,11 @@ public void OnAllPluginsLoaded()
 		AddCommandListener(Cmd_Callvote, "callvote");
 		g_Listener = true;
 	}
+	else
+	{
+		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Kick,KickVoteHandler);
+		g_Registered = true;
+	}
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -48,7 +54,16 @@ public void OnLibraryAdded(const char[] name)
 	if (StrEqual(name, LIBRARY, false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_Kick))
 	{
 		g_NativeVotes = true;
-		if(g_Listener) RemoveCommandListener(Cmd_Callvote, "callvote");
+		if(g_Listener) 
+		{
+			RemoveCommandListener(Cmd_Callvote, "callvote");
+			g_Listener = false;
+		}
+		if(!g_Registered)
+		{
+			NativeVotes_RegisterVoteCommand(NativeVotesOverride_Kick,KickVoteHandler);
+			g_Registered = true;
+		}
 	}
 }
 
@@ -57,7 +72,16 @@ public void OnLibraryRemoved(const char[] name)
 	if (StrEqual(name, LIBRARY, false))
 	{
 		g_NativeVotes = false;
-		if(!g_Listener) AddCommandListener(Cmd_Callvote, "callvote");
+		if(!g_Listener) 
+		{
+			AddCommandListener(Cmd_Callvote, "callvote");
+			g_Listener = true;
+		}
+		if(g_Registered)
+		{
+			NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Kick,KickVoteHandler);
+			g_Registered = false;
+		}
 	}
 }
 
