@@ -5,6 +5,7 @@
 #include <tf2>
 #include <tf2_stocks>
 #include <tf2items>
+#include <tf2attributes>
 #include <dhooks>
 #undef REQUIRE_PLUGIN
 #include <updater>
@@ -1039,7 +1040,9 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			) {
 				TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
 			}
+			PrintToServer("ticks %d %d",GetGameTickCount(),players[client].ticks_since_attack);
 		}
+		PrintToServer("conds %d %d %d",TF2_GetPlayerClass(client) == TFClass_Scout,condition == TFCond_MarkedForDeathSilent,TF2_IsPlayerInCondition(client, TFCond_CritCola));
 	}
 }
 
@@ -1112,7 +1115,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	else if (
 		ItemIsEnabled("backburner") &&
 		StrEqual(class, "tf_weapon_flamethrower") &&
-		(index == 40 || index == 1146 ) 
+		(index == 40 || index == 1146 )
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2469,6 +2472,26 @@ Action SDKHookCB_GetMaxHealth(int client, int& maxhealth)
 	) {
 		maxhealth -= 15;
 	}
+
+
+	// //this has to happen first, sorry!
+	// //need to remove this each time to prevent carryover
+	// TF2Attrib_RemoveByName(client, "max health additive bonus");
+	// TF2Attrib_RemoveByName(client, "max health additive penalty");
+
+	// if(
+	// 	ItemIsEnabled("pocket") &&
+	// 	PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
+	// ) {
+	// 	TF2Attrib_SetByName(client, "max health additive bonus",15.0);
+	// }
+	// else if(
+	// 	ItemIsEnabled("claidheamh") &&
+	// 	PlayerHasItem(client,"tf_weapon_sword",327)
+	// ) {
+	// 	TF2Attrib_SetByName(client, "max health additive penalty",15.0);
+	// }
+
 	return Plugin_Handled;
 }
 
