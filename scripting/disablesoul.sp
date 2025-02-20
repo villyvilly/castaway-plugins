@@ -12,11 +12,13 @@ public Plugin:myinfo =
 
 public OnEntityCreated(entity, const String:classname[])
 {
-if(IsValidEntity(entity) && StrEqual(classname,"halloween_souls_pack"))
-{
-SDKHook(entity, SDKHook_Spawn, soul);
-}
+	if(IsValidEntity(entity) && StrEqual(classname,"halloween_souls_pack"))
+	{
+		SDKHook(entity, SDKHook_Spawn, soul);
+	}
 }
 
-public soul(entity)
- AcceptEntityInput(entity,"Kill");
+public soul(entity) {
+	AcceptEntityInput(entity,"Kill");
+}
+
