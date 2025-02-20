@@ -1040,15 +1040,27 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			) {
 				TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
 			}
-			PrintToServer("ticks %d %d",GetGameTickCount(),players[client].ticks_since_attack);
 		}
-		PrintToServer("conds %d %d %d",TF2_GetPlayerClass(client) == TFClass_Scout,condition == TFCond_MarkedForDeathSilent,TF2_IsPlayerInCondition(client, TFCond_CritCola));
+	}
+}
+
+public void TF2_OnConditionRemoved(int client, TFCond condition) {
+	{
+		//edge case for crit a cola
+		if (
+			ItemIsEnabled("critcola") &&
+			TF2_GetPlayerClass(client) == TFClass_Scout &&
+			condition == TFCond_CritCola &&
+			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
+		) {
+			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+		}
 	}
 }
 
 public void TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
 {
-	if(TF2_GetPlayerClass(client) == TFClass_Scout && StrContains(classname, "tf_weapon")==0)
+	if(TF2_GetPlayerClass(client) == TFClass_Scout && (StrContains(classname, "tf_weapon")==0 || StrContains(classname, "saxxy")==0))
 	{
 		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entityIndex, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entityIndex, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
@@ -2115,8 +2127,6 @@ Action SDKHookCB_OnTakeDamage(
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
 					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
 				) {
-					bool stunned = false;
-					int cur_frame = players[victim].projectile_touch_frame;
 					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
 						players[victim].projectile_touch_frame = 0;
 
@@ -2155,26 +2165,13 @@ Action SDKHookCB_OnTakeDamage(
 									}
 								}
 
-
+								//this doesn't work sometimes?????
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
 
-								PrintToConsole(attacker,"Stunned %N for %f seconds",victim,stun_amt);
-								stunned=true;
 								players[victim].stunball_fix_time_bonk = GetGameTime();
 								players[victim].stunball_fix_time_wear = 0.0;
 							}
 						}
-					}
-
-					if(!stunned)
-					{
-						PrintToConsole(attacker,"Failed to stun %N with the Sandman! Debug info: touch_frame=%d, tick_count=%d, wlevel=%d, gametime=%f, spawn_time=%f",
-							victim,
-							cur_frame,
-							GetGameTickCount(),
-							GetEntProp(victim, Prop_Data, "m_nWaterLevel"),
-							GetGameTime(),
-							entities[players[victim].projectile_touch_entity].spawn_time);
 					}
 
 					if (damage == 22.5) {
