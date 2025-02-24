@@ -92,6 +92,8 @@ enum struct Player {
 	int scout_airdash_count;
 	float backstab_time;
 	int ticks_since_attack;
+	int bonus_health;
+	int bonus_overheal;
 }
 
 enum struct Entity {
@@ -146,7 +148,7 @@ public void OnPluginStart() {
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges");
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time");
 	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets");
-	ItemDefine("Backburner", "backburner", "Reverted to 119th update, 20% damage bonus, no airblast");
+	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus");
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, fire updraft");
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump");
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo");
@@ -154,6 +156,7 @@ public void OnPluginStart() {
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability");
+	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill");
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-toughbreak, 25% movespeed, 10% increased damage taken, no mark-for-death on attack");
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 80% dmg resist for 4s");
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
@@ -1132,8 +1135,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 356, 1.0); // no airblast
-		TF2Items_SetAttribute(item1, 1, 2, 1.2); // 20% increased damage
+		TF2Items_SetAttribute(item1, 1, 2, 1.1); // 20% increased damage
 	}
 
 	else if (
@@ -1178,6 +1180,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 103, 1.50); // projectile speed increased
+	}
+
+	else if (
+		ItemIsEnabled("carbine") &&
+		StrEqual(class, "tf_weapon_charged_smg")
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 31, 3.0); // crit on kill
+		TF2Items_SetAttribute(item1, 0, 779, 0.0); // minicrit on charge
+		TF2Items_SetAttribute(item1, 0, 780, 0.0); // gain charge on hit
 	}
 
 	else if (
@@ -1692,6 +1706,31 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
+
+		//perform health fuckery
+		players[client].bonus_health = 0;
+		players[client].bonus_overheal = 0;
+		float overheal = 0.0;
+		int health = 0;
+
+		if(
+			ItemIsEnabled("pocket") &&
+			PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
+		) {
+			PrintToServer("Client %N has a pocket pistol, updating max health and overheal...",client);
+			health += 15;
+			overheal += 15 * 1.5;
+		}
+		else if(
+			ItemIsEnabled("claidheamh") &&
+			PlayerHasItem(client,"tf_weapon_sword",327)
+		) {
+			health -= 15;
+			overheal -= 15 * 1.5;
+		}
+
+		players[client].bonus_health = health;
+		players[client].bonus_overheal = RoundToFloor(overheal/5.0) * 5;
 	}
 
 	if (StrEqual(name, "item_pickup")) {
@@ -2457,39 +2496,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 
 Action SDKHookCB_GetMaxHealth(int client, int& maxhealth)
 {
-	if(
-		ItemIsEnabled("pocket") &&
-		PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
-	) {
-		maxhealth += 15;
-	}
-	else if(
-		ItemIsEnabled("claidheamh") &&
-		PlayerHasItem(client,"tf_weapon_sword",327)
-	) {
-		maxhealth -= 15;
-	}
-
-
-	// //this has to happen first, sorry!
-	// //need to remove this each time to prevent carryover
-	// TF2Attrib_RemoveByName(client, "max health additive bonus");
-	// TF2Attrib_RemoveByName(client, "max health additive penalty");
-
-	// if(
-	// 	ItemIsEnabled("pocket") &&
-	// 	PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
-	// ) {
-	// 	TF2Attrib_SetByName(client, "max health additive bonus",15.0);
-	// }
-	// else if(
-	// 	ItemIsEnabled("claidheamh") &&
-	// 	PlayerHasItem(client,"tf_weapon_sword",327)
-	// ) {
-	// 	TF2Attrib_SetByName(client, "max health additive penalty",15.0);
-	// }
-
-	return Plugin_Handled;
+	maxhealth += players[client].bonus_health;
+	return Plugin_Changed;
 }
 
 Action Command_Menu(int client, int args) {
