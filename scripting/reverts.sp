@@ -1188,10 +1188,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetNumAttributes(item1, 4);
 		TF2Items_SetAttribute(item1, 0, 31, 3.0); // crit on kill
 		TF2Items_SetAttribute(item1, 0, 779, 0.0); // minicrit on charge
 		TF2Items_SetAttribute(item1, 0, 780, 0.0); // gain charge on hit
+		TF2Items_SetAttribute(item1, 0, 5, 1.35); // 35% firing speed penalty
 	}
 
 	else if (
