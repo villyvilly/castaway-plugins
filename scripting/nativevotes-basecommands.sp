@@ -59,7 +59,7 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	
 	AddCommandListener(Command_CancelVote, "sm_cancelvote");
-	AddCommandListener(Command_ReVote, "sm_revote");
+	//AddCommandListener(Command_ReVote, "sm_revote");
 }
 
 bool PerformCancelVote(int client)
