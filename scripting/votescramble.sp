@@ -292,6 +292,7 @@ public Action Timer_DelayLimitsUpdate(Handle timer) {
 	if (cvarTimeLimit.IntValue != 0) {
 		int time = cvarTimeLimit.IntValue - g_iMinutesSinceLastScramble;
 		time = time > 5 ? time : 5;
+		LogMessage("Time: %d, time limit: %d, minutes since scramble: %d",time,cvarTimeLimit.IntValue,g_iMinutesSinceLastScramble);
 		SetConVarInt(cvarTimeLimit, time, false, true);
 	}
 

@@ -96,6 +96,9 @@ enum struct Player {
 	int bonus_overheal;
 }
 
+//item sets
+#define ItemSet_Saharan 1
+
 enum struct Entity {
 	bool exists;
 	float spawn_time;
@@ -1708,30 +1711,98 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
-		//perform health fuckery
-		players[client].bonus_health = 0;
-		players[client].bonus_overheal = 0;
-		float overheal = 0.0;
-		int health = 0;
+		{
+			//handle item sets
+			int first_wep = -1;
+			int wep_count = 0;
+			int active_set = 0;
 
-		if(
-			ItemIsEnabled("pocket") &&
-			PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
-		) {
-			PrintToServer("Client %N has a pocket pistol, updating max health and overheal...",client);
-			health += 15;
-			overheal += 15 * 1.5;
-		}
-		else if(
-			ItemIsEnabled("claidheamh") &&
-			PlayerHasItem(client,"tf_weapon_sword",327)
-		) {
-			health -= 15;
-			overheal -= 15 * 1.5;
+			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+			for (int i;i < length; i++)
+			{
+				weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
+				if (weapon != -1)
+				{
+					char classname[64];
+					GetEntityClassname(weapon, class, sizeof(class));
+					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+
+					if(
+						(StrEqual(classname, "tf_weapon_revolver") &&
+						(item_index == 224)) ||
+						(StrEqual(classname, "tf_weapon_knife") &&
+						(item_index == 225))
+					) {
+						if (first_wep == -1) first_wep = weapon;
+						wep_count++;
+						if(wep_count == 2) active_set = ItemSet_Saharan;
+					}
+
+				}
+			}
+
+			if (active_set)
+			{
+
+				bool validSet = false;
+
+				length = GetEntPropArraySize(client, Prop_Send, "m_hMyWearables");
+				for (int i = 0; i < length; i++)
+				{
+					int wearable = GetEntPropEnt(client, Prop_Send, "m_hMyWearables", i);
+					int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
+
+					if(
+						(active_set == ItemSet_Saharan) &&
+						(item_index == 223)
+					) {
+						validSet = true;
+						break;
+					}
+
+				} 
+
+				if (validSet)
+				{
+					switch (active_set)
+					{
+						case ItemSet_Saharan:
+						{
+							TF2Attrib_SetByDefIndex(first_wep,159,0.5); //blink duration increase
+							TF2Attrib_SetByDefIndex(first_wep,160,1.0); //quet decloak
+						}
+					}
+				}
+			}
+
 		}
 
-		players[client].bonus_health = health;
-		players[client].bonus_overheal = RoundToFloor(overheal/5.0) * 5;
+		{
+			//perform health fuckery
+			players[client].bonus_health = 0;
+			players[client].bonus_overheal = 0;
+			float overheal = 0.0;
+			int health = 0;
+
+			if(
+				ItemIsEnabled("pocket") &&
+				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
+			) {
+				PrintToServer("Client %N has a pocket pistol, updating max health and overheal...",client);
+				health += 15;
+				overheal += 15 * 1.5;
+			}
+			else if(
+				ItemIsEnabled("claidheamh") &&
+				PlayerHasItem(client,"tf_weapon_sword",327)
+			) {
+				health -= 15;
+				overheal -= 15 * 1.5;
+			}
+
+			players[client].bonus_health = health;
+			players[client].bonus_overheal = RoundToFloor(overheal/5.0) * 5;
+		}
 	}
 
 	if (StrEqual(name, "item_pickup")) {
