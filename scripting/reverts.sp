@@ -1738,6 +1738,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					//stats appear to persist between loadout changes for whatever reason
 					//reset them each time here
 					if(
+						ItemIsEnabled("saharan") &&
 						(StrEqual(classname, "tf_weapon_revolver") &&
 						(item_index == 224)) ||
 						(StrEqual(classname, "tf_weapon_knife") &&
