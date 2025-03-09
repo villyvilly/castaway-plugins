@@ -182,6 +182,7 @@ public void OnPluginStart() {
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
+	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 increased cloak blink time");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
@@ -1715,7 +1716,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
-		{
+		if (
+			ItemIsEnabled("saharan")
+		) {
+
 			//handle item sets
 			int first_wep = -1;
 			int wep_count = 0;
@@ -1751,8 +1755,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 			if (active_set)
 			{
-
-				PrintToServer("active set %d",active_set);
 				bool validSet = false;
 
 				int num_wearables = TF2Util_GetPlayerWearableCount(client);
@@ -1761,12 +1763,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					int wearable = TF2Util_GetPlayerWearable(client, i);
 					int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
 
-					PrintToServer("found wearable %d",item_index);
 					if(
 						(active_set == ItemSet_Saharan) &&
 						(item_index == 223)
 					) {
-						PrintToServer("added condition");
 						validSet = true;
 						break;
 					}
