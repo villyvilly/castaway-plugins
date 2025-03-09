@@ -5,6 +5,7 @@
 #include <tf2>
 #include <tf2_stocks>
 #include <tf2items>
+#include <tf2utils>
 #include <tf2attributes>
 #include <dhooks>
 #undef REQUIRE_PLUGIN
@@ -93,7 +94,6 @@ enum struct Player {
 	float backstab_time;
 	int ticks_since_attack;
 	int bonus_health;
-	int bonus_overheal;
 }
 
 //item sets
@@ -126,6 +126,8 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
+Handle dhook_CTFPlayer_GetMaxHealthForBuffing;
+
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -256,6 +258,7 @@ public void OnPluginStart() {
 	dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 	dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 	dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+	dhook_CTFPlayer_GetMaxHealthForBuffing = DHookCreateFromConf(conf, "CTFPlayer::GetMaxHealthForBuffing");
 
 	delete conf;
 
@@ -277,9 +280,11 @@ public void OnPluginStart() {
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
+	if (dhook_CTFPlayer_GetMaxHealthForBuffing == null) SetFailState("Failed to create dhook_CTFPlayer_GetMaxHealthForBuffing");
 
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+	DHookEnableDetour(dhook_CTFPlayer_GetMaxHealthForBuffing, true, DHookCallback_CTFPlayer_GetMaxHealthForBuffing);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -887,7 +892,6 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_TraceAttack, SDKHookCB_TraceAttack);
 	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_OnTakeDamageAlive);
-	SDKHook(client, SDKHook_GetMaxHealth, SDKHookCB_GetMaxHealth);
 }
 
 public void OnEntityCreated(int entity, const char[] class) {
@@ -1724,9 +1728,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				if (weapon != -1)
 				{
 					char classname[64];
-					GetEntityClassname(weapon, class, sizeof(class));
+					GetEntityClassname(weapon, classname, sizeof(class));
 					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
+					//stats appear to persist between loadout changes for whatever reason
+					//reset them each time here
 					if(
 						(StrEqual(classname, "tf_weapon_revolver") &&
 						(item_index == 224)) ||
@@ -1736,6 +1742,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						if (first_wep == -1) first_wep = weapon;
 						wep_count++;
 						if(wep_count == 2) active_set = ItemSet_Saharan;
+						TF2Attrib_SetByDefIndex(weapon,159,0.0); //cloak blink
+						TF2Attrib_SetByDefIndex(weapon,160,0.0); //silent decloak
 					}
 
 				}
@@ -1744,18 +1752,21 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			if (active_set)
 			{
 
+				PrintToServer("active set %d",active_set);
 				bool validSet = false;
 
-				length = GetEntPropArraySize(client, Prop_Send, "m_hMyWearables");
-				for (int i = 0; i < length; i++)
+				int num_wearables = TF2Util_GetPlayerWearableCount(client);
+				for (int i = 0; i < num_wearables; i++)
 				{
-					int wearable = GetEntPropEnt(client, Prop_Send, "m_hMyWearables", i);
+					int wearable = TF2Util_GetPlayerWearable(client, i);
 					int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
 
+					PrintToServer("found wearable %d",item_index);
 					if(
 						(active_set == ItemSet_Saharan) &&
 						(item_index == 223)
 					) {
+						PrintToServer("added condition");
 						validSet = true;
 						break;
 					}
@@ -1780,28 +1791,18 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 			//perform health fuckery
 			players[client].bonus_health = 0;
-			players[client].bonus_overheal = 0;
-			float overheal = 0.0;
-			int health = 0;
-
 			if(
 				ItemIsEnabled("pocket") &&
 				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
 			) {
-				PrintToServer("Client %N has a pocket pistol, updating max health and overheal...",client);
-				health += 15;
-				overheal += 15 * 1.5;
+				players[client].bonus_health += 15;
 			}
 			else if(
 				ItemIsEnabled("claidheamh") &&
 				PlayerHasItem(client,"tf_weapon_sword",327)
 			) {
-				health -= 15;
-				overheal -= 15 * 1.5;
+				players[client].bonus_health -= 15;
 			}
-
-			players[client].bonus_health = health;
-			players[client].bonus_overheal = RoundToFloor(overheal/5.0) * 5;
 		}
 	}
 
@@ -2566,12 +2567,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 	return returnValue;
 }
 
-Action SDKHookCB_GetMaxHealth(int client, int& maxhealth)
-{
-	maxhealth += players[client].bonus_health;
-	return Plugin_Changed;
-}
-
 Action Command_Menu(int client, int args) {
 	if (client > 0) {
 		if (GetConVarBool(cvar_enable)) {
@@ -3055,6 +3050,28 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 		}
 	}
 
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookReturn returnValue) {
+	int iMax = returnValue.Value;
+	int iNewMax = iMax;
+	
+	if (
+		entity >= 1 && entity <= MaxClients
+	) {
+		if (IsValidEntity(entity) && IsPlayerAlive(entity)) // health fixing
+		{
+			iNewMax += players[entity].bonus_health;
+		}
+	}
+
+	if (iNewMax != iMax)
+	{
+		returnValue.Value = iNewMax;
+		return MRES_Supercede;
+	}
+	
 	return MRES_Ignored;
 }
 
