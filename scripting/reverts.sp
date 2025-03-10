@@ -300,10 +300,10 @@ public void OnPluginStart() {
 
 public void OnConfigsExecuted()
 {
-	if (ItemIsEnabled("ringer"))
-		FindConVar("tf_feign_death_speed_duration").SetFloat(0.0);
-	else
-		FindConVar("tf_feign_death_speed_duration").SetFloat(3.0);
+	// if (ItemIsEnabled("ringer"))
+	// 	FindConVar("tf_feign_death_speed_duration").SetFloat(0.0);
+	// else
+	// 	FindConVar("tf_feign_death_speed_duration").SetFloat(3.0);
 }
 
 public void OnLibraryAdded(const char[] name) {
