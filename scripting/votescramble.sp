@@ -2,12 +2,14 @@
 #pragma tabsize 4
 #pragma newdecls required
 
-#define PLUGIN_AUTHOR "Nanochip, viora, raspy"
+#define PLUGIN_AUTHOR "Nanochip, viora, raspy, random"
 #define PLUGIN_VERSION "1.5.1"
 
 #include <sourcemod>
 #include <sdktools>
 #include <nativevotes>
+#include <tf2>
+#include <tf2_stocks>
 
 public Plugin myinfo =
 {
@@ -15,7 +17,7 @@ public Plugin myinfo =
 	author = PLUGIN_AUTHOR,
 	description = "Vote to scramble teams.",
 	version = PLUGIN_VERSION,
-	url = "https://uncletopia.com"
+	url = "https://castaway.tf"
 };
 
 ConVar cvarVoteTime;
@@ -23,23 +25,35 @@ ConVar cvarVoteTimeDelay;
 ConVar cvarRoundResetDelay;
 ConVar cvarVoteChatPercent;
 ConVar cvarVoteMenuPercent;
-ConVar cvarTimeLimit;
+// ConVar cvarTimeLimit;
 ConVar cvarMinimumVotesNeeded;
 ConVar cvarSkipSecondVote;
-ConVar cvarMaxRounds;
-ConVar cvarWinLimit;
+// ConVar cvarMaxRounds;
+// ConVar cvarWinLimit;
 
+int g_iPlayerManager;
 int g_iVoters;
 int g_iVotes;
 int g_iVotesNeeded;
-int g_iRoundsSinceLastScramble;
-int g_iMinutesSinceLastScramble;
-bool g_bVoted[MAXPLAYERS + 1]; 
+// int g_iRoundsSinceLastScramble;
+// int g_iMinutesSinceLastScramble;
+bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
 bool g_bCanScramble;
+bool g_bIsArena;
 Handle g_tRoundResetTimer;
 
+#define SPECTATOR 1
+#define RED 2
+#define BLU 3
+#define AUTOASSIGN 5
+
+enum struct ScoreData
+{
+	int client;
+	int score;
+}
 
 public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast)
 {
@@ -52,7 +66,9 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	//this runs both here and on round end just in case. no harm no foul
 	if (IsValidHandle(g_tRoundResetTimer)) KillTimer(g_tRoundResetTimer);
 	g_bCanScramble = true;
-	g_tRoundResetTimer = CreateTimer(cvarRoundResetDelay.FloatValue,Timer_PreventScramble, _, TIMER_FLAG_NO_MAPCHANGE);
+	//arena is special, prevention timer should be lower
+	float reset_delay = g_bIsArena ? 3.0 : cvarRoundResetDelay.FloatValue;
+	g_tRoundResetTimer = CreateTimer(reset_delay,Timer_PreventScramble, _, TIMER_FLAG_NO_MAPCHANGE);
 	if (g_bScrambleTeams) {
 		g_bScrambleTeams = false;
 		ScheduleScramble();
@@ -71,9 +87,9 @@ public void OnPluginStart()
 	cvarMinimumVotesNeeded = CreateConVar("nano_votescramble_minimum", "3", "What are the minimum number of votes needed to initiate a chat vote?", 0);
 	cvarSkipSecondVote = CreateConVar("nano_votescramble_skip_second_vote", "0", "Should the second vote be skipped?", 0, true, 0.0, true, 1.0);
 
-	cvarTimeLimit = FindConVar("mp_timelimit");
-	cvarMaxRounds = FindConVar("mp_maxrounds");
-	cvarWinLimit = FindConVar("mp_winlimit");
+	// cvarTimeLimit = FindConVar("mp_timelimit");
+	// cvarMaxRounds = FindConVar("mp_maxrounds");
+	// cvarWinLimit = FindConVar("mp_winlimit");
 
 	RegConsoleCmd("sm_votescramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_vscramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
@@ -84,7 +100,7 @@ public void OnPluginStart()
 
 	HookEvent("teamplay_round_start", Event_RoundStart);
 
-	CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
+	// CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
 }
 
 public void OnMapStart()
@@ -92,11 +108,20 @@ public void OnMapStart()
 	g_iVoters = 0;
 	g_iVotesNeeded = 0;
 	g_iVotes = 0;
-	g_iRoundsSinceLastScramble = 0;
-	g_iMinutesSinceLastScramble = 0;
+	// g_iRoundsSinceLastScramble = 0;
+	// g_iMinutesSinceLastScramble = 0;
 	g_bVoteCooldown = false;
 	g_bScrambleTeams = false;
 	g_bCanScramble = false;
+	g_bIsArena = false;
+	g_iPlayerManager = GetPlayerResourceEntity();
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "tf_logic_arena")) != -1)
+	{
+		g_bIsArena = true;
+		break;
+	}
 }
 
 public void OnClientAuthorized(int client, const char[] auth)
@@ -264,43 +289,43 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 	return 0;
 }
 
-public Action Timer_CountMinutes(Handle timer) {
-	g_iMinutesSinceLastScramble++;
-	return Plugin_Continue;
-}
+// public Action Timer_CountMinutes(Handle timer) {
+// 	g_iMinutesSinceLastScramble++;
+// 	return Plugin_Continue;
+// }
 
 public Action Timer_Scramble(Handle timer) {
-	ServerCommand("mp_scrambleteams");
 	PrintToChatAll("Scrambling the teams due to vote.");
+	ScrambleTeams();
 	return Plugin_Continue;
 }
 
-public Action Timer_DelayLimitsUpdate(Handle timer) {
-	// subtract from maxrounds/winlimit after scramble to prevent artificial superextension of maps
-	// assume no limit if 0, don't set negatives
-	if (cvarMaxRounds.IntValue != 0) {
-		SetConVarInt(cvarMaxRounds, cvarMaxRounds.IntValue - g_iRoundsSinceLastScramble, false, true);
-	}
+// public Action Timer_DelayLimitsUpdate(Handle timer) {
+// 	// subtract from maxrounds/winlimit after scramble to prevent artificial superextension of maps
+// 	// assume no limit if 0, don't set negatives
+// 	if (cvarMaxRounds.IntValue != 0) {
+// 		SetConVarInt(cvarMaxRounds, cvarMaxRounds.IntValue - g_iRoundsSinceLastScramble, false, true);
+// 	}
 
-	if (cvarWinLimit.IntValue != 0) {
-		int rounds;
-		rounds = cvarWinLimit.IntValue - g_iRoundsSinceLastScramble;
-		rounds = rounds > 1 ? rounds : 1;
-		SetConVarInt(cvarWinLimit, rounds, false, true);
-	}
+// 	if (cvarWinLimit.IntValue != 0) {
+// 		int rounds;
+// 		rounds = cvarWinLimit.IntValue - g_iRoundsSinceLastScramble;
+// 		rounds = rounds > 1 ? rounds : 1;
+// 		SetConVarInt(cvarWinLimit, rounds, false, true);
+// 	}
 
-	if (cvarTimeLimit.IntValue != 0) {
-		int time = cvarTimeLimit.IntValue - g_iMinutesSinceLastScramble;
-		time = time > 5 ? time : 5;
-		LogMessage("Time: %d, time limit: %d, minutes since scramble: %d",time,cvarTimeLimit.IntValue,g_iMinutesSinceLastScramble);
-		SetConVarInt(cvarTimeLimit, time, false, true);
-	}
+// 	if (cvarTimeLimit.IntValue != 0) {
+// 		int time = cvarTimeLimit.IntValue - g_iMinutesSinceLastScramble;
+// 		time = time > 5 ? time : 5;
+// 		LogMessage("Time: %d, time limit: %d, minutes since scramble: %d",time,cvarTimeLimit.IntValue,g_iMinutesSinceLastScramble);
+// 		SetConVarInt(cvarTimeLimit, time, false, true);
+// 	}
 
-	g_iRoundsSinceLastScramble = 0;
-	g_iMinutesSinceLastScramble = 0;
+// 	g_iRoundsSinceLastScramble = 0;
+// 	g_iMinutesSinceLastScramble = 0;
 
-	return Plugin_Continue;
-}
+// 	return Plugin_Continue;
+// }
 
 public Action Timer_Retry(Handle timer)
 {
@@ -311,11 +336,172 @@ public Action Timer_Retry(Handle timer)
 void ScheduleScramble()
 {
 	CreateTimer(0.1, Timer_Scramble);
-	CreateTimer(1.0, Timer_DelayLimitsUpdate);
+	//unnecessary now?
+	//CreateTimer(1.0, Timer_DelayLimitsUpdate);
 }
 
 public Action Timer_PreventScramble(Handle timer)
 {
 	g_bCanScramble = false;
 	return Plugin_Stop;
+}
+
+int TF2_GetPlayerScore(int client) {
+	if (!IsClientConnected(client))
+		return -1;
+
+	int offset = FindSendPropInfo("CTFPlayerResource", "m_iTotalScore");
+	if (offset < 1)
+		return -1;
+
+	if (g_iPlayerManager == -1)
+		g_iPlayerManager = GetPlayerResourceEntity();
+		if(g_iPlayerManager == -1)
+			return -1;
+
+	return GetEntData(g_iPlayerManager, offset + (client*4));
+}
+
+int SortByScore(int index1, int index2, Handle array, Handle hndl)
+{
+    int score1 = view_as<ArrayList>(array).Get(index1, ScoreData::score);
+    int score2 = view_as<ArrayList>(array).Get(index2, ScoreData::score);
+    return score1 < score2;
+}
+
+int GetTeamScoreDiff(ArrayList clientList, int &score_red, int &score_blue)
+{
+
+	for (int i=0;i<clientList.Length;i++)
+	{
+		int client = clientList.Get(i, ScoreData::client);
+		int score = clientList.Get(i, ScoreData::score);
+		if(GetClientTeam(client)==RED)
+		{
+			score_red += score;
+		}
+		else
+		{
+			score_blue += score;
+		}
+	}
+
+	//abs value
+	int diff = score_red - score_blue;
+	return abs(diff);
+}
+
+void ScrambleTeams()
+{
+	// replica of the way scrambles are performed in the TF2 code
+	// src/game/shared/tf/tf_gamerules.cpp:L16071
+	ArrayList clientList = new ArrayList();
+
+    for (int i = 1; i<=MaxClients; i++)
+    {
+        if (!IsClientInGame(i))
+            continue;
+		int team = GetClientTeam(i);
+		if (team != 2 && team != 3)
+			continue;
+		if (TF2_IsPlayerInDuel(i))
+			continue;
+
+		ScoreData data;
+		data.client = i;
+		data.score = TF2_GetPlayerScore(i);
+
+		clientList.Push(data);
+
+		ChangeClientTeam(i,SPECTATOR);
+    }
+
+	clientList.SortCustom(SortByScore);
+
+	//initial naive scramble
+	for (int i=0;i<clientList.Length;i++)
+	{
+		int client = clientList.Get(i, ScoreData::client);
+		ChangeClientTeam(client,AUTOASSIGN); //TF_TEAM_AUTOASSIGN = 5
+	}
+
+	if (clientList.Length > 2)
+	{
+		int score_red = 0;
+		int score_blue = 0;
+		int delta = GetTeamScoreDiff(clientList,score_red,score_blue);
+
+		if(delta > 1)
+		{
+			ConVar mp_teams_unbalance_limit = FindConVar("mp_teams_unbalance_limit");
+			int iOrigValue = mp_teams_unbalance_limit.IntValue;
+			mp_teams_unbalance_limit.SetInt(0);
+
+			int iPassLimit = 8;
+			for(int i = 0; i<iPassLimit && FindAndSwapPlayers(clientList,delta);++i) {}
+
+			mp_teams_unbalance_limit.SetInt(iOrigValue);
+		}
+	}
+	//reset scores
+	SetTeamScore(RED,0);
+	SetTeamScore(BLU,0);
+}
+
+bool FindAndSwapPlayers(ArrayList clientList, int &delta)
+{
+	int score_red = 0;
+	int score_blue = 0;
+	GetTeamScoreDiff(clientList,score_red,score_blue);
+
+	for (int i=0;i<clientList.Length;i++)
+	{
+		int client_red = clientList.Get(i, ScoreData::client);
+		if(GetClientTeam(client_red) != RED)
+			continue;
+		int client_red_score = clientList.Get(i, ScoreData::score);
+
+		// Check against players on the other team
+		for (int j=0;j<clientList.Length;j++)
+		{
+			int client_blue = clientList.Get(j, ScoreData::client);
+			if(GetClientTeam(client_blue) != BLU)
+				continue;
+			int client_blue_score = clientList.Get(j, ScoreData::score);
+
+			int diff = abs(client_red_score - client_blue_score);
+			if(diff)
+			{
+				int new_score_red = score_red;
+				int new_score_blue = score_blue;
+
+				if(client_red_score > client_blue_score)
+				{
+					new_score_red -= diff;
+					new_score_blue += diff;
+				}
+				else
+				{
+					new_score_red += diff;
+					new_score_blue -= diff;
+				}
+
+				int new_delta = abs(new_score_red - new_score_blue);
+				if(new_delta < delta)
+				{
+					ChangeClientTeam(client_red,BLU);
+					ChangeClientTeam(client_blue,RED);
+					delta = GetTeamScoreDiff(clientList,score_red,score_blue);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+int abs(int x)
+{
+	int mask = x >> 31;
+	return (x + mask) ^ mask;
 }
