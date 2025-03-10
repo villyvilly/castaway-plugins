@@ -182,7 +182,7 @@ public void OnPluginStart() {
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
-	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 increased cloak blink time");
+	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 increased cloak blink time. Requires YER + L'Etranger equipped (no fez)");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
