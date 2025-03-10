@@ -1747,6 +1747,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						if (first_wep == -1) first_wep = weapon;
 						wep_count++;
 						if(wep_count == 2) active_set = ItemSet_Saharan;
+						//reset these values so loadout changes don't persist the attributes
 						TF2Attrib_SetByDefIndex(weapon,159,0.0); //cloak blink
 						TF2Attrib_SetByDefIndex(weapon,160,0.0); //silent decloak
 					}
@@ -1756,23 +1757,22 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 			if (active_set)
 			{
-				bool validSet = false;
+				bool validSet = true;
 
-				int num_wearables = TF2Util_GetPlayerWearableCount(client);
-				for (int i = 0; i < num_wearables; i++)
-				{
-					int wearable = TF2Util_GetPlayerWearable(client, i);
-					int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
-
-					if(
-						(active_set == ItemSet_Saharan) &&
-						(item_index == 223)
-					) {
-						validSet = true;
-						break;
-					}
-
-				} 
+				// bool validSet = false;
+				// int num_wearables = TF2Util_GetPlayerWearableCount(client);
+				// for (int i = 0; i < num_wearables; i++)
+				// {
+				// 	int wearable = TF2Util_GetPlayerWearable(client, i);
+				// 	int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
+				// 	if(
+				// 		(active_set == ItemSet_Saharan) &&
+				// 		(item_index == 223)
+				// 	) {
+				// 		validSet = true;
+				// 		break;
+				// 	}
+				// }
 
 				if (validSet)
 				{
@@ -3057,7 +3057,7 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookReturn returnValue) {
 	int iMax = returnValue.Value;
 	int iNewMax = iMax;
-	
+
 	if (
 		entity >= 1 && entity <= MaxClients
 	) {
@@ -3072,7 +3072,7 @@ MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookRetur
 		returnValue.Value = iNewMax;
 		return MRES_Supercede;
 	}
-	
+
 	return MRES_Ignored;
 }
 
