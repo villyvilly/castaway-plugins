@@ -17,10 +17,16 @@ scripting/*
 !scripting/votescramble.sp
 !scripting/legacy
 !scripting/legacy/*
-
 !scripting/disablesoul.sp
-!scripting/EdictLimiter.sp
 !scripting/teamcatch.sp
+
+#includes
+!scripting/include/
+scripting/include/*
+!scripting/include/morecolors.inc
+!scripting/include/tf2items.inc
+!scripting/include/tf2attributes.inc
+!scripting/include/tf2utils.inc
 
 !gamedata/
 gamedata/*
