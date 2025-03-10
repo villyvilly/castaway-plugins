@@ -298,6 +298,14 @@ public void OnPluginStart() {
 	}
 }
 
+public void OnConfigsExecuted()
+{
+	if (ItemIsEnabled("ringer"))
+		FindConVar("tf_feign_death_speed_duration").SetFloat(0.0);
+	else
+		FindConVar("tf_feign_death_speed_duration").SetFloat(3.0);
+}
+
 public void OnLibraryAdded(const char[] name) {
 	if (StrEqual(name, "updater")) {
 		Updater_AddPlugin(PLUGIN_UPDATER_URL);
