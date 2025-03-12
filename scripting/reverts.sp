@@ -421,7 +421,7 @@ public void OnGameFrame() {
 								ItemIsEnabled("atomizer")
 							) {
 								// atomizer global jump
-								SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_MELEE|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
+								SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_BULLET|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
 
 								if (airdash_limit_new > airdash_limit_old) {
 									// only play sound if the game doesn't play it
@@ -1213,7 +1213,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 	else if (
 		ItemIsEnabled("claidheamh") &&
-		StrEqual(class, "tf_weapon_sword")
+		StrEqual(class, "tf_weapon_sword") &&
+		(index == 327)
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -1750,7 +1751,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(StrEqual(classname, "tf_weapon_revolver") &&
 						(item_index == 224)) ||
 						(StrEqual(classname, "tf_weapon_knife") &&
-						(item_index == 225))
+						(item_index == 225 || item_index == 574))
 					) {
 						if (first_wep == -1) first_wep = weapon;
 						wep_count++;
