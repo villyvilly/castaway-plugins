@@ -162,7 +162,7 @@ public void OnPluginStart() {
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability");
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill");
-	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-toughbreak, 25% movespeed, 10% increased damage taken, no mark-for-death on attack");
+	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack");
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 80% dmg resist for 4s");
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf");
@@ -174,7 +174,7 @@ public void OnPluginStart() {
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death");
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, old honorbound, full heal, crits");
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size");
-	ItemDefine("Loch n Load", "lochload", "Reverted to pre-2014, +20% damage against everything");
+	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything");
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts");
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
@@ -182,7 +182,7 @@ public void OnPluginStart() {
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
-	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 increased cloak blink time. Requires YER + L'Etranger equipped (no fez)");
+	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, +0.5 second cloak blink time. Familiar Fez is not required");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
