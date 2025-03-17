@@ -396,16 +396,23 @@ void ScrambleTeams()
 	// replica of the way scrambles are performed in the TF2 code
 	// src/game/shared/tf/tf_gamerules.cpp:L16071
 	ArrayList clientList = new ArrayList();
+	int num_red = 0;
+	int num_blue = 0;
 
     for (int i = 1; i<=MaxClients; i++)
     {
         if (!IsClientInGame(i))
             continue;
 		int team = GetClientTeam(i);
-		if (team != 2 && team != 3)
+		if (team != RED && team != BLU)
 			continue;
 		if (TF2_IsPlayerInDuel(i))
+		{
+			//for autoassign logic later
+			if (team==RED) num_red++;
+			else if (team==BLU) num_blue++;
 			continue;
+		}
 
 		ScoreData data;
 		data.client = i;
@@ -422,7 +429,21 @@ void ScrambleTeams()
 	for (int i=0;i<clientList.Length;i++)
 	{
 		int client = clientList.Get(i, ScoreData::client);
-		ChangeClientTeam(client,AUTOASSIGN); //TF_TEAM_AUTOASSIGN = 5
+
+		//autoassign doesn't appear to work all the time
+		//recreation of the autoassign logic
+		int team = 0;
+		if (num_red < num_blue)
+			team = RED;
+		else if (num_blue < num_red)
+			team = BLU;
+		else
+			team = GetRandomInt(0, 1) ? RED : BLU;
+
+		if (team == RED) num_red++;
+		else if (team == BLU) num_blue++;
+
+		ChangeClientTeam(client,team);
 	}
 
 	if (clientList.Length > 2)
