@@ -464,9 +464,13 @@ void ScrambleTeams()
 			mp_teams_unbalance_limit.SetInt(iOrigValue);
 		}
 	}
+	
+	delete clientList;
+
 	//reset scores
 	SetTeamScore(RED,0);
 	SetTeamScore(BLU,0);
+
 }
 
 bool FindAndSwapPlayers(ArrayList clientList, int &delta)
