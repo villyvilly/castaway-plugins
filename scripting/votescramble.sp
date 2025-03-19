@@ -395,14 +395,14 @@ void ScrambleTeams()
 {
 	// replica of the way scrambles are performed in the TF2 code
 	// src/game/shared/tf/tf_gamerules.cpp:L16071
-	ArrayList clientList = new ArrayList();
+	ArrayList clientList = new ArrayList(sizeof(ScoreData));
 	int num_red = 0;
 	int num_blue = 0;
 
-    for (int i = 1; i<=MaxClients; i++)
-    {
-        if (!IsClientInGame(i))
-            continue;
+	for (int i = 1; i<=MaxClients; i++)
+	{
+		if (!IsClientInGame(i))
+			continue;
 		int team = GetClientTeam(i);
 		if (team != RED && team != BLU)
 			continue;
@@ -418,10 +418,10 @@ void ScrambleTeams()
 		data.client = i;
 		data.score = TF2_GetPlayerScore(i);
 
-		clientList.Push(data);
+		clientList.PushArray(data);
 
 		ChangeClientTeam(i,SPECTATOR);
-    }
+	}
 
 	clientList.SortCustom(SortByScore);
 
@@ -464,7 +464,7 @@ void ScrambleTeams()
 			mp_teams_unbalance_limit.SetInt(iOrigValue);
 		}
 	}
-	
+
 	delete clientList;
 
 	//reset scores
