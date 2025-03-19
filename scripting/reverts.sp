@@ -159,6 +159,7 @@ public void OnPluginStart() {
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo");
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off");
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
+	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability");
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill");
@@ -182,7 +183,7 @@ public void OnPluginStart() {
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
-	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, +0.5 second cloak blink time. Familiar Fez is not required");
+	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 sec longer cloak blink time. Familiar Fez is not required");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
@@ -1175,6 +1176,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 107, 1.10); // move speed bonus
 		TF2Items_SetAttribute(item1, 1, 788, 1.00); // move speed bonus shield required
+	}
+	
+	else if (
+		ItemIsEnabled("brassbeast") &&
+		StrEqual(class, "tf_weapon_minigun") &&
+		(index == 312)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 738, 1.00); // spunup damage resistance
 	}
 
 	else if (
@@ -2558,6 +2570,18 @@ Action SDKHookCB_OnTakeDamageAlive(
 			) {
 				// 50% fire damage vulnerability.
 				damage *= 1.50;
+				returnValue = Plugin_Changed;
+			}
+		}
+		{
+			if (
+				ItemIsEnabled("brassbeast") &&
+				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
+				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
+				PlayerHasItem(victim,"tf_weapon_minigun",312)
+			) {
+				// 20% damage resistance when spun up with the Brass Beast
+				damage *= 0.80;
 				returnValue = Plugin_Changed;
 			}
 		}
