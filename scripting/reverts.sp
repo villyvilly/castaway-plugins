@@ -8,18 +8,15 @@
 #include <tf2utils>
 #include <tf2attributes>
 #include <dhooks>
-#undef REQUIRE_PLUGIN
-#include <updater>
 
 #pragma semicolon 1
 #pragma newdecls required
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
-#define PLUGIN_AUTHOR "Bakugo"
+#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana"
 #define PLUGIN_VERSION "1.3.2"
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
-#define PLUGIN_UPDATER_URL "https://raw.githubusercontent.com/bakugo/sourcemod-plugins/master/plugins/tf2-reverts/updater.txt"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
@@ -29,7 +26,7 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define ITEMS_MAX 50
+#define ITEMS_MAX 60
 #define ITEM_MENU_TIME (60*3)
 // #define ITEM_COOKIE_VER 1
 // #define ITEM_FL_PICKABLE (1 << 0) // players can choose to toggle this item
@@ -46,6 +43,7 @@ public Plugin myinfo = {
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE DMG_DISSOLVE
 #define TF_DMG_CUSTOM_NONE 0
 #define TF_DMG_CUSTOM_BACKSTAB 2
+#define TF_DMG_CUSTOM_TAUNTATK_GRENADE 21
 #define TF_DMG_CUSTOM_BASEBALL 22
 #define TF_DMG_CUSTOM_PICKAXE 27
 #define TF_DMG_CUSTOM_STICKBOMB_EXPLOSION 42
@@ -94,6 +92,7 @@ enum struct Player {
 	float backstab_time;
 	int ticks_since_attack;
 	int bonus_health;
+	int old_health;
 }
 
 //item sets
@@ -183,6 +182,7 @@ public void OnPluginStart() {
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
+	ItemDefine("Rocket Jumper", "rocketjmp", "Grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
 	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 sec longer cloak blink time. Familiar Fez is not required");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
@@ -291,25 +291,6 @@ public void OnPluginStart() {
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
 		if (IsClientInGame(idx)) OnClientPutInServer(idx);
-	}
-
-
-	if (LibraryExists("updater")) {
-		Updater_AddPlugin(PLUGIN_UPDATER_URL);
-	}
-}
-
-public void OnConfigsExecuted()
-{
-	// if (ItemIsEnabled("ringer"))
-	// 	FindConVar("tf_feign_death_speed_duration").SetFloat(0.0);
-	// else
-	// 	FindConVar("tf_feign_death_speed_duration").SetFloat(3.0);
-}
-
-public void OnLibraryAdded(const char[] name) {
-	if (StrEqual(name, "updater")) {
-		Updater_AddPlugin(PLUGIN_UPDATER_URL);
 	}
 }
 
@@ -902,6 +883,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_TraceAttack, SDKHookCB_TraceAttack);
 	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_OnTakeDamageAlive);
+	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_OnTakeDamagePost);
 }
 
 public void OnEntityCreated(int entity, const char[] class) {
@@ -2585,6 +2567,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 				returnValue = Plugin_Changed;
 			}
 		}
+		{
+			if(
+				ItemIsEnabled("rocketjmp") &&
+				victim == attacker &&
+				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
+				PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+			) {
+				// save old health and set health to 500 to tank the grenade blast
+				// do it this way in order to preserve knockback caused by the explosion
+				players[victim].old_health = GetClientHealth(victim);
+				SetEntityHealth(victim, 500);
+			}
+		}
 	}
 	else
 	{
@@ -2599,6 +2594,26 @@ Action SDKHookCB_OnTakeDamageAlive(
 	}
 
 	return returnValue;
+}
+
+void SDKHookCB_OnTakeDamagePost(
+	int victim, int attacker, int inflictor, float damage, int damage_type,
+	int weapon, float damage_force[3], float damage_position[3], int damage_custom
+) {
+	if (
+		victim >= 1 && victim <= MaxClients &&
+		attacker >= 1 && attacker <= MaxClients
+	) {
+		if(
+			ItemIsEnabled("rocketjmp") &&
+			victim == attacker &&
+			damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
+			PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+		) {
+			// set back saved health after tauntkill
+			SetEntityHealth(victim, players[victim].old_health);
+		}
+	}
 }
 
 Action Command_Menu(int client, int args) {
