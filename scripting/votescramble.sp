@@ -40,6 +40,7 @@ int g_iVotesNeeded;
 bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
+bool g_bScrambleTeamsInProgress;
 bool g_bCanScramble;
 bool g_bIsArena;
 Handle g_tRoundResetTimer;
@@ -75,6 +76,21 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+	if (!event.GetBool("silent"))
+	{
+		if (g_bScrambleTeamsInProgress)
+		{
+			event.BroadcastDisabled = true;
+		}
+		else
+		{
+			event.BroadcastDisabled = false;
+		}
+	}
+}
+
 public void OnPluginStart()
 {
 	CreateConVar("nano_votescramble_version", PLUGIN_VERSION, "Vote Scramble Version", FCVAR_DONTRECORD);
@@ -97,8 +113,8 @@ public void OnPluginStart()
 	RegAdminCmd("sm_forcescramble", Cmd_ForceScramble, ADMFLAG_VOTE, "Force a team scramble vote.");
 
 	HookEvent("teamplay_win_panel", Event_RoundWin);
-
 	HookEvent("teamplay_round_start", Event_RoundStart);
+	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
 	// CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
 
@@ -130,6 +146,7 @@ public void OnMapStart()
 	// g_iMinutesSinceLastScramble = 0;
 	g_bVoteCooldown = false;
 	g_bScrambleTeams = false;
+	g_bScrambleTeamsInProgress = false;
 	g_bCanScramble = false;
 	g_bIsArena = false;
 	g_iPlayerManager = GetPlayerResourceEntity();
@@ -438,6 +455,7 @@ int GetTeamScoreDiff(ArrayList clientList, int &score_red, int &score_blue)
 
 void ScrambleTeams()
 {
+	g_bScrambleTeamsInProgress = true;
 	// replica of the way scrambles are performed in the TF2 code
 	// src/game/shared/tf/tf_gamerules.cpp:L16071
 	ArrayList clientList = new ArrayList(sizeof(ScoreData));
@@ -515,6 +533,8 @@ void ScrambleTeams()
 	//reset scores
 	SetTeamScore(RED,0);
 	SetTeamScore(BLU,0);
+
+	g_bScrambleTeamsInProgress = false;
 
 }
 
