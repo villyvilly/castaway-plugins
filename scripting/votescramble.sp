@@ -195,12 +195,12 @@ void AttemptVoteScramble(int client)
 {
 	if (g_bScrambleTeams)
 	{
-		ReplyToCommand(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		PrintToChat(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
 		return;
 	}
 	if (g_bVoteCooldown)
 	{
-		ReplyToCommand(client, "Sorry, votescramble is currently on cool-down.");
+		PrintToChat(client, "Sorry, votescramble is currently on cool-down.");
 		return;
 	}
 
@@ -209,7 +209,7 @@ void AttemptVoteScramble(int client)
 
 	if (g_bVoted[client])
 	{
-		ReplyToCommand(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		PrintToChat(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
 		return;
 	}
 
