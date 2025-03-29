@@ -101,6 +101,8 @@ public void OnPluginStart()
 	HookEvent("teamplay_round_start", Event_RoundStart);
 
 	// CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
+
+	AutoExecConfig(true);
 }
 
 public void OnLibraryAdded(const char[] name)
