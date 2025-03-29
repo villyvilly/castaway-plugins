@@ -103,6 +103,22 @@ public void OnPluginStart()
 	// CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
 }
 
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
+	{
+		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+	}
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
+	{
+		NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+	}
+}
+
 public void OnMapStart()
 {
 	g_iVoters = 0;
@@ -150,6 +166,12 @@ public Action Cmd_ForceScramble(int client, int args)
 }
 
 public Action Cmd_VoteScramble(int client, int args)
+{
+	AttemptVoteScramble(client);
+	return Plugin_Handled;
+}
+
+public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, const char[] voteArgument)
 {
 	AttemptVoteScramble(client);
 	return Plugin_Handled;
