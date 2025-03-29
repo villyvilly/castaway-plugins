@@ -169,13 +169,13 @@ public Action Cmd_ForceScramble(int client, int args)
 
 public Action Cmd_VoteScramble(int client, int args)
 {
-	AttemptVoteScramble(client);
+	AttemptVoteScramble(client, false);
 	return Plugin_Handled;
 }
 
 public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, const char[] voteArgument)
 {
-	AttemptVoteScramble(client);
+	AttemptVoteScramble(client, true);
 	return Plugin_Handled;
 }
 
@@ -185,22 +185,36 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	{
 		ReplySource old = SetCmdReplySource(SM_REPLY_TO_CHAT);
 
-		AttemptVoteScramble(client);
+		AttemptVoteScramble(client, false);
 
 		SetCmdReplySource(old);
 	}
 }
 
-void AttemptVoteScramble(int client)
+void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 {
 	if (g_bScrambleTeams)
 	{
-		PrintToChat(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		}
+		else 
+		{
+			ReplyToCommand(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		}
 		return;
 	}
 	if (g_bVoteCooldown)
 	{
-		PrintToChat(client, "Sorry, votescramble is currently on cool-down.");
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, "Sorry, votescramble is currently on cool-down.");
+		}
+		else
+		{
+			ReplyToCommand(client, "Sorry, votescramble is currently on cool-down.");
+		}
 		return;
 	}
 
@@ -209,7 +223,14 @@ void AttemptVoteScramble(int client)
 
 	if (g_bVoted[client])
 	{
-		PrintToChat(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		}
+		else
+		{
+			ReplyToCommand(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		}
 		return;
 	}
 
