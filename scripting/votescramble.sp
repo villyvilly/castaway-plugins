@@ -25,18 +25,15 @@ ConVar cvarVoteTimeDelay;
 ConVar cvarRoundResetDelay;
 ConVar cvarVoteChatPercent;
 ConVar cvarVoteMenuPercent;
-// ConVar cvarTimeLimit;
 ConVar cvarMinimumVotesNeeded;
 ConVar cvarSkipSecondVote;
-// ConVar cvarMaxRounds;
-// ConVar cvarWinLimit;
 
+int g_iTeamManagerRed;
+int g_iTeamManagerBlue;
 int g_iPlayerManager;
 int g_iVoters;
 int g_iVotes;
 int g_iVotesNeeded;
-// int g_iRoundsSinceLastScramble;
-// int g_iMinutesSinceLastScramble;
 bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
@@ -142,8 +139,6 @@ public void OnMapStart()
 	g_iVoters = 0;
 	g_iVotesNeeded = 0;
 	g_iVotes = 0;
-	// g_iRoundsSinceLastScramble = 0;
-	// g_iMinutesSinceLastScramble = 0;
 	g_bVoteCooldown = false;
 	g_bScrambleTeams = false;
 	g_bScrambleTeamsInProgress = false;
@@ -156,6 +151,16 @@ public void OnMapStart()
 	{
 		g_bIsArena = true;
 		break;
+	}
+
+	ent = -1;
+	while ((ent = FindEntityByClassname(ent, "tf_team")) != -1)
+	{
+		switch(GetEntProp(ent,Prop_Send,"m_iTeamNum"))
+		{
+			case RED: g_iTeamManagerRed = ent;
+			case BLU: g_iTeamManagerBlue = ent;
+		}
 	}
 }
 
@@ -408,6 +413,16 @@ public Action Timer_PreventScramble(Handle timer)
 	return Plugin_Stop;
 }
 
+void TF2_ResetTeamScore(int team) {
+	if (team != BLU && team != RED) return;
+
+	int team_manager = team == RED ? g_iTeamManagerRed : g_iTeamManagerBlue;
+
+	//sdktools setteamscore does not set roundswon
+	SetEntProp(team_manager,Prop_Send,"m_iScore",0);
+	SetEntProp(team_manager,Prop_Send,"m_iRoundsWon",0);
+}
+
 int TF2_GetPlayerScore(int client) {
 	if (!IsClientConnected(client))
 		return -1;
@@ -531,8 +546,8 @@ void ScrambleTeams()
 	delete clientList;
 
 	//reset scores
-	SetTeamScore(RED,0);
-	SetTeamScore(BLU,0);
+	TF2_ResetTeamScore(RED);
+	TF2_ResetTeamScore(BLU);
 
 	g_bScrambleTeamsInProgress = false;
 
