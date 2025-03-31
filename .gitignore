@@ -30,5 +30,6 @@ scripting/include/*
 !gamedata/
 gamedata/*
 !gamedata/reverts.txt
+!gamedata/verdiusarcana_weapon_reverts.txt
 !gamedata/legacy
 !gamedata/legacy/*

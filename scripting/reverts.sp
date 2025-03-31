@@ -8,6 +8,12 @@
 #include <tf2utils>
 #include <tf2attributes>
 #include <dhooks>
+#undef REQUIRE_PLUGIN
+#include <sourcescramble>
+#define REQUIRE_PLUGIN
+#define VERDIUS_PATCHES
+//uncomment to disable VerdiusArcana's memory patch reverts. requires sourcescramble if enabled (on by default)!!! 
+//#undef VERDIUS_PATCHES
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -28,9 +34,6 @@ public Plugin myinfo = {
 
 #define ITEMS_MAX 60
 #define ITEM_MENU_TIME (60*3)
-// #define ITEM_COOKIE_VER 1
-// #define ITEM_FL_PICKABLE (1 << 0) // players can choose to toggle this item
-// #define ITEM_FL_DISABLED (1 << 1) // this item is disabled by default (unused)
 #define BALANCE_CIRCUIT_METAL 10
 #define BALANCE_CIRCUIT_DAMAGE 10.0
 #define BALANCE_CIRCUIT_RECOVERY 0.25
@@ -117,7 +120,23 @@ Handle cvar_ref_tf_fireball_radius;
 Handle cvar_ref_tf_parachute_aircontrol;
 Handle cvar_ref_tf_parachute_maxspeed_onfire_z;
 Handle cvar_ref_tf_scout_hype_mod;
-// Handle cookie_reverts[3];
+#if defined VERDIUS_PATCHES
+MemoryPatch Verdius_RevertDisciplinaryAction;
+MemoryPatch Verdius_RevertTraceReqDragonsFury_JA;
+MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ;
+MemoryPatch Verdius_RevertTraceReqDragonsFury_JZ;
+MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ2;
+MemoryPatch Verdius_RevertTraceReqDragonsFury_FinalJNZ;
+MemoryPatch Verdius_RevertFirstSecondDamageLossOnMiniguns;
+MemoryPatch Verdius_RevertFirstSecondAccuracyLossOnMiniguns;
+MemoryPatch Verdius_RevertWranglerShieldHealNerfOnWrenches;
+MemoryPatch Verdius_RevertWranglerShieldShellRefillNerfOnWrenches;
+MemoryPatch Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches;
+MemoryPatch Verdius_RevertCozyCamperFlinchNop8Bytes;
+MemoryPatch Verdius_RevertCozyCamperFlinchNopRemaining8Bytes;
+Handle sdkcall_AwardAchievement;
+DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+#endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
 Handle dhook_CTFWeaponBase_PrimaryAttack;
@@ -149,6 +168,9 @@ public void OnPluginStart() {
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno");
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping");
+#if defined VERDIUS_PATCHES
+	ItemDefine("All miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up");
+#endif
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges");
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time");
 	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets");
@@ -165,7 +187,14 @@ public void OnPluginStart() {
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack");
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 80% dmg resist for 4s");
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
+#if defined VERDIUS_PATCHES
+	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit");
+#endif
+#if defined VERDIUS_PATCHES
+	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf and center-hit requirement for bonus damage");
+#else
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf");
+#endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing");
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back together, no healing, no mark-for-death");
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken");
@@ -180,6 +209,9 @@ public void OnPluginStart() {
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains");
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
+#if defined VERDIUS_PATCHES
+	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-toughbreak, heals +75 flat, no metal cost, 130 cost long ranged pickups");
+#endif
 	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
 	ItemDefine("Rocket Jumper", "rocketjmp", "Grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
@@ -197,6 +229,9 @@ public void OnPluginStart() {
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
+#if defined VERDIUS_PATCHES
+	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up");
+#endif
 	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty");
 
 	menu_main = CreateMenu(MenuHandler_Main, (MenuAction_Select));
@@ -232,48 +267,130 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
+#if defined VERDIUS_PATCHES
+	HookEvent("server_cvar", OnServerCvarChanged, EventHookMode_Pre);
+#endif
 
 	AddNormalSoundHook(OnSoundNormal);
 
+	{
+		conf = LoadGameConfigFile("reverts");
 
-	conf = LoadGameConfigFile("reverts");
+		if (conf == null) SetFailState("Failed to load reverts conf");
 
-	if (conf == null) SetFailState("Failed to load conf");
+		StartPrepSDKCall(SDKCall_Static);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "JarExplode");
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int iEntIndex
+		PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer); // CTFPlayer* pAttacker
+		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer); // CBaseEntity* pOriginalWeapon
+		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer); // CBaseEntity* pWeapon
+		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef); // Vector& vContactPoint
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int iTeam
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain); // float flRadius
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // ETFCond cond
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain); // float flDuration
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszImpactEffect
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
+		sdkcall_JarExplode = EndPrepSDKCall();
 
-	StartPrepSDKCall(SDKCall_Static);
-	PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "JarExplode");
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int iEntIndex
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer); // CTFPlayer* pAttacker
-	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer); // CBaseEntity* pOriginalWeapon
-	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer); // CBaseEntity* pWeapon
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef); // Vector& vContactPoint
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int iTeam
-	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain); // float flRadius
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // ETFCond cond
-	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain); // float flDuration
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszImpactEffect
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
-	sdkcall_JarExplode = EndPrepSDKCall();
+		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
+		dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
+		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
+		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
+		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CTFPlayer_GetMaxHealthForBuffing = DHookCreateFromConf(conf, "CTFPlayer::GetMaxHealthForBuffing");
 
-	dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
-	dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
-	dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
-	dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
-	dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
-	dhook_CTFPlayer_GetMaxHealthForBuffing = DHookCreateFromConf(conf, "CTFPlayer::GetMaxHealthForBuffing");
+		delete conf;
+	}
 
-	delete conf;
+#if defined VERDIUS_PATCHES
+	{
+		conf = LoadGameConfigFile("verdiusarcana_reverts");
 
-	conf = LoadGameConfigFile("sdkhooks.games");
+		if (conf == null) SetFailState("Failed to load Verdius conf");
 
-	if (conf == null) SetFailState("Failed to load conf");
+		Verdius_RevertDisciplinaryAction = 
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
+		Verdius_RevertTraceReqDragonsFury_JA = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA");
+		Verdius_RevertTraceReqDragonsFury_JNZ = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ");
+		Verdius_RevertTraceReqDragonsFury_JZ = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ");
+		Verdius_RevertTraceReqDragonsFury_JNZ2 = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second");
+		Verdius_RevertTraceReqDragonsFury_FinalJNZ = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
+		Verdius_RevertFirstSecondDamageLossOnMiniguns = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFMinigun::GetProjectileDamage_JumpOverCheck");
+		Verdius_RevertFirstSecondAccuracyLossOnMiniguns = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFMinigun::GetWeaponSpread_JumpOverCheck");
+		Verdius_RevertWranglerShieldHealNerfOnWrenches = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CObjectSentrygun::OnWrenchHit_ShieldHealRevert");
+		Verdius_RevertWranglerShieldShellRefillNerfOnWrenches = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert");
+		Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert");
+		Verdius_RevertCozyCamperFlinchNop8Bytes = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFPlayer::ApplyPunchImpulseX_Nop8BytesForCozyCamper");
+		Verdius_RevertCozyCamperFlinchNopRemaining8Bytes = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFPlayer::ApplyPunchImpulseX_NopRemaining8BytesForCozyCamper");
 
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "GetMaxHealth");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	sdkcall_GetMaxHealth = EndPrepSDKCall();
+    	StartPrepSDKCall(SDKCall_Player);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); 
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); 
+		sdkcall_AwardAchievement = EndPrepSDKCall();
 
-	delete conf;
+		dHooks_CTFProjectile_Arrow_BuildingHealingArrow = DHookCreateFromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+
+		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, false, PreHealingBoltImpact);
+		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, true, PostHealingBoltImpact);
+
+		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
+		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction");
+		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JA");
+		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ");
+		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JZ");
+		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ2");
+		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_FinalJNZ");
+		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondDamageLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondDamageLossOnMiniguns");
+		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondAccuracyLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondAccuracyLossOnMiniguns");
+		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldHealNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldHealNerfOnWrenches");
+		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldShellRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldShellRefillNerfOnWrenches");
+		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
+		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinchNop8Bytes)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinchNop8Bytes");
+		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinchNopRemaining8Bytes)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinchNopRemaining8Bytes");
+
+		delete conf;
+	}
+#endif
+
+	{
+		conf = LoadGameConfigFile("sdkhooks.games");
+
+		if (conf == null) SetFailState("Failed to load sdkhooks conf");
+
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "GetMaxHealth");
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		sdkcall_GetMaxHealth = EndPrepSDKCall();
+
+		delete conf;
+	}
 
 	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
@@ -283,7 +400,8 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_GetMaxHealthForBuffing == null) SetFailState("Failed to create dhook_CTFPlayer_GetMaxHealthForBuffing");
-
+	
+	
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
 	DHookEnableDetour(dhook_CTFPlayer_GetMaxHealthForBuffing, true, DHookCallback_CTFPlayer_GetMaxHealthForBuffing);
@@ -293,6 +411,87 @@ public void OnPluginStart() {
 		if (IsClientInGame(idx)) OnClientPutInServer(idx);
 	}
 }
+
+#if defined VERDIUS_PATCHES
+bool ValidateAndNullCheck(MemoryPatch patch) {
+	return (patch.Validate() && patch != null);
+}
+
+public void OnConfigsExecuted() {
+	VerdiusTogglePatches(ItemIsEnabled("disciplinary"),"disciplinary");
+	VerdiusTogglePatches(ItemIsEnabled("dragonfury"),"dragonfury");
+	VerdiusTogglePatches(ItemIsEnabled("miniramp"),"miniramp");
+	VerdiusTogglePatches(ItemIsEnabled("wrangler"),"wrangler");
+	VerdiusTogglePatches(ItemIsEnabled("cozycamper"),"cozycamper");
+}
+
+
+Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
+{
+    char cvarName[128];
+    event.GetString("cvarname", cvarName, sizeof(cvarName));
+    if (StrContains(cvarName, "sm_reverts__item_") != -1)
+    {
+    	char item[64];
+		strcopy(item,sizeof(item),cvarName[7]);
+		VerdiusTogglePatches(ItemIsEnabled(item),item);
+        return Plugin_Handled;
+    }
+    return Plugin_Continue;
+}
+
+void VerdiusTogglePatches(bool enable, char[] name) {
+	if (StrEqual(name,"disciplinary")){
+		if (enable) {
+			Verdius_RevertDisciplinaryAction.Enable();
+		} else {
+			Verdius_RevertDisciplinaryAction.Disable();
+		}
+	}
+	else if (StrEqual(name,"dragonfury")){
+		if (enable) {
+			Verdius_RevertTraceReqDragonsFury_JA.Enable();
+			Verdius_RevertTraceReqDragonsFury_JZ.Enable();
+			Verdius_RevertTraceReqDragonsFury_JNZ.Enable();
+			Verdius_RevertTraceReqDragonsFury_JNZ2.Enable();
+			Verdius_RevertTraceReqDragonsFury_FinalJNZ.Enable();
+		} else {
+			Verdius_RevertTraceReqDragonsFury_JA.Disable();
+			Verdius_RevertTraceReqDragonsFury_JZ.Disable();
+			Verdius_RevertTraceReqDragonsFury_JNZ.Disable();
+			Verdius_RevertTraceReqDragonsFury_JNZ2.Disable();
+			Verdius_RevertTraceReqDragonsFury_FinalJNZ.Disable();
+		}
+	}
+	else if (StrEqual(name,"miniramp")){
+		if (enable) {
+			Verdius_RevertFirstSecondDamageLossOnMiniguns.Enable();
+			Verdius_RevertFirstSecondAccuracyLossOnMiniguns.Enable();
+		} else {
+			Verdius_RevertFirstSecondDamageLossOnMiniguns.Disable();
+			Verdius_RevertFirstSecondAccuracyLossOnMiniguns.Disable();
+		}
+	}
+	else if (StrEqual(name,"wrangler")){
+		if (enable) {
+			Verdius_RevertWranglerShieldHealNerfOnWrenches.Enable();
+			Verdius_RevertWranglerShieldShellRefillNerfOnWrenches.Enable();
+			Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches.Enable();
+		} else {
+			Verdius_RevertWranglerShieldHealNerfOnWrenches.Disable();
+			Verdius_RevertWranglerShieldShellRefillNerfOnWrenches.Disable();
+			Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches.Disable();
+		}
+	}
+	else if (StrEqual(name,"cozycamper")){
+		if (enable) {
+			Verdius_RevertCozyCamperFlinchNop8Bytes.Enable();
+		} else {
+			Verdius_RevertCozyCamperFlinchNopRemaining8Bytes.Disable(); 
+		}
+	}
+}
+#endif
 
 public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
@@ -1402,6 +1601,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
 		// max health, no fall damage, & fire vulnerability handled elsewhere
+	}
+
+	else if (
+		ItemIsEnabled("rescueranger") &&
+		StrEqual(class, "tf_weapon_shotgun_building_rescue")
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 469, 130.0); //ranged pickup metal cost
 	}
 
 	else if (
@@ -2920,6 +3129,133 @@ void ShowItemsDetails(int client) {
 	PrintToConsole(client, "");
 }
 
+#if defined VERDIUS_PATCHES
+int HealBuilding(int buildingIndex, int engineerIndex) {
+    float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
+    RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
+    int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
+    //int maxHealth = GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth");
+    int RepairAmount = RoundToNearest(RepairAmountFloat);
+    if (RepairAmountFloat > 0.0) {
+
+    //Need to calc limits ourself.
+
+    SetVariantInt(RepairAmount);
+    AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
+    int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
+    Event event = CreateEvent("building_healed");
+
+    if (event != null)
+    {
+        event.SetInt("priority", 1); // HLTV event priority, not transmitted
+        event.SetInt("building", buildingIndex); // self-explanatory.
+        event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
+        event.SetInt("amount", currentHealth - newHealth); // Repairamount to display. Will be something between 1-75.
+
+        FireEvent(event); // FIRE IN THE HOLE!!!!!!!
+    }
+
+    // Check if building owner and the engineer who shot the bolt
+    // are the same person, if not. Give them progress on
+    // the "Circle the Wagons" achivement.
+    int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
+    if (buildingOwner != engineerIndex) {
+        AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
+    }
+    } else {RepairAmount = 0;}
+    
+    return RepairAmount;
+}
+
+int GetEntityOwner(int entityIndex)
+{
+    if (!IsValidEntity(entityIndex))
+        return -1; // Invalid entity
+
+    int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+
+    if (!IsFakeClient(owner) || IsFakeClient(owner))
+        return owner; // Returns the player (or bot) index of the owner
+
+    return -1; // Owner not found
+}
+
+bool AreEntitiesOnSameTeam(int entity1, int entity2)
+{
+    if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
+        return false;
+
+    int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
+    int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
+
+    return (team1 == team2);
+}
+
+bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
+{
+    if (!IsValidEntity(buildingIndex))
+        return false;
+
+    char classname[64];
+    GetEntityClassname(buildingIndex, classname, sizeof(classname));
+
+    if (!StrEqual(classname, "obj_sentrygun", false) 
+     && !StrEqual(classname, "obj_teleporter", false) 
+     && !StrEqual(classname, "obj_dispenser", false))
+    {
+        //PrintToChatAll("Entity did not match buildings");
+        return false;
+    }
+
+	if (GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper")
+	 || GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable")
+	 || GetEntProp(buildingIndex, Prop_Send, "m_bBuilding")
+	 || GetEntProp(buildingIndex, Prop_Send, "m_bPlacing"))
+	{
+	    //PrintToChatAll("Big if statement about sappers etc triggered");
+	    return false;
+	}
+
+	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
+	    //PrintToChatAll("Entities were not on the same team");
+	    return false;
+	}
+
+    return true;
+}
+
+void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
+{
+    if (!IsValidEntity(entityIndex))
+    return;
+
+    TE_Start("TFParticleEffect");
+
+    TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
+    TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
+    TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
+
+    TE_SendToAll();
+}
+
+public float fmin(float a, float b) {
+    return a < b ? a : b;
+}
+
+public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
+    if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
+		return false; //SDKcall not prepared or Handle not created.
+	}
+
+	if (!IsFakeClient(playerID)) {
+		return false; //Client (aka player) is not valid, are they connected?
+	}
+		SDKCall(sdkcall_AwardAchievement, playerID, achievementID, Amount);
+
+	return true;
+}
+#endif
+
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
@@ -3188,6 +3524,51 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 
 	return MRES_Ignored;
 }
+
+#if defined VERDIUS_PATCHES
+MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
+{
+    // Just ignore PreHealing moment and do everything in post.
+    if (ItemIsEnabled("rescueranger")) {
+        return MRES_Supercede;
+    }
+
+    // If fix is not enabled, then let the game execute function as normal.
+    return MRES_Ignored;
+}
+
+MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+	if (ItemIsEnabled("rescueranger")) {
+	    int buildingIndex = parameters.Get(1);
+	    int engineerIndex = GetEntityOwner(arrowEntity);
+
+		// Sentry and Engineer must be on the same team for heal to happen.
+		if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
+			int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
+
+			// Spawn some particles if healing occured.
+			if (RepairAmount > 0) {
+
+				// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
+				int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
+				if (teamNum == 2) {
+					// [1699] repair_claw_heal_red
+					// PATTACH_ABSORIGIN_FOLLOW
+					AttachTEParticleToEntityAndSend(arrowEntity,1699,1); //Red
+				} else {
+					// [1696] repair_claw_heal_blue
+					AttachTEParticleToEntityAndSend(arrowEntity,1696,1); // Blu
+				}
+			}
+		}
+
+	    return MRES_Supercede;
+	    }
+
+	// If fix is not enabled, then let the game execute function as normal.
+	return MRES_Ignored;
+}
+#endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;

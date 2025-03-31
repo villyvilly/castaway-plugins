@@ -13,6 +13,7 @@ The reverts plugin has the following dependencies:
 - [TF2Items](https://github.com/nosoop/SMExt-TF2Items)
 - [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [TF2Utils](https://github.com/nosoop/SM-TFUtils)
+- [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
 
 No other plugins have any external dependencies, and the include files for the above dependencies are within this repo.
 
