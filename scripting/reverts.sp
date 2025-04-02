@@ -1602,7 +1602,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
 		// max health, no fall damage, & fire vulnerability handled elsewhere
 	}
-
+#if defined VERDIUS_PATCHES
 	else if (
 		ItemIsEnabled("rescueranger") &&
 		StrEqual(class, "tf_weapon_shotgun_building_rescue")
@@ -1612,7 +1612,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 469, 130.0); //ranged pickup metal cost
 	}
-
+#endif
 	else if (
 		ItemIsEnabled("ringer") &&
 		StrEqual(class, "tf_weapon_invis") &&
