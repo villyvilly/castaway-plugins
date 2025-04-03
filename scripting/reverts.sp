@@ -208,6 +208,7 @@ public void OnPluginStart() {
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains");
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
+	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
 #if defined VERDIUS_PATCHES
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-toughbreak, heals +75 flat, no metal cost, 130 cost long ranged pickups");
 #endif
@@ -1597,6 +1598,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
 		// max health, no fall damage, & fire vulnerability handled elsewhere
 	}
+
+	else if (
+		ItemIsEnabled("razorback") &&
+		StrEqual(class, "tf_wearable_razorback")
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 800, 1.0); //overheal penalty
+		TF2Items_SetAttribute(item1, 1, 874, 10000.0); //shield regen time. big number so it never respawns 
+	}
+
 #if defined VERDIUS_PATCHES
 	else if (
 		ItemIsEnabled("rescueranger") &&
