@@ -1,0 +1,318 @@
+"Games"
+{
+	"tf"
+	{
+		"Signatures"
+		{
+			"CTFPlayerShared::OnAttack"
+			{
+				"library" "server"
+				"linux"   "@_ZN15CTFPlayerShared8OnAttackEv"
+			}
+			"CTFWeaponBaseMelee::OnSwingHit"
+			{
+				"library" "server"
+				"linux"   "@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
+			}
+			"CObjectSentrygun::OnWrenchHit"
+			{
+				"library" "server"
+				"linux"   "@_ZN16CObjectSentrygun11OnWrenchHitEP9CTFPlayerP9CTFWrench6Vector"
+			}
+			"CTFProjectile_Arrow::BuildingHealingArrow"
+			{
+				"library" "server"
+				"linux"   "@_ZN19CTFProjectile_Arrow20BuildingHealingArrowEP11CBaseEntity"
+			}
+			"CTFProjectile_BallOfFire::Burn"
+			{
+				"library" "server"
+				"linux"   "@_ZN24CTFProjectile_BallOfFire4BurnEP11CBaseEntity"
+			}
+			"CTFMinigun::GetProjectileDamage"
+			{
+				"library" "server"
+				"linux"   "@_ZN10CTFMinigun19GetProjectileDamageEv"
+			}
+			"CTFMinigun::GetWeaponSpread"
+			{
+				"library" "server"
+				"linux"   "@_ZN10CTFMinigun15GetWeaponSpreadEv"
+			}
+			"CTFPlayer::ApplyPunchImpulseX"
+			{
+				"library" "server"
+				"linux"   "@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
+			}
+			"CBaseMultiplayerPlayer::AwardAchievement"
+			{
+				"library" "server"
+				"linux"	  "@_ZN22CBaseMultiplayerPlayer16AwardAchievementEii"
+			}
+		}
+		"MemPatches"
+			{
+				// ╔══════════════════════════════════════════════╗
+				// ║                    Scout                     ║
+				// ╚══════════════════════════════════════════════╝
+
+				// ================================================
+				//  Crit-A-Cola Mark For Death, removal.
+				//  Note: NOT IN USE! Left if it becomes usefull someday.
+
+				"CTFPlayerShared::OnAttack_JumpPatchForCritColaMFD"
+				{
+					"signature" "CTFPlayerShared::OnAttack"
+					"linux"
+					{
+						"offset"	"7"
+						"verify"    "\x8B\x5D\x08\x6A\x13\x8D\x83\xE0" // Verify the bytes..
+						"patch"     "\xEB\x1F\x90\x90\x90\x90\x90\x90" // Short jump to the nearest LEAVE
+					}
+				}
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                   Soldier                    ║
+				// ╚══════════════════════════════════════════════╝
+
+				// ================================================
+				//  Disciplinary Action speed buff to allies 
+				//  for 3 seconds instead of 2 seconds.
+
+				"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff"
+				{
+					"signature" "CTFWeaponBaseMelee::OnSwingHit"
+					"linux"
+					{
+						"offset"	"941"
+						"verify"	"\x68\x00\x00\x00\x40" // Verify that offset pushes 2.0f
+						"patch"		"\x68\x00\x00\x40\x40" // Change it to push 3.0f
+					}
+				}
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                    Pyro                      ║
+				// ╚══════════════════════════════════════════════╝
+
+				// ================================================
+				//  Dragons Fury bonus requires center of fireball
+				//  to hit target, removal
+
+				//  Extra notes: Compared to most other patches the last text after 
+				//  The _ is not
+				//  very descriptive, this is because the patches are ordered as the
+				//  original jumps appear in the assembly.
+
+
+				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA"
+				{
+					"signature" "CTFProjectile_BallOfFire::Burn"
+					"linux"
+					{
+						"offset"	"2357"
+						"verify"    "\x77\x2A" // If verify fails, re-examine the method.
+						"patch"     "\x77\x22" // Short jump to the nearest LEAVE
+					}
+				}
+				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ"
+				{
+					"signature" "CTFProjectile_BallOfFire::Burn"
+					"linux"
+					{
+						"offset"	"2366"
+						"verify"    "\x75\x2A" // If verify fails, re-examine the method.
+						"patch"     "\x75\x19" // Short jump to the nearest LEAVE
+					}
+				}
+				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ"
+				{
+					"signature" "CTFProjectile_BallOfFire::Burn"
+					"linux"
+					{
+						"offset"	"2375"
+						"verify"    "\x74\x2A" // If verify fails, re-examine the method.
+						"patch"     "\x74\x10" // Short jump to the nearest LEAVE
+					}
+				}
+				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second"
+				{
+					"signature" "CTFProjectile_BallOfFire::Burn"
+					"linux"
+					{
+						"offset"	"2389"
+						"verify"    "\x75\x2A" // If verify fails, re-examine the method.
+						"patch"     "\x75\x02" // Short jump to the nearest LEAVE
+					}
+				}
+				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ"
+				{
+					"signature" "CTFProjectile_BallOfFire::Burn"
+					"linux"
+					{
+						"offset"	"2393"
+						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"     "\xE9\x00\x0A\x00\x00\x90" // Jump instruction + a nop.
+					}
+				}
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                   Demoman                    ║
+				// ╚══════════════════════════════════════════════╝
+
+				//  Nothing to see in here. :(
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                    Heavy                     ║
+				// ╚══════════════════════════════════════════════╝
+
+				// ================================================
+				//  Miniguns must spin for 1 second for full
+				//  damage/accuracy, removal.
+
+				"CTFMinigun::GetProjectileDamage_JumpOverCheck"
+				{
+					"signature" "CTFMinigun::GetProjectileDamage"
+					"linux"
+					{
+						"offset"	"16"
+						"verify"	"\xF3\x0F\x10\x9B\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"		"\xEB\x56\x90\x90\x90\x90\x90\x90" // Short jump (crashes with Near jump) to closest leave instruction.
+					}
+				}
+
+				"CTFMinigun::GetWeaponSpread_JumpOverCheck"
+				{
+					"signature" "CTFMinigun::GetWeaponSpread"
+					"linux"
+					{
+						"offset"	"16"
+						"verify"	"\xF3\x0F\x10\xA3\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"		"\xE9\x56\x00\x00\x00\x90\x90\x90" // Near jump to closest LEAVE instruction.
+					}	
+				}
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                  Engineer                    ║
+				// ╚══════════════════════════════════════════════╝
+
+				// ================================================
+				//  Wrangler Shield only allow heal/refill 66%
+				//  with wrenches, removal. (Rescue Ranger is a
+				//  hook and so it won't show up as memorypatch)
+
+				"CObjectSentrygun::OnWrenchHit_ShieldHealRevert"
+				{
+					"signature" "CObjectSentrygun::OnWrenchHit"
+					"linux"
+					{
+						"offset"	"592"
+						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+					}
+				}
+				
+				// Patch to revert the nerf to wrangler shield effecting shell refill.
+				"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert"
+				{
+					"signature" "CObjectSentrygun::OnWrenchHit"
+					"linux"
+					{
+						"offset"	"708"
+						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+					}	
+				}
+				
+				// Patch to revert the nerf to wrangler shield effecting rocket refill.
+				"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert"
+				{
+					"signature" "CObjectSentrygun::OnWrenchHit"
+					"linux"
+					{
+						"offset"	"896"
+						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+					}	
+				}
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                    Medic                     ║
+				// ╚══════════════════════════════════════════════╝
+
+				//  Nothing to see in here. :(
+
+				// ╔══════════════════════════════════════════════╗
+				// ║ Sniper ║
+				// ╚══════════════════════════════════════════════╝
+
+				// ================================================
+				// Cozy Camper requires a full sniper charge
+				// to provide the full flinch resistance, removal.
+
+				// New patch: Just fake the AL by setting it to 1
+				// By using B0 01 (MOV AL, 1)
+
+				// All the nops are neccesary to keep the byte count correct and avoid
+				// fucking with the stack for things that are no longer there (the call to IsFullyCharged)
+
+				// It's absolutely neccesary to NOP the SUB ESP,0xc, the PUSH EDI and
+				// the ADD ESP,0x10 or we will have problems. Those 3 are what's
+				// used for preperation for the IsFullyCharged call, and if we don't nop them, we will
+				// corrupt the stack and cause crashes.
+
+				"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue"
+				{
+					"signature" "CTFPlayer::ApplyPunchImpulseX"
+					"linux"
+					{
+						"offset" "149"
+						"verify" "\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" //
+						"patch" "\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" //
+					}
+				}
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                     Spy                      ║
+				// ╚══════════════════════════════════════════════╝
+
+				//  Nothing to see in here. :(
+
+			}
+		"Functions"
+		{
+			"CTFProjectile_Arrow::BuildingHealingArrow"
+			{
+				"signature" "CTFProjectile_Arrow::BuildingHealingArrow"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type" "cbaseentity"
+					}
+				}
+			}
+
+			"CBaseMultiplayerPlayer::AwardAchievement"
+			{
+				"signature" "CBaseMultiplayerPlayer::AwardAchievement"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"iAchievement"
+					{
+						"type" "int"
+					}
+					"iCOunt"
+					{
+						"type" "int"
+					}
+				}
+			}
+		}
+	}
+}

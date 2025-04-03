@@ -132,8 +132,7 @@ MemoryPatch Verdius_RevertFirstSecondAccuracyLossOnMiniguns;
 MemoryPatch Verdius_RevertWranglerShieldHealNerfOnWrenches;
 MemoryPatch Verdius_RevertWranglerShieldShellRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches;
-MemoryPatch Verdius_RevertCozyCamperFlinchNop8Bytes;
-MemoryPatch Verdius_RevertCozyCamperFlinchNopRemaining8Bytes;
+MemoryPatch Verdius_RevertCozyCamperFlinch;
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 #endif
@@ -342,12 +341,9 @@ public void OnPluginStart() {
 		Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert");
-		Verdius_RevertCozyCamperFlinchNop8Bytes = 
+		Verdius_RevertCozyCamperFlinch = 
 			MemoryPatch.CreateFromConf(conf, 
-			"CTFPlayer::ApplyPunchImpulseX_Nop8BytesForCozyCamper");
-		Verdius_RevertCozyCamperFlinchNopRemaining8Bytes = 
-			MemoryPatch.CreateFromConf(conf, 
-			"CTFPlayer::ApplyPunchImpulseX_NopRemaining8BytesForCozyCamper");
+			"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue");
 
     	StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -372,9 +368,8 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldHealNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldHealNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldShellRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldShellRefillNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
-		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinchNop8Bytes)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinchNop8Bytes");
-		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinchNopRemaining8Bytes)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinchNopRemaining8Bytes");
-
+		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinch)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinch");
+		
 		delete conf;
 	}
 #endif
@@ -485,9 +480,9 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 	}
 	else if (StrEqual(name,"cozycamper")){
 		if (enable) {
-			Verdius_RevertCozyCamperFlinchNop8Bytes.Enable();
+			Verdius_RevertCozyCamperFlinch.Enable();
 		} else {
-			Verdius_RevertCozyCamperFlinchNopRemaining8Bytes.Disable(); 
+			Verdius_RevertCozyCamperFlinch.Disable();
 		}
 	}
 }
