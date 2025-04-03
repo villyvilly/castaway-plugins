@@ -10,11 +10,11 @@ This is not a comprehensive list of all plugins used on the server, however it d
 To compile the plugins, download a recent Sourcemod stable version and merge the scripting directory into the scripting directory of this repo, then use `./compile.sh <plugin_name>` to compile each plugin. 
 
 The reverts plugin has the following dependencies:
-- 32 bit server/sourcemod. 64 bit sourcemod is not yet fully working for all plugins
+- 32 bit server/sourcemod - 64 bit sourcemod is not yet fully working for all plugins
 - [TF2Items](https://github.com/nosoop/SMExt-TF2Items)
 - [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [TF2Utils](https://github.com/nosoop/SM-TFUtils)
-- [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble)
+- [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble) - Only required if using the memory patches (see Usage for more info)
 
 No other plugins have any external dependencies, and the include files for the above dependencies are within this repo.
 
