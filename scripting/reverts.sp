@@ -168,8 +168,9 @@ public void OnPluginStart() {
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno");
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping");
 #if defined VERDIUS_PATCHES
-	ItemDefine("All miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up");
+	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up");
 #endif
+	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy penalty");
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges");
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time");
 	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets");
@@ -230,6 +231,7 @@ public void OnPluginStart() {
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
+	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-tough break, heals 10 on hit, no damage vuln, -20 max health");
 #if defined VERDIUS_PATCHES
 	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up");
 #endif
@@ -1408,8 +1410,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		bool swords = ItemIsEnabled("swords");
+		TF2Items_SetNumAttributes(item1, swords ? 3 : 1);
 		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
+		//sword holster code handled here
+		if(swords) {
+			TF2Items_SetAttribute(item1, 1, 781, 0.00);
+			TF2Items_SetAttribute(item1, 2, 264, 1.00);
+		}
 		//health handled elsewhere
 	}
 
@@ -1765,6 +1773,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("warrior") &&
+		StrEqual(class, "tf_weapon_fists") &&
+		(index == 310)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 412, 1.0); // damage vuln
+		TF2Items_SetAttribute(item1, 1, 180, 0.0); // heal on kill
+		TF2Items_SetAttribute(item1, 2, 110, 10.0); // heal on hit
+		//health handled elsewhere
+	}
+
+	else if (
 		ItemIsEnabled("zatoichi") &&
 		StrEqual(class, "tf_weapon_katana")
 	) {
@@ -1775,6 +1797,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 1, 220, 0.0); // restore health on kill
 		TF2Items_SetAttribute(item1, 2, 226, 0.0); // honorbound
 		TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
+		//zatoichi has different sword logic, so don't handle here unlike claid
+	}
+
+	//swords should be handled at the very end, so other reverts take precednece 
+	//if the code makes it here, that means the other reverts aren't active
+	//so only apply this one
+	else if (
+		ItemIsEnabled("swords") &&
+		StrEqual(class, "tf_weapon_sword") ||
+		StrEqual(class, "tf_weapon_katana")
+	) {
+
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 781, 0.00);
+		TF2Items_SetAttribute(item1, 1, 264, 1.00);
 	}
 
 	if (item1 != null) {
@@ -2024,6 +2062,12 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				PlayerHasItem(client,"tf_weapon_sword",327)
 			) {
 				players[client].bonus_health -= 15;
+			}
+			else if(
+				ItemIsEnabled("warrior") &&
+				PlayerHasItem(client,"tf_weapon_fists",310)
+			) {
+				players[client].bonus_health -= 20;
 			}
 		}
 	}
