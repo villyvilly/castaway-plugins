@@ -22,6 +22,17 @@ No other plugins have any external dependencies, and the include files for the a
 
 The reverts plugin, after installing all the required dependencies, should work out of the box. 
 
+### Memory Patches
+
+There are a few revert patches within the revert plugin by default that utilize sourcescramble. These reverts are currently **linux server only** due to how the signatures are set up. If you have a windows server, they will not work whatsoever, and it is advised to not compile the plugin with them enabled.
+
+To disable them, uncomment the following line near the top of the reverts.sp file before you compile:
+```
+//#undef VERDIUS_PATCHES
+```
+
+### Toggling Reverts
+
 If you want to disable a specific weapon revert, you can create a config file called `reverts.cfg` in your `tf/cfg/sourcemod` folder. To disable a specific revert, you set the following:
 
 ```
