@@ -3032,7 +3032,7 @@ void ItemFinalize() {
 			Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 			Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %s"), items[idx].name);
 
-			items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, _, true, 0.0, true, 1.0);
+			items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, 1.0);
 		}
 	}
 }
