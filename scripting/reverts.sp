@@ -178,6 +178,7 @@ public void OnPluginStart() {
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, fire updraft");
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump");
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo");
+	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit, uncapped");
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off");
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health");
@@ -432,7 +433,7 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
     if (StrContains(cvarName, "sm_reverts__item_") != -1)
     {
     	char item[64];
-		strcopy(item,sizeof(item),cvarName[7]);
+		strcopy(item,sizeof(item),cvarName[strlen("sm_reverts__item_")]);
 		VerdiusTogglePatches(ItemIsEnabled(item),item);
         return Plugin_Handled;
     }
@@ -1163,6 +1164,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			condition == TFCond_Dazed &&
 			(GetGameTickCount() - players[client].bonk_cond_frame) <= 2
 		) {
+			LogMessage("Removing dazed condition from %N - bonk condition met.",client);
 			TF2_RemoveCondition(client, TFCond_Dazed);
 		}
 	}
@@ -1344,6 +1346,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 100, 1.0); // blast radius decreased
+	}
+
+	else if (
+		ItemIsEnabled("blackbox") &&
+		StrEqual(class, "tf_weapon_rocketlauncher") &&
+		(index == 228 || index == 1085)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 741, 0.0); // falloff-based heal
+		TF2Items_SetAttribute(item1, 1, 110, 15.0); // heal per hit
 	}
 
 	else if (
