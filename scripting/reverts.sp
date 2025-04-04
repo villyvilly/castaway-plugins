@@ -1415,8 +1415,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
 		//sword holster code handled here
 		if(swords) {
-			TF2Items_SetAttribute(item1, 1, 781, 0.00);
-			TF2Items_SetAttribute(item1, 2, 264, 1.50);
+			TF2Items_SetAttribute(item1, 1, 781, 0.0);
+			TF2Items_SetAttribute(item1, 2, 264, 1.0);
 		}
 		//health handled elsewhere
 	}
@@ -1812,8 +1812,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 781, 0.00);
-		TF2Items_SetAttribute(item1, 1, 264, 1.50);
+		TF2Items_SetAttribute(item1, 0, 781, 0.0);
+		TF2Items_SetAttribute(item1, 1, 264, 1.0);
 	}
 
 	if (item1 != null) {
