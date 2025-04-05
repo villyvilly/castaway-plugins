@@ -96,6 +96,7 @@ enum struct Player {
 	int ticks_since_attack;
 	int bonus_health;
 	int old_health;
+	int max_health;
 }
 
 //item sets
@@ -1357,7 +1358,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 741, 0.0); // falloff-based heal
-		TF2Items_SetAttribute(item1, 1, 110, 15.0); // heal per hit
+		// heal per hit handled elsewhere
 	}
 
 	else if (
@@ -2674,6 +2675,27 @@ Action SDKHookCB_OnTakeDamage(
 				}
 			}
 
+			{
+				if (
+					ItemIsEnabled("blackbox") && 
+					StrEqual(class,"tf_weapon_rocketlauncher") &&
+					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 228 ||
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1085) &&
+					attacker != victim
+				) {
+					// Show that attacker got healed.
+					Handle event = CreateEvent("player_healonhit", true);
+					SetEventInt(event, "amount", 15);
+					SetEventInt(event, "entindex", attacker);
+					FireEvent(event);
+
+					// Set health.
+					int new_health = GetClientHealth(attacker) + 15;
+					
+					SetEntityHealth(attacker, players[attacker].max_health < new_health ? players[attacker].max_health : new_health);
+				}
+			}
+
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
@@ -3518,7 +3540,7 @@ MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookRetur
 			iNewMax += players[entity].bonus_health;
 		}
 	}
-
+	players[entity].max_health = iNewMax;
 	if (iNewMax != iMax)
 	{
 		returnValue.Value = iNewMax;
