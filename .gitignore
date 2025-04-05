@@ -34,3 +34,9 @@ gamedata/*
 !gamedata/verdiusarcana_reverts.txt
 !gamedata/legacy
 !gamedata/legacy/*
+
+!.github/
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/build.yml
