@@ -1162,9 +1162,9 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		if (
 			ItemIsEnabled("bonk") &&
 			condition == TFCond_Dazed &&
-			(GetGameTickCount() - players[client].bonk_cond_frame) <= 2
+			(GetGameTickCount() - players[client].bonk_cond_frame) <= 2 &&
+			players[client].bonk_cond_frame > 0 // fix for esoteric issue where gametickcount returns zero???????
 		) {
-			LogMessage("Removing dazed condition from %N - bonk condition met.",client);
 			TF2_RemoveCondition(client, TFCond_Dazed);
 		}
 	}
@@ -1237,8 +1237,8 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_IsPlayerInCondition(client, TFCond_CritCola)
 		) {
 			if (
-				GetGameTickCount() - players[client].ticks_since_attack <= 2 || //occasional drift
-				players[client].ticks_since_attack == 0 //stupid bug
+				GetGameTickCount() - players[client].ticks_since_attack <= 2 && //occasional drift
+				players[client].ticks_since_attack > 0 //stupid bug
 			) {
 				TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
 			}
