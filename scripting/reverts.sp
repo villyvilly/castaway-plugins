@@ -2683,7 +2683,8 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class,"tf_weapon_rocketlauncher") &&
 					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 228 ||
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1085) &&
-					attacker != victim
+					attacker != victim &&
+					TF2_GetClientTeam(attacker) != TF2_GetClientTeam(victim)
 				) {
 					// Show that attacker got healed.
 					Handle event = CreateEvent("player_healonhit", true);
