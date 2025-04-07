@@ -1165,8 +1165,8 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		if (
 			ItemIsEnabled("bonk") &&
 			condition == TFCond_Dazed &&
-			(GetGameTickCount() - players[client].bonk_cond_frame) <= 2 &&
-			players[client].bonk_cond_frame > 0 // fix for esoteric issue where gametickcount returns zero???????
+			abs(GetGameTickCount() - players[client].bonk_cond_frame) <= 2 &&
+			players[client].bonk_cond_frame > 0 //just in case
 		) {
 			TF2_RemoveCondition(client, TFCond_Dazed);
 		}
@@ -1237,14 +1237,11 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			ItemIsEnabled("critcola") &&
 			TF2_GetPlayerClass(client) == TFClass_Scout &&
 			condition == TFCond_MarkedForDeathSilent &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola)
+			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
+			abs(GetGameTickCount() - players[client].ticks_since_attack) <= 2 && //occasional drift
+			players[client].ticks_since_attack > 0 //just in case
 		) {
-			if (
-				GetGameTickCount() - players[client].ticks_since_attack <= 2 && //occasional drift
-				players[client].ticks_since_attack > 0 //stupid bug
-			) {
-				TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-			}
+			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
 		}
 	}
 }
@@ -3677,4 +3674,10 @@ float CalcViewsOffset(float angle1[3], float angle2[3]) {
 
 float FixViewAngleY(float angle) {
 	return (angle > 180.0 ? (angle - 360.0) : angle);
+}
+
+int abs(int x)
+{
+	int mask = x >> 31;
+	return (x + mask) ^ mask;
 }
