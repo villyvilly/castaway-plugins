@@ -190,7 +190,7 @@ public void OnPluginStart() {
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
-	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability");
+	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered");
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill");
 #if defined VERDIUS_PATCHES
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level");
@@ -1432,14 +1432,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		bool swords = ItemIsEnabled("swords");
-		TF2Items_SetNumAttributes(item1, swords ? 3 : 1);
+		TF2Items_SetNumAttributes(item1, swords ? 5 : 3);
 		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
+		TF2Items_SetAttribute(item1, 1, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 2, 125, -15.0); // max health additive penalty
 		//sword holster code handled here
 		if(swords) {
-			TF2Items_SetAttribute(item1, 1, 781, 0.0);
-			TF2Items_SetAttribute(item1, 2, 264, 1.0);
+			TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
+			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier
 		}
-		//health handled elsewhere
 	}
 
 	else if (
@@ -1620,13 +1621,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 4);
+		TF2Items_SetNumAttributes(item1, 8);
 		TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
 		TF2Items_SetAttribute(item1, 1, 16, 0.0); // heal on hit
 		TF2Items_SetAttribute(item1, 2, 3, 1.0); // clip size
-
 		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
-		// max health, no fall damage, & fire vulnerability handled elsewhere
+		TF2Items_SetAttribute(item1, 4, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 5, 26, 15.0); // max health additive bonus
+		TF2Items_SetAttribute(item1, 6, 275, 1.0); // cancel falling damage
+		TF2Items_SetAttribute(item1, 7, 61, 1.50); // dmg taken from fire increased
 	}
 
 	else if (
@@ -1823,11 +1826,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetNumAttributes(item1, 5);
 		TF2Items_SetAttribute(item1, 0, 412, 1.0); // damage vuln
 		TF2Items_SetAttribute(item1, 1, 180, 0.0); // heal on kill
 		TF2Items_SetAttribute(item1, 2, 110, 10.0); // heal on hit
-		//health handled elsewhere
+		TF2Items_SetAttribute(item1, 3, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 4, 125, -20.0); // max health additive penalty
 	}
 
 	else if (
@@ -1856,8 +1860,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 781, 0.0);
-		TF2Items_SetAttribute(item1, 1, 264, 1.0);
+		TF2Items_SetAttribute(item1, 0, 781, 0.0); // is a sword
+		TF2Items_SetAttribute(item1, 1, 264, 1.0); // melee range multiplier
 	}
 
 	if (item1 != null) {
@@ -2132,6 +2136,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 			//perform health fuckery
 			players[client].bonus_health = 0;
+			/*
 			if(
 				ItemIsEnabled("pocket") &&
 				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
@@ -2150,6 +2155,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			) {
 				players[client].bonus_health -= 20;
 			}
+			*/
 		}
 	}
 
@@ -2923,6 +2929,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
+			/*
 			if (
 				ItemIsEnabled("pocket") &&
 				(damage_type & (DMG_BURN | DMG_IGNITE)) &&
@@ -2932,6 +2939,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				damage *= 1.50;
 				returnValue = Plugin_Changed;
 			}
+			*/
 		}
 		{
 			if (
@@ -2961,6 +2969,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	}
 	else
 	{
+		/*
 		if (
 			ItemIsEnabled("pocket") &&
 			(damage_type & DMG_FALL && !attacker) &&
@@ -2969,6 +2978,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			// Fall damage negation.
 			return Plugin_Handled;
 		}
+		*/
 	}
 
 	return returnValue;
