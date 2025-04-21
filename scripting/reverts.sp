@@ -2032,12 +2032,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 			{
 				// Powerjack heal on kill with overheal copied from NotnHeavy's code
-
 				if (
 					client != attacker &&
 					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
 					GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
-					IsPlayerAlive(attacker)
+					IsPlayerAlive(attacker) &&
+					// fix to prevent powerjack gaining hp while active from players burning to death by flamethrowers, flareguns and reflected burning arrows
+					GetEventInt(event,"customkill") == TF_DMG_CUSTOM_NONE // powerjack melee kill has a customkill value of 0, thanks huutti; -mindfulprotons
 				) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
