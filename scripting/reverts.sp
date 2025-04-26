@@ -98,6 +98,7 @@ enum struct Player {
 	int max_health;
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
+	bool is_under_hype;
 }
 
 //item sets
@@ -234,7 +235,7 @@ public void OnPluginStart() {
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-2013, run to build hype and auto gain minicrits");
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits");
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed");
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
 	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
@@ -706,6 +707,21 @@ public void OnGameFrame() {
 					{
 						// sodapopper stuff
 
+						if (
+							ItemIsEnabled("sodapop") &&
+							players[idx].is_under_hype &&
+							TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
+						) {
+							// allow mini-crit buff to last indefinitely
+							// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
+
+							if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
+							} else {
+								TF2_AddCondition(idx, TFCond_CritCola, 10.0, 0);
+							}
+						}
+
 						if (ItemIsEnabled("sodapop")) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
 
@@ -716,10 +732,14 @@ public void OnGameFrame() {
 
 								if (
 									StrEqual(class, "tf_weapon_soda_popper") &&
+									players[idx].is_under_hype == false &&
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
-									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
-										TF2_AddCondition(idx, TFCond_CritHype, 10.0, 0);
+									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
+										// Fall back to hype condition if the player has a drink item
+										bool has_lunchbox = PlayerHasItem(idx, "tf_weapon_lunchbox_drink", -1);
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
+										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
 
 									if (
@@ -740,9 +760,28 @@ public void OnGameFrame() {
 										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
 									}
 								}
+
+								// hype meter drain on minicrit condition
+								if (players[idx].is_under_hype) {
+									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
+									
+									if (hype <= 0.0)
+									{
+										players[idx].is_under_hype = false;
+										TF2_RemoveCondition(idx, TFCond_CritCola);
+									}
+									else
+									{
+										hype -= 10 * GetTickInterval();
+										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
+									}
+								}
 							}
 						}
 					}
+				} else {
+					// reset if player isn't scout
+					players[idx].is_under_hype = false;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Soldier) {
@@ -1025,6 +1064,7 @@ public void OnGameFrame() {
 				players[idx].spy_is_feigning = false;
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
+				players[idx].is_under_hype = false;
 			}
 		}
 	}
@@ -2044,7 +2084,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
-
 		}
 	}
 
@@ -2150,6 +2189,20 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				players[client].bonus_health -= 20;
 			}
 			*/
+		}
+
+		{
+			// if player has a drink item, end minicrits and apply hype
+
+			if (players[client].is_under_hype)
+			{
+				bool has_lunchbox = PlayerHasItem(client, "tf_weapon_lunchbox_drink", -1);
+				if (has_lunchbox)
+				{
+					players[client].is_under_hype = false;
+					TF2_AddCondition(client, TFCond_CritHype, 10.0, 0);
+				}
+			}
 		}
 	}
 
@@ -2927,8 +2980,14 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			if (TF2_IsPlayerInCondition(victim, TFCond_CritCola) && TF2_GetPlayerClass(victim) == TFClass_Scout && ItemIsEnabled("critcola")) // 10% damage vulnerability while using Crit-a-Cola.
+			if (
+				ItemIsEnabled("critcola") &&
+				TF2_IsPlayerInCondition(victim, TFCond_CritCola) &&
+				TF2_GetPlayerClass(victim) == TFClass_Scout &&
+				PlayerHasItem(victim, "tf_weapon_lunchbox_drink", 163)
+			)
 			{
+				// 10% damage vulnerability while using Crit-a-Cola.
 				damage *= 1.10;
 				returnValue = Plugin_Changed;
 			}
@@ -3079,7 +3138,8 @@ bool PlayerHasItem(int client, char[] classname, int item_index) {
 			int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 			if(
 				StrEqual(classname, class) &&
-				(item_index == index)
+				((item_index == index) ||
+				 (item_index == -1))
 			) {
 				return true;
 			}
@@ -3623,8 +3683,15 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 	if (
 		entity >= 1 && entity <= MaxClients
 	) {
-		if (IsValidEntity(entity) && TF2_IsPlayerInCondition(entity, TFCond_CritCola) && TF2_GetPlayerClass(entity) == TFClass_Scout && ItemIsEnabled("critcola")) // Crit-a-Cola speed boost.
+		if (
+			ItemIsEnabled("critcola") &&
+			IsValidEntity(entity) &&
+			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+			TF2_GetPlayerClass(entity) == TFClass_Scout &&
+			PlayerHasItem(entity, "tf_weapon_lunchbox_drink", 163)
+		) 
 		{
+			// Crit-a-Cola speed boost.
 			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 			return MRES_Override;
 		}
