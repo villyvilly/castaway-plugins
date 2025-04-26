@@ -152,7 +152,6 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CTFPlayer_GetMaxHealthForBuffing;
 
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
@@ -163,6 +162,20 @@ Menu menu_main;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+
+//weapon caching
+//this would break if you ever enabled picking up weapons from the ground!
+//add weapons to the FRONT of this enum to maintain the player_weapons array size
+enum
+{
+	Wep_CritCola,
+	Wep_Bonk,
+	Wep_BrassBeast,
+	Wep_RocketJumper,
+	Wep_Placeholder
+}
+bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
+
 
 public void OnPluginStart() {
 	int idx;
@@ -314,7 +327,6 @@ public void OnPluginStart() {
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
-		dhook_CTFPlayer_GetMaxHealthForBuffing = DHookCreateFromConf(conf, "CTFPlayer::GetMaxHealthForBuffing");
 
 		delete conf;
 	}
@@ -411,12 +423,10 @@ public void OnPluginStart() {
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	if (dhook_CTFPlayer_GetMaxHealthForBuffing == null) SetFailState("Failed to create dhook_CTFPlayer_GetMaxHealthForBuffing");
 	
 	
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
-	DHookEnableDetour(dhook_CTFPlayer_GetMaxHealthForBuffing, true, DHookCallback_CTFPlayer_GetMaxHealthForBuffing);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -737,7 +747,7 @@ public void OnGameFrame() {
 								) {
 									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
 										// Fall back to hype condition if the player has a drink item
-										bool has_lunchbox = PlayerHasItem(idx, "tf_weapon_lunchbox_drink", -1);
+										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
 										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
 										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
@@ -2095,6 +2105,53 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
+		//cache players weapons for later funcs
+		{
+			for (int i = 0; i < Wep_Placeholder; i++) {
+				player_weapons[client][i] = false;
+			}
+
+			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+			for (int i;i < length; i++)
+			{
+				weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
+				if (weapon != -1)
+				{
+					GetEntityClassname(weapon, class, sizeof(class));
+					int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+
+					if(
+						StrEqual(class,"tf_weapon_lunchbox_drink") &&
+						(index == 163)
+					) {
+						player_weapons[client][Wep_CritCola] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_lunchbox_drink") &&
+						(index == 46 || index == 1145)
+					) {
+						player_weapons[client][Wep_Bonk] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_minigun") &&
+						(index == 312)
+					) {
+						player_weapons[client][Wep_BrassBeast] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_rocketlauncher") &&
+						(index == 237)
+					) {
+						player_weapons[client][Wep_RocketJumper] = true;
+					}
+				}
+			}
+		}
+
+		//item sets
 		if (
 			ItemIsEnabled("saharan")
 		) {
@@ -2169,36 +2226,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
-			//perform health fuckery
-			players[client].bonus_health = 0;
-			/*
-			if(
-				ItemIsEnabled("pocket") &&
-				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
-			) {
-				players[client].bonus_health += 15;
-			}
-			else if(
-				ItemIsEnabled("claidheamh") &&
-				PlayerHasItem(client,"tf_weapon_sword",327)
-			) {
-				players[client].bonus_health -= 15;
-			}
-			else if(
-				ItemIsEnabled("warrior") &&
-				PlayerHasItem(client,"tf_weapon_fists",310)
-			) {
-				players[client].bonus_health -= 20;
-			}
-			*/
-		}
-
-		{
 			// if player has a drink item, end minicrits and apply hype
 
 			if (players[client].is_under_hype)
 			{
-				bool has_lunchbox = PlayerHasItem(client, "tf_weapon_lunchbox_drink", -1);
+				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
 				if (has_lunchbox)
 				{
 					players[client].is_under_hype = false;
@@ -2986,7 +3018,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				ItemIsEnabled("critcola") &&
 				TF2_IsPlayerInCondition(victim, TFCond_CritCola) &&
 				TF2_GetPlayerClass(victim) == TFClass_Scout &&
-				PlayerHasItem(victim, "tf_weapon_lunchbox_drink", 163)
+				player_weapons[victim][Wep_CritCola]
 			)
 			{
 				// 10% damage vulnerability while using Crit-a-Cola.
@@ -2999,7 +3031,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				ItemIsEnabled("brassbeast") &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				PlayerHasItem(victim,"tf_weapon_minigun",312)
+				player_weapons[victim][Wep_BrassBeast]
 			) {
 				// 20% damage resistance when spun up with the Brass Beast
 				damage *= 0.80;
@@ -3011,7 +3043,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				ItemIsEnabled("rocketjmp") &&
 				victim == attacker &&
 				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-				PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+				player_weapons[victim][Wep_RocketJumper]
 			) {
 				// save old health and set health to 500 to tank the grenade blast
 				// do it this way in order to preserve knockback caused by the explosion
@@ -3036,7 +3068,7 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled("rocketjmp") &&
 			victim == attacker &&
 			damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-			PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+			player_weapons[victim][Wep_RocketJumper]
 		) {
 			// set back saved health after tauntkill
 			SetEntityHealth(victim, players[victim].old_health);
@@ -3126,28 +3158,6 @@ bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
-}
-
-bool PlayerHasItem(int client, char[] classname, int item_index) {
-	int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
-	for (int i;i < length; i++)
-	{
-		int weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
-		if (weapon != -1)
-		{
-			char class[64];
-			GetEntityClassname(weapon, class, sizeof(class));
-			int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
-			if(
-				StrEqual(classname, class) &&
-				((item_index == index) ||
-				 (item_index == -1))
-			) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 void PlayerRemoveEquipment(int client) {
@@ -3659,28 +3669,6 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookReturn returnValue) {
-	int iMax = returnValue.Value;
-	int iNewMax = iMax;
-
-	if (
-		entity >= 1 && entity <= MaxClients
-	) {
-		if (IsValidEntity(entity) && IsPlayerAlive(entity)) // health fixing
-		{
-			iNewMax += players[entity].bonus_health;
-		}
-	}
-	players[entity].max_health = iNewMax;
-	if (iNewMax != iMax)
-	{
-		returnValue.Value = iNewMax;
-		return MRES_Supercede;
-	}
-
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
 	if (
 		entity >= 1 && entity <= MaxClients
@@ -3690,7 +3678,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			IsValidEntity(entity) &&
 			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
 			TF2_GetPlayerClass(entity) == TFClass_Scout &&
-			PlayerHasItem(entity, "tf_weapon_lunchbox_drink", 163)
+			player_weapons[entity][Wep_CritCola]
 		) 
 		{
 			// Crit-a-Cola speed boost.
