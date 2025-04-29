@@ -30,9 +30,9 @@ The reverts plugin, after installing all the required dependencies, should work 
 
 There are a few revert patches within the revert plugin by default that utilize sourcescramble. If the reverts plugin does not work correctly with the reverts that use memory patching for any reason, it is advised to not compile the plugin with them enabled. These reverts may break on game updates.
 
-To disable reverts that come from memory patches, uncomment the following line near the top of the reverts.sp file before you compile:
+To disable reverts that come from memory patches, comment the following line near the top of the reverts.sp file before you compile:
 ```
-//#undef VERDIUS_PATCHES
+#define VERDIUS_PATCHES
 ```
 
 Additionally, before you compile the reverts.sp file, check what operating system your server is using.
