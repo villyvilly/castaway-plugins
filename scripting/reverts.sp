@@ -292,9 +292,9 @@ public void OnPluginStart() {
 	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER);
 #endif
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf and center-hit requirement for bonus damage", CLASSFLAG_PYRO);
+	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage", CLASSFLAG_PYRO);
 #else
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf", CLASSFLAG_PYRO);
+	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO);
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY);
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, no healing, no mark-for-death", CLASSFLAG_SOLDIER);
