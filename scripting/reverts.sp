@@ -157,6 +157,7 @@ enum struct Player {
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
 	bool is_under_hype;
+	bool crit_flag;
 }
 
 //item sets
@@ -245,6 +246,7 @@ enum
 	Wep_CritCola,
 	Wep_Bonk,
 	Wep_BrassBeast,
+	Wep_Natascha,
 	Wep_RocketJumper,
 	Wep_Placeholder
 }
@@ -308,6 +310,7 @@ public void OnPluginStart() {
 	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN);
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN);
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER);
+	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains", CLASSFLAG_ENGINEER);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO);
@@ -647,6 +650,7 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
 	PrecacheScriptSound("Jar.Explode");
+	PrecacheScriptSound("Player.ResistanceLight");
 }
 
 public void OnGameFrame() {
@@ -1786,6 +1790,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("natascha") &&
+		StrEqual(class, "tf_weapon_minigun") &&
+		(index == 41)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 738, 1.00); // spunup damage resistance
+	}
+
+	else if (
 		ItemIsEnabled("panic") &&
 		StrEqual(class, "tf_weapon_shotgun") &&
 		(index == 1153)
@@ -2311,6 +2326,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					else if (
+						StrEqual(class,"tf_weapon_minigun") &&
+						(index == 41)
+					) {
+						player_weapons[client][Wep_Natascha] = true;
+					}
+
+					else if (
 						StrEqual(class,"tf_weapon_rocketlauncher") &&
 						(index == 237)
 					) {
@@ -2701,6 +2723,9 @@ Action SDKHookCB_OnTakeDamage(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		// damage from players only
+
+		// useful for checking minicrits in OnTakeDamageAlive
+		players[victim].crit_flag = (damage_type & DMG_CRIT != 0) ? true : false;
 
 		if (weapon > MaxClients) {
 			GetEntityClassname(weapon, class, sizeof(class));
@@ -3188,13 +3213,22 @@ Action SDKHookCB_OnTakeDamageAlive(
 		}
 		{
 			if (
-				ItemIsEnabled("brassbeast") &&
+				((ItemIsEnabled("brassbeast") && player_weapons[victim][Wep_BrassBeast]) ||
+				(ItemIsEnabled("natascha") && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				player_weapons[victim][Wep_BrassBeast]
+				TF2_GetPlayerClass(victim) == TFClass_Heavy
 			) {
-				// 20% damage resistance when spun up with the Brass Beast
-				damage *= 0.80;
+				// Brass Beast damage resistance when spun up
+				
+				// play damage resist sound
+				EmitGameSoundToAll("Player.ResistanceLight", victim);
+				
+				// apply resistance
+				if (damage_type & DMG_CRIT != 0)
+					damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
+				else
+					damage *= 0.80;
+				
 				returnValue = Plugin_Changed;
 			}
 		}
