@@ -2,6 +2,16 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### May 11, 2025
+- **Reverted the shield charge mechanics for the Chargin' Targe and the Tide Turner.**
+  - Right after impacting an enemy with a shield charge, the Demoman is able to do a critical melee hit from any distance, even at close range.
+    - See this video for a clearer example (start at 3:55): https://youtu.be/DByy2z7VLzI?si=DZAkfYb3b24rkBAv&t=235
+  - However, both the Chargin' Targe and the Tide Turner are not able to deal shield bash damage at any distance and must be at the end of the charge to deal shield bash damage.
+  - Charging with The Chargin' Targe and the Tide Turner does not remove debuffs anymore (Afterburn, Jarate, Mad Milk, Bleed & Gas) from the wearer.
+    - *The Chargin' Targe and The Tide Turner*
+    - *Alt-Fire: Charge toward your enemies.*
+    - *Gain a critical melee strike after impacting an enemy.*
+
 ### May 9, 2025
 - **Fixed the Big Earner's 3-second speedboost being extended by the reverted Dead Ringer on feign death.**
 - **Fixed the duration reduction of Spies under Dead Ringer when being damaged by weapons such as the Ullapool Caber and the Enforcer.**
