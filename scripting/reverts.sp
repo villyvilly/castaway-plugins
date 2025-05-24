@@ -370,7 +370,7 @@ public void OnPluginStart() {
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN);
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed", CLASSFLAG_ENGINEER);
-	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force", CLASSFLAG_SCOUT);
+	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, faster reload time, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, old shield mechanics, bash dmg at any range", CLASSFLAG_DEMOMAN);
@@ -911,6 +911,7 @@ public void OnGameFrame() {
 								GetEntityClassname(weapon, class, sizeof(class));
 
 								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+									// Shortstop shove leftover code from Bakugo
 									// disable secondary attack
 									// this is somewhat broken, can still shove by holding m2 when reload ends
 									// SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
@@ -2124,10 +2125,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetNumAttributes(item1, 5);
 		TF2Items_SetAttribute(item1, 0, 241, 1.0); // reload time increased hidden
-		TF2Items_SetAttribute(item1, 1, 534, 1.4); // airblast vulnerability multiplier hidden
-		TF2Items_SetAttribute(item1, 2, 535, 1.4); // damage force increase hidden
+		TF2Items_SetAttribute(item1, 1, 534, 1.00); // airblast vulnerability multiplier hidden
+		TF2Items_SetAttribute(item1, 2, 535, 1.00); // damage force increase hidden
+		TF2Items_SetAttribute(item1, 3, 536, 1.00); // damage force increase text
+		TF2Items_SetAttribute(item1, 4, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
 	}
 
 	else if (
@@ -2594,6 +2597,15 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					) {
 						player_weapons[client][Wep_PersianPersuader] = true;
 					}
+          
+          				// shortstop primary ammo sharing with secondary pistol ammo
+					else if (
+						ItemIsEnabled("shortstop") &&
+						StrEqual(class,"tf_weapon_handgun_scout_primary")
+					) {
+						int SCOUT_PISTOL_AMMO_TYPE = 2;
+						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
+          				}
 				}
 			}
 			int num_wearables = TF2Util_GetPlayerWearableCount(client);
