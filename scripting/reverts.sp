@@ -366,7 +366,7 @@ public void OnPluginStart() {
 	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO);
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER);
 	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt kill", CLASSFLAG_SOLDIER);
-	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Familiar Fez not required", CLASSFLAG_SPY);
+	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip both the L'Etranger and YER to get the set bonus. Familiar Fez not required", CLASSFLAG_SPY);
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN);
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed", CLASSFLAG_ENGINEER);
