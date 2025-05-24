@@ -2,6 +2,59 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### May 24, 2025
+- **Six (6) weapons have been reverted in this update.**
+- **Fixed Spy-cicle picking up ammo packs when melted while the Spy's cloak and primary ammo are full.**
+- **Reverted the Dalokohs Bar to be able to overheal up to 400 HP again (Gun Mettle Update).**
+  - **Note: if the GRU is not reverted, the Dalokohs Bar and GRU overheal exploit may occur**
+  - *The Dalokohs Bar*
+    - Adds +50 max health for 30 seconds
+    - Eat to gain up to 100 health.
+    - Can gain overheal up to 400 health when eaten.
+
+- **Reverted the Shortstop to its most historically accurate version while keeping the modern shove mechanic (pre-Manniversary Update).**
+  - *The Shortstop*
+    - No push force increase penalty taken from damage and airblast
+    - No reload speed penalty
+    - Shares secondary pistol ammo reserve
+      - Has a 36 max ammo reserve that is shared with any of the Scout's secondary pistols
+      
+- **Reverted the Persian Persuader to pre-Tough Break.**
+  - *The Persian Persuader*
+    - +100% increase in charge recharge rate
+    - All ammo collected becomes health
+      - HP gained from each ammo pack size:
+        - Large = +40, Medium = +20, Small = +10
+    - No random critical hits
+    - This weapon has a large melee range
+      
+- **Reverted the Tomislav to pre-Pyromania**
+  - *The Tomislav*
+    - 40% faster spin up time
+    - No accuracy bonus
+    - Silent Killer: No barrel spin sound
+    - 20% slower firing speed
+      
+- **Reverted the Darwin's Danger Shield to pre-Jungle Inferno**
+  - *The Darwin's Danger Shield*
+    - +25 max health on wearer
+    - +15% bullet damage resistance on wearer
+    - 20% explosive damage vulnerability on wearer
+    - No afterburn immunity
+      
+- **Reverted the Bushwacka to release**
+  - *The Bushwacka*
+    - Crits whenever it would normally mini-crit
+    - 20% fire damage vulnerability on wearer (instead of overall vulnerability)
+    - Has random crits enabled
+
+### May 20, 2025
+- **Fixed reverted Sydney Sleeper showing the headshot kill icon and giving a headshot point when shooting enemies in the head (when not crit-boosted).**
+  - Historically, the reverted Sydney Sleeper did not have the ability to score headshots.
+- **Fixed reverted Enforcer not dealing bonus damage when undisguised to buildings.**
+- **Added a cvar for reverting the fall damage hurt sound to pre-Jungle Inferno (cvar_old_falldmg_sfx).**
+  - By default, this cvar revert is enabled.
+
 ### May 18, 2025
 - **Fixed reverted B.A.S.E. Jumper fire updraft bonus not working**
 
@@ -18,6 +71,9 @@
     - *Alt-Fire: Charge toward your enemies.*
     - *Gain a critical melee strike after impacting an enemy.*
     - *Shield bashes cause damage to the enemy.*
+- **Added a cvar for reverting the Rocket Jumper and Sticky Jumper to be able to capture enemy flags again (cvar_jumper_flag_run).**
+  - By default, this cvar revert is disabled.
+- **Updated ItemDefine descriptions for the Pomson 6000 and the Panic Attack.**
 
 ### May 11, 2025
 - **Reverted the shield charge mechanics for the Chargin' Targe and the Tide Turner.**
