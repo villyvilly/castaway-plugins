@@ -230,6 +230,9 @@ Handle dhook_CTFPlayer_CalculateMaxSpeed;
 Handle dhook_CAmmoPack_MyTouch;
 Handle dhook_CTFAmmoPack_PackTouch;
 
+// Spycicle ammo pickup fix imported from NotnHeavy's plugin
+DHookSetup dhook_CTFPlayer_AddToSpyKnife;
+
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -357,7 +360,7 @@ public void OnPluginStart() {
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, old shield mechanics, bash dmg at any range", CLASSFLAG_DEMOMAN);
-	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer", CLASSFLAG_SPY);
+	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY);
 	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN);
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
@@ -443,6 +446,7 @@ public void OnPluginStart() {
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
 		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
@@ -565,11 +569,13 @@ public void OnPluginStart() {
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
+  	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
-	
+
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+  	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
 	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
@@ -4443,6 +4449,17 @@ int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
+}
+
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+    if (ItemIsEnabled("spycicle"))
+    {
+        // Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+        returnValue.Value = false;
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
 }
 
 //Get the smaller integral value
