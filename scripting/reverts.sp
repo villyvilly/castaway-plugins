@@ -216,6 +216,17 @@ MemoryPatch Verdius_RevertWranglerShieldShellRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertCozyCamperFlinch;
 MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
+
+// =============== Dalokohs Bar ===========================
+MemoryPatch Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat; 
+MemoryPatch Verdius_RevertDalokohsBar_MOV_400; 
+
+float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for revert
+
+// Address of our float to use for the MOVSS part of revert:
+Address AddressOf_g_flDalokohsBarCanOverHealTo;
+// ========================================================
+
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 #endif
@@ -312,6 +323,9 @@ public void OnPluginStart() {
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER);
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
+#if defined VERDIUS_PATCHES
+	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY);
+#endif	
 	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max health, 15% bullet resist, 20% blast vuln, no fire resists", CLASSFLAG_SNIPER);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
@@ -510,6 +524,12 @@ public void OnPluginStart() {
 		Verdius_RevertQuickFixUberCannotCapturePoint = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert");
+		Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
+		Verdius_RevertDalokohsBar_MOV_400 = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");			
 
     	StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -543,7 +563,11 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinch)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinch");
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
-		
+		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
+		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
+		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
+
+
 		delete conf;
 	}
 #endif
@@ -611,6 +635,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled("wrangler"),"wrangler");
 	VerdiusTogglePatches(ItemIsEnabled("cozycamper"),"cozycamper");
 	VerdiusTogglePatches(ItemIsEnabled("quickfix"),"quickfix");
+	VerdiusTogglePatches(ItemIsEnabled("dalokohsbar"),"dalokohsbar");
 #endif
 	UpdateJumperDescription();
 }
@@ -705,6 +730,19 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 			Verdius_RevertQuickFixUberCannotCapturePoint.Disable();
 		}
 	}
+	else if (StrEqual(name,"dalokohsbar")){
+		if (enable) {
+			Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Enable();
+			Verdius_RevertDalokohsBar_MOV_400.Enable();
+
+			// Due to it being a MOVSS instruction that needs
+			// a Address instead of values, there's some extra steps to be done in here:
+			StoreToAddress(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
+		} else {
+			Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Disable();
+			Verdius_RevertDalokohsBar_MOV_400.Disable();
+		}
+	}		
 }
 #endif
 
