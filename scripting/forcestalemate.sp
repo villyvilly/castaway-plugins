@@ -1,16 +1,11 @@
-#define PLUGIN_NAME         "Force Stalemate"
-#define PLUGIN_VERSION      "1.0"
-#define PLUGIN_AUTHOR       "random"
-#define PLUGIN_DESCRIPTION  "Force stalemates when map time runs out"
-
 #include <sourcemod>
 #include <sourcescramble>
 
 public Plugin myinfo = {
-    name = PLUGIN_NAME,
-    author = PLUGIN_AUTHOR,
-	description = PLUGIN_DESCRIPTION,
-	version = PLUGIN_VERSION,
+    name = "Force Stalemate",
+    author = "random",
+	description = "Force stalemates when map time runs out",
+	version = "1.0",
 	url = "https://castaway.tf"
 };
 
