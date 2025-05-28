@@ -18,6 +18,7 @@ scripting/*
 !scripting/legacy/*
 !scripting/disablesoul.sp
 !scripting/teamcatch.sp
+!scripting/forcestalemate.sp
 
 #includes
 !scripting/include/
@@ -31,6 +32,7 @@ scripting/include/*
 !gamedata/
 gamedata/*
 !gamedata/reverts.txt
+!gamedata/stalemate.txt
 !gamedata/verdiusarcana_reverts.txt
 !gamedata/legacy
 !gamedata/legacy/*

@@ -1,0 +1,28 @@
+"Games"
+{
+    "tf"
+    {
+        "Signatures"
+        {
+            "CTeamplayRoundBasedRules::State_Think_RND_RUNNING"
+            {
+                "library" "server"
+                "linux" "@_ZN24CTeamplayRoundBasedRules23State_Think_RND_RUNNINGEv"
+            }
+        }
+
+        "MemPatches"
+        {
+            "Force_bTeamsAreDrawn_Always_True"
+            {
+                "signature" "CTeamplayRoundBasedRules::State_Think_RND_RUNNING"
+                "linux"
+                {
+                    "offset"    "110h"                         // Exact offset of the jz instruction
+                    "verify"    "\x0F\x84\xAA\x00\x00\x00"     // Original jz instruction
+                    "patch"     "\x90\x90\x90\x90\x90\x90"     // NOP out the conditional jump
+                }
+            }
+        }
+    }
+}
