@@ -71,9 +71,9 @@ public Plugin myinfo = {
 
 #define ITEMS_MAX 100
 #define ITEM_MENU_TIME (60*3)
-#define BALANCE_CIRCUIT_METAL 10
-#define BALANCE_CIRCUIT_DAMAGE 10.0
-#define BALANCE_CIRCUIT_RECOVERY 0.25
+#define BALANCE_CIRCUIT_METAL 15
+#define BALANCE_CIRCUIT_DAMAGE 20.0
+#define BALANCE_CIRCUIT_RECOVERY 0.5
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
 // game code defs
@@ -1994,20 +1994,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 13);
-		TF2Items_SetAttribute(item1, 1, 1, 1.00); // 0% damage penalty
-		TF2Items_SetAttribute(item1, 2, 45, 1.00); // +0% bullets per shot
-		TF2Items_SetAttribute(item1, 4, 808, 0.00); // Successive shots become less accurate
-		TF2Items_SetAttribute(item1, 5, 809, 0.00); // Fires a wide, fixed shot pattern
+		TF2Items_SetNumAttributes(item1, 11);
+		TF2Items_SetAttribute(item1, 0, 1, 1.00); // 0% damage penalty
+		TF2Items_SetAttribute(item1, 1, 45, 1.00); // +0% bullets per shot
+		TF2Items_SetAttribute(item1, 2, 808, 0.00); // Successive shots become less accurate
+		TF2Items_SetAttribute(item1, 3, 809, 0.00); // Fires a wide, fixed shot pattern
 
-		TF2Items_SetAttribute(item1, 6, 97, 0.50); // 50% faster reload time
-		TF2Items_SetAttribute(item1, 7, 394, 0.70); // 30% faster firing speed
-		TF2Items_SetAttribute(item1, 8, 424, 0.66); // -34% clip size
-		TF2Items_SetAttribute(item1, 3, 547, 0.50); // This weapon deploys 50% faster
-		TF2Items_SetAttribute(item1, 9, 651, 0.50); // Fire rate increases as health decreases.
-		TF2Items_SetAttribute(item1, 10, 708, 1.00); // Hold fire to load up to 4 shells
-		TF2Items_SetAttribute(item1, 11, 709, 2.5); // Weapon spread increases as health decreases.
-		TF2Items_SetAttribute(item1, 12, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+		TF2Items_SetAttribute(item1, 4, 97, 0.50); // 50% faster reload time
+		TF2Items_SetAttribute(item1, 5, 394, 0.70); // 30% faster firing speed
+		TF2Items_SetAttribute(item1, 6, 424, 0.66); // -34% clip size
+		TF2Items_SetAttribute(item1, 7, 651, 0.50); // Fire rate increases as health decreases.
+		TF2Items_SetAttribute(item1, 8, 708, 1.00); // Hold fire to load up to 4 shells
+		TF2Items_SetAttribute(item1, 9, 709, 2.5); // Weapon spread increases as health decreases.
+		TF2Items_SetAttribute(item1, 10, 710, 1.00); // Attrib_AutoFiresFullClipNegative
 	}
 
 	else if (
@@ -4436,13 +4435,13 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 		int health = GetClientHealth(client);
 		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
 		if (health < health_max)
-        	{
+		{
 			// Get amount to heal.
-	        	int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+			int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
 	
 			// Show that the player got healed.
 			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", heal);
+			SetEventInt(event, "amount", intMin(health_max - health, heal));
 			SetEventInt(event, "entindex", client);
 			FireEvent(event);
 
@@ -4475,7 +4474,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 		{
 			// Show that the player got healed.
 			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", 20);
+			SetEventInt(event, "amount", intMin(health_max - health, 20));
 			SetEventInt(event, "entindex", client);
 			FireEvent(event);
 
