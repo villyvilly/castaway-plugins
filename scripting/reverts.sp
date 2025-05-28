@@ -4327,6 +4327,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 		if (
 			ItemIsEnabled("critcola") &&
 			IsValidEntity(entity) &&
+			IsClientInGame(entity) &&
 			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
 			TF2_GetPlayerClass(entity) == TFClass_Scout &&
 			player_weapons[entity][Wep_CritCola]

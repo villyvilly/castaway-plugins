@@ -13,14 +13,14 @@
 
         "MemPatches"
         {
-            "Force_bTeamsAreDrawn_Always_True"
+            "ForceAlways_StalemateOrOvertime"
             {
                 "signature" "CTeamplayRoundBasedRules::State_Think_RND_RUNNING"
                 "linux"
                 {
-                    "offset"    "110h"                         // Exact offset of the jz instruction
-                    "verify"    "\x0F\x84\xAA\x00\x00\x00"     // Original jz instruction
-                    "patch"     "\x90\x90\x90\x90\x90\x90"     // NOP out the conditional jump
+                    "offset" "381"
+                    "verify" "\x84\xDB\x74\x44" // TEST BL, BL  |  JZ +0x44 (skip stalemate logic if false)
+                    "patch"  "\x90\x90\x90\x90" // NOP NOP NOP NOP (force branch to always execute stalemate logic)
                 }
             }
         }
