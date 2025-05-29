@@ -137,7 +137,7 @@ enum struct Item {
 	char name[64];
 	char desc[256];
 	int classflags;
-	Handle cvar;
+	ConVar cvar;
 }
 
 enum struct Player {
@@ -190,21 +190,21 @@ enum struct Entity {
 	bool is_demo_shield;
 }
 
-Handle cvar_enable;
-Handle cvar_extras;
-Handle cvar_jumper_flag_run;
-Handle cvar_old_falldmg_sfx;
-Handle cvar_ref_tf_airblast_cray;
-Handle cvar_ref_tf_bison_tick_time;
-Handle cvar_ref_tf_dropped_weapon_lifetime;
-Handle cvar_ref_tf_feign_death_activate_damage_scale;
-Handle cvar_ref_tf_feign_death_damage_scale;
-Handle cvar_ref_tf_feign_death_duration;
-Handle cvar_ref_tf_feign_death_speed_duration;
-Handle cvar_ref_tf_fireball_radius;
-Handle cvar_ref_tf_parachute_aircontrol;
-Handle cvar_ref_tf_parachute_maxspeed_onfire_z;
-Handle cvar_ref_tf_scout_hype_mod;
+ConVar cvar_enable;
+ConVar cvar_extras;
+ConVar cvar_jumper_flag_run;
+ConVar cvar_old_falldmg_sfx;
+ConVar cvar_ref_tf_airblast_cray;
+ConVar cvar_ref_tf_bison_tick_time;
+ConVar cvar_ref_tf_dropped_weapon_lifetime;
+ConVar cvar_ref_tf_feign_death_activate_damage_scale;
+ConVar cvar_ref_tf_feign_death_damage_scale;
+ConVar cvar_ref_tf_feign_death_duration;
+ConVar cvar_ref_tf_feign_death_speed_duration;
+ConVar cvar_ref_tf_fireball_radius;
+ConVar cvar_ref_tf_parachute_aircontrol;
+ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
+ConVar cvar_ref_tf_scout_hype_mod;
 #if defined VERDIUS_PATCHES
 MemoryPatch Verdius_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
@@ -315,7 +315,7 @@ public void OnPluginStart() {
 	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 
-	HookConVarChange(cvar_jumper_flag_run, JumperFlagRunCvarChange);
+	cvar_jumper_flag_run.AddChangeHook(JumperFlagRunCvarChange);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO);
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER);
@@ -636,7 +636,7 @@ void UpdateJumperDescription() {
 	for (int i = 0; i < ITEMS_MAX; i++) {
 		if (StrEqual(items[i].key, "rocketjmp") || StrEqual(items[i].key, "stkjumper")) {
 			char intelMsg[] = ", wearer can pick up intel";
-			if (GetConVarBool(cvar_jumper_flag_run)) {
+			if (cvar_jumper_flag_run.BoolValue) {
 				if (StrContains(items[i].desc, intelMsg) == -1) {
 					Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, intelMsg);
 				}
@@ -1009,7 +1009,7 @@ public void OnGameFrame() {
 
 										hype = GetVectorLength(pos1);
 										hype = (hype * GetTickInterval());
-										hype = (hype / GetConVarFloat(cvar_ref_tf_scout_hype_mod));
+										hype = (hype / cvar_ref_tf_scout_hype_mod.FloatValue);
 										hype = (hype + GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter"));
 										hype = (hype > 100.0 ? 100.0 : hype);
 
@@ -1295,8 +1295,8 @@ public void OnGameFrame() {
 							) {
 								GetEntPropVector(idx, Prop_Data, "m_vecVelocity", pos1);
 
-								if (pos1[2] < GetConVarFloat(cvar_ref_tf_parachute_maxspeed_onfire_z)) {
-									pos1[2] = GetConVarFloat(cvar_ref_tf_parachute_maxspeed_onfire_z);
+								if (pos1[2] < cvar_ref_tf_parachute_maxspeed_onfire_z.FloatValue) {
+									pos1[2] = cvar_ref_tf_parachute_maxspeed_onfire_z.FloatValue;
 
 									// don't use TeleportEntity to avoid the trigger re-entry bug
 									SetEntPropVector(idx, Prop_Data, "m_vecAbsVelocity", pos1);
@@ -1366,14 +1366,14 @@ public void OnGameFrame() {
 			// set all the convars needed
 
 			// weapon pickups are disabled to ensure attribute consistency
-			SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", GetConVarBool(cvar_enable));
+			SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
 
 			// these cvars are changed just-in-time, reset them
-			SetConVarReset(cvar_ref_tf_airblast_cray);
-			SetConVarReset(cvar_ref_tf_feign_death_duration);
-			SetConVarReset(cvar_ref_tf_feign_death_speed_duration);
-			SetConVarReset(cvar_ref_tf_feign_death_activate_damage_scale);
-			SetConVarReset(cvar_ref_tf_feign_death_damage_scale);
+			ResetConVar(cvar_ref_tf_airblast_cray);
+			ResetConVar(cvar_ref_tf_feign_death_duration);
+			ResetConVar(cvar_ref_tf_feign_death_speed_duration);
+			ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
+			ResetConVar(cvar_ref_tf_feign_death_damage_scale);
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled("bison"));
@@ -1686,7 +1686,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		ItemIsEnabled("rocketjmp") &&
 		StrEqual(class, "tf_weapon_rocketlauncher") &&
 		index == 237 &&
-		GetConVarBool(cvar_jumper_flag_run)
+		cvar_jumper_flag_run.BoolValue
 	) {
 		item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
 		TF2Items_SetNumAttributes(item1, 1);
@@ -2228,9 +2228,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, GetConVarBool(cvar_jumper_flag_run) ? 2 : 1);
+		TF2Items_SetNumAttributes(item1, cvar_jumper_flag_run.BoolValue ? 2 : 1);
 		TF2Items_SetAttribute(item1, 0, 89, 0.0); // max pipebombs decreased
-		if (GetConVarBool(cvar_jumper_flag_run)) {
+		if (cvar_jumper_flag_run.BoolValue) {
 			TF2Items_SetAttribute(item1, 1, 400, 0.0);
 		}
 	}
@@ -2810,7 +2810,7 @@ Action OnSoundNormal(
 			}
 		}
 	}
-	if (GetConVarBool(cvar_old_falldmg_sfx))
+	if (cvar_old_falldmg_sfx.BoolValue)
 	{
 		if (StrContains(sample, "pl_fallpain") != -1)
 		{
@@ -3021,15 +3021,15 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
 					) {
 						if (ItemIsEnabled("ringer")) {
-							SetConVarFloat(cvar_ref_tf_feign_death_duration, 6.5);
-							SetConVarFloat(cvar_ref_tf_feign_death_speed_duration, 6.5);
-							SetConVarFloat(cvar_ref_tf_feign_death_activate_damage_scale, 0.10);
-							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 0.10);
+							cvar_ref_tf_feign_death_duration.FloatValue = 6.5;
+							cvar_ref_tf_feign_death_speed_duration.FloatValue = 6.5;
+							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+							cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
 						} else {
-							SetConVarReset(cvar_ref_tf_feign_death_duration);
-							SetConVarReset(cvar_ref_tf_feign_death_speed_duration);
-							SetConVarReset(cvar_ref_tf_feign_death_activate_damage_scale);
-							SetConVarReset(cvar_ref_tf_feign_death_damage_scale);
+							ResetConVar(cvar_ref_tf_feign_death_duration);
+							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
+							ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
+							ResetConVar(cvar_ref_tf_feign_death_damage_scale);
 						}
 					}
 				}
@@ -3260,7 +3260,7 @@ Action SDKHookCB_OnTakeDamage(
 									stun_dur = (stun_dur + 1.0);
 									stun_fls = TF_STUNFLAGS_BIGBONK;
 
-									if (GetConVarBool(cvar_extras)) {
+									if (cvar_extras.BoolValue) {
 										SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
 
 										for (idx = 1; idx <= MaxClients; idx++) {
@@ -3659,7 +3659,7 @@ void SDKHookCB_OnTakeDamagePost(
 
 Action Command_Menu(int client, int args) {
 	if (client > 0) {
-		if (GetConVarBool(cvar_enable)) {
+		if (cvar_enable.BoolValue) {
 			DisplayMenu(menu_main, client, ITEM_MENU_TIME);
 		} else {
 			ReplyToCommand(client, "[SM] Weapon reverts are not enabled right now");
@@ -3686,18 +3686,8 @@ Action Command_ClassInfo(int client, int args) {
 }
 
 
-void SetConVarMaybe(Handle cvar, char[] value, bool maybe) {
-	if (maybe) {
-		SetConVarString(cvar, value);
-	} else {
-		SetConVarReset(cvar);
-	}
-}
-
-void SetConVarReset(Handle cvar) {
-	char tmp[64];
-	GetConVarDefault(cvar, tmp, sizeof(tmp));
-	SetConVarString(cvar, tmp);
+void SetConVarMaybe(Handle cvar, const char[] value, bool maybe) {
+	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
 }
 
 bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
@@ -3898,8 +3888,8 @@ int ItemKeyToNum(char[] key) {
 bool ItemIsEnabled(char[] key) {
 	int item = ItemKeyToNum(key);
 	return (
-		GetConVarBool(cvar_enable) &&
-		GetConVarBool(items[item].cvar)
+		cvar_enable.BoolValue &&
+		items[item].cvar.BoolValue
 	);
 }
 
@@ -3912,8 +3902,8 @@ void ItemPlayerApply(int client) {
 			value = false;
 
 			if (
-				GetConVarBool(cvar_enable) &&
-				GetConVarBool(items[idx].cvar)
+				cvar_enable.BoolValue &&
+				items[idx].cvar.BoolValue
 			) {
 				value = true;
 			}
@@ -3952,11 +3942,11 @@ void ShowItemsDetails(int client) {
 
 	count = 0;
 
-	if (GetConVarBool(cvar_enable)) {
+	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < ITEMS_MAX; idx++) {
 			if (
 				strlen(items[idx].key) > 0 &&
-				GetConVarBool(items[idx].cvar)
+				items[idx].cvar.BoolValue
 			) {
 				Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items[idx].desc);
 				count++;
@@ -4005,11 +3995,11 @@ void ShowClassReverts(int client) {
 		return;
 	}
 
-	if (GetConVarBool(cvar_enable)) {
+	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < ITEMS_MAX; idx++) {
 			if (
 				strlen(items[idx].key) > 0 &&
-				GetConVarBool(items[idx].cvar)
+				items[idx].cvar.BoolValue
 			) {
 				if (items[idx].classflags & (1 << class_idx) == 0)
 					continue;
