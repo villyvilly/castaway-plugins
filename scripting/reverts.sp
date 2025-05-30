@@ -4333,12 +4333,13 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 
 MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
 	if (
-		entity >= 1 && entity <= MaxClients
+		entity >= 1 && 
+		entity <= MaxClients && 
+		IsValidEntity(entity) &&
+		IsClientInGame(entity)
 	) {
 		if (
 			ItemIsEnabled("critcola") &&
-			IsValidEntity(entity) &&
-			IsClientInGame(entity) &&
 			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
 			TF2_GetPlayerClass(entity) == TFClass_Scout &&
 			player_weapons[entity][Wep_CritCola]
@@ -4351,7 +4352,6 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 
 		if (
 			ItemIsEnabled("buffalosteak") &&
-			IsValidEntity(entity) &&
 			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
 			TF2_GetPlayerClass(entity) == TFClass_Heavy &&
 			player_weapons[entity][Wep_BuffaloSteak]
