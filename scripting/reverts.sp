@@ -2962,12 +2962,19 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 			//help message (on loadout change)
 			if(should_display_info_msg) {
-				char msg[256];
 				if (cvar_enable.BoolValue) {
+					char msg[6][256];
+					int count = 0;
 					for (int i = 0; i < NUM_ITEMS; i++) {
 						if(player_weapons[client][i]) {
-							Format(msg, sizeof(msg), "{gold}%s {lightgreen}- %s", items[i].name, items[i].desc);
-							CReplyToCommand(client, "%s", msg);
+							Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items[i].desc);
+							count++;
+						}
+					}
+					if(count) {
+						CReplyToCommand(client, "{day9}Weapon reverts enabled for your loadout:");
+						for(int i = 0; i < count; i++) {
+							CReplyToCommand(client, "%s", msg[i]);
 						}
 					}
 				}
