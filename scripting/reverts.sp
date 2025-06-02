@@ -2316,7 +2316,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	else if (
 		ItemIsEnabled("targe") &&
 		StrEqual(class, "tf_wearable_demoshield") &&
-		(index == 131)
+		(index == 131 || index == 1144)
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2677,419 +2677,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					else if (
-						(index == 1104) &&
-						StrEqual(class, "tf_weapon_rocketlauncher_airstrike")
-					) {
-						player_weapons[client][Wep_Airstrike] = true;
-					}
-
-					else if (
 						StrEqual(class, "tf_weapon_minigun")
 					) {
 						player_weapons[client][Wep_Minigun] = true;
-					}
-
-					else if (
-						(index == 61 || index == 1006) &&
-						StrEqual(class, "tf_weapon_revolver")
-					) {
-						player_weapons[client][Wep_Ambassador] = true;
-					}
-
-					else if (
-						(index == 450) &&
-						StrEqual(class, "tf_weapon_bat")
-					) {
-						player_weapons[client][Wep_Atomizer] = true;
-					}
-
-					else if (
-						(index == 38 || index == 457 || index == 1000) &&
-						StrEqual(class, "tf_weapon_fireaxe")
-					) {
-						player_weapons[client][Wep_Axtinguisher] = true;
-					}
-
-					else if (
-						(index == 772) &&
-						StrEqual(class, "tf_weapon_pep_brawler_blaster")
-					) {
-						player_weapons[client][Wep_BabyFace] = true;
-					}
-
-					else if (
-						(index == 40 || index == 1146 ) &&
-						StrEqual(class, "tf_weapon_flamethrower")
-					) {
-						player_weapons[client][Wep_Backburner] = true;
-					}
-
-					else if (
-						(index == 1101 ) &&
-						StrEqual(class, "tf_weapon_parachute")
-					) {
-						player_weapons[client][Wep_BaseJumper] = true;
-					}
-
-					else if (
-						(index == 237) &&
-						StrEqual(class, "tf_weapon_rocketlauncher")
-					) {
-						player_weapons[client][Wep_RocketJumper] = true;
-					}
-
-					else if (
-						(index == 730) &&
-						StrEqual(class, "tf_weapon_rocketlauncher")
-					) {
-						player_weapons[client][Wep_Beggars] = true;
-					}
-
-					else if (
-						(index == 442) &&
-						StrEqual(class, "tf_weapon_raygun")
-					) {
-						player_weapons[client][Wep_Bison] = true;
-					}
-
-					else if (
-						(index == 228 || index == 1085) &&
-						StrEqual(class, "tf_weapon_rocketlauncher")
-					) {
-						player_weapons[client][Wep_BlackBox] = true;
-					}
-
-					else if (
-						(index == 46 || index == 1145) &&
-						StrEqual(class, "tf_weapon_lunchbox_drink")
-					) {
-						player_weapons[client][Wep_Bonk] = true;
-					}
-					
-					else if (
-						(index == 312) &&
-						StrEqual(class, "tf_weapon_minigun")
-					) {
-						player_weapons[client][Wep_BrassBeast] = true;
-					}
-
-					else if (
-						(index == 311) &&
-						StrEqual(class, "tf_weapon_lunchbox")
-					) {
-						player_weapons[client][Wep_BuffaloSteak] = true;
-					}
-
-					else if (
-						(index == 232) &&
-						StrEqual(class, "tf_weapon_club")
-					) {
-						player_weapons[client][Wep_Bushwacka] = true;
-					}
-
-					else if (
-						(index == 307) &&
-						StrEqual(class, "tf_weapon_stickbomb")
-					) {
-						player_weapons[client][Wep_Caber] = true;
-					}
-
-					else if (
-						(index == 159 || index == 433) &&
-						StrEqual(class, "tf_weapon_lunchbox")
-					) {
-						player_weapons[client][Wep_Dalokoh] = true;
-					}
-
-					else if (
-						(index == 447) &&
-						StrEqual(class, "tf_weapon_shovel")
-					) {
-						player_weapons[client][Wep_Disciplinary] = true;
-					}
-
-					else if (
-						(index == 1178) &&
-						StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-					) {
-						player_weapons[client][Wep_DragonFury] = true;
-					}
-
-					else if (
-						(index == 996) &&
-						StrEqual(class, "tf_weapon_cannon")
-					) {
-						player_weapons[client][Wep_LooseCannon] = true;
-					}
-
-					else if (
-						(index == 751) &&
-						StrEqual(class, "tf_weapon_charged_smg")
-					) {
-						player_weapons[client][Wep_CleanerCarbine] = true;
-					}
-
-					else if (
-						(index == 327) &&
-						StrEqual(class, "tf_weapon_sword")
-					) {
-						player_weapons[client][Wep_Claidheamh] = true;
-					}
-
-					else if (
-						(index == 163) &&
-						StrEqual(class, "tf_weapon_lunchbox_drink")
-					) {
-						player_weapons[client][Wep_CritCola] = true;
-					}
-
-					else if (
-						(index == 215) &&
-						StrEqual(class, "tf_weapon_flamethrower")
-					) {
-						player_weapons[client][Wep_Degreaser] = true;
-					}
-
-					else if (
-						(index == 460) &&
-						StrEqual(class, "tf_weapon_revolver")
-					) {
-						player_weapons[client][Wep_Enforcer] = true;
-					}
-
-					else if (
-						(index == 128 || index == 775) &&
-						StrEqual(class, "tf_weapon_shovel")
-					) {
-						player_weapons[client][Wep_Pickaxe] = true; //handles both weps
-					}
-
-					else if (
-						(index == 225 || index == 574) &&
-						StrEqual(class, "tf_weapon_knife")
-					) {
-						player_weapons[client][Wep_EternalReward] = true;
-					}
-
-					else if (
-						(index == 426) &&
-						StrEqual(class, "tf_weapon_fists")
-					) {
-						player_weapons[client][Wep_Eviction] = true;
-					}
-
-					else if (
-						(index == 331) &&
-						StrEqual(class, "tf_weapon_fists")
-					) {
-						player_weapons[client][Wep_FistsSteel] = true;
-					}
-
-					else if (
-						(index == 416) &&
-						StrEqual(class, "tf_weapon_shovel")
-					) {
-						player_weapons[client][Wep_MarketGardener] = true;
-					}
-
-					else if (
-						(index == 239 || index == 1084 || index == 1100) &&
-						StrEqual(class, "tf_weapon_fists")
-					) {
-						player_weapons[client][Wep_GRU] = true;
-					}
-
-					else if (
-						(index == 812 || index == 833) &&
-						StrEqual(class, "tf_weapon_cleaver")
-					) {
-						player_weapons[client][Wep_Cleaver] = true;
-					}
-
-					else if (
-						(index == 414) &&
-						StrEqual(class, "tf_weapon_rocketlauncher")
-					) {
-						player_weapons[client][Wep_LibertyLauncher] = true;
-					}
-
-					else if (
-						(index == 308) &&
-						StrEqual(class, "tf_weapon_grenadelauncher")
-					) {
-						player_weapons[client][Wep_LochLoad] = true;
-					}
-
-					else if (
-						(index == 41) &&
-						StrEqual(class, "tf_weapon_minigun")
-					) {
-						player_weapons[client][Wep_Natascha] = true;
-					}
-
-					else if (
-						(index == 1153) &&
-						StrEqual(class, "tf_weapon_shotgun")
-					) {
-						player_weapons[client][Wep_PanicAttack] = true;
-					}
-
-					else if (
-						(index == 773) &&
-						StrEqual(class, "tf_weapon_handgun_scout_secondary")
-					) {
-						player_weapons[client][Wep_PocketPistol] = true;
-					}
-
-					else if (
-						(index == 588) &&
-						StrEqual(class, "tf_weapon_drg_pomson")
-					) {
-						player_weapons[client][Wep_Pomson] = true;
-					}
-
-					else if (
-						(index == 214) &&
-						StrEqual(class, "tf_weapon_fireaxe")
-					) {
-						player_weapons[client][Wep_Powerjack] = true;
-					}
-
-					else if (
-						(index == 404) &&
-						StrEqual(class, "tf_weapon_sword")
-					) {
-						player_weapons[client][Wep_Persian] = true;		
-					}
-
-					else if (
-						(index == 411) &&
-						StrEqual(class, "tf_weapon_medigun")
-					) {
-						player_weapons[client][Wep_QuickFix] = true;
-					}
-
-					else if (
-						(index == 997) &&
-						StrEqual(class, "tf_weapon_shotgun_building_rescue")
-					) {
-						player_weapons[client][Wep_RescueRanger] = true;
-					}
-
-					else if (
-						(index == 415) &&
-						StrEqual(class, "tf_weapon_shotgun")
-					) {
-						player_weapons[client][Wep_ReserveShooter] = true;
-					}
-
-					else if (
-						(index == 59) &&
-						StrEqual(class, "tf_weapon_invis")
-					) {
-						player_weapons[client][Wep_DeadRinger] = true;
-					}
-
-					else if (
-						(index == 44) &&
-						StrEqual(class, "tf_weapon_bat_wood")
-					) {
-						player_weapons[client][Wep_Sandman] = true;
-					}
-
-					else if (
-						(index == 130) &&
-						StrEqual(class, "tf_weapon_pipebomblauncher")
-					) {
-						player_weapons[client][Wep_Scottish] = true;
-					}
-
-					else if (
-						(index == 220) &&
-						StrEqual(class, "tf_weapon_handgun_scout_primary")
-					) {
-						player_weapons[client][Wep_Shortstop] = true;
-						if (ItemIsEnabled("shortstop")) {
-							int SCOUT_PISTOL_AMMO_TYPE = 2;
-							SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
-						}
-					}
-
-					else if (
-						(index == 230) &&
-						StrEqual(class, "tf_weapon_sniperrifle")
-					) {
-						player_weapons[client][Wep_SydneySleeper] = true;
-					}
-
-					else if (
-						(index == 448) &&
-						StrEqual(class, "tf_weapon_soda_popper")
-					) {
-						player_weapons[client][Wep_SodaPopper] = true;
-					}
-
-					else if (
-						(index == 413) &&
-						StrEqual(class, "tf_weapon_bonesaw")
-					) {
-						player_weapons[client][Wep_Solemn] = true;
-					}
-
-					else if (
-						(index == 528) &&
-						StrEqual(class, "tf_weapon_mechanical_arm")
-					) {
-						player_weapons[client][Wep_ShortCircuit] = true;
-					}
-
-					else if (
-						(index == 649) &&
-						StrEqual(class, "tf_weapon_knife")
-					) {
-						player_weapons[client][Wep_Spycicle] = true;
-					}
-
-					else if (
-						(index == 265) &&
-						StrEqual(class, "tf_weapon_pipebomblauncher")
-					) {
-						player_weapons[client][Wep_StickyJumper] = true;
-					}
-
-					else if (
-						(index == 424) &&
-						StrEqual(class, "tf_weapon_minigun")
-					) {
-						player_weapons[client][Wep_Tomislav] = true;
-					}
-
-					else if (
-						(index == 171) &&
-						StrEqual(class, "tf_weapon_club")
-					) {
-						player_weapons[client][Wep_TribalmansShiv] = true;
-					}
-
-					else if (
-						(index == 173) &&
-						StrEqual(class, "tf_weapon_bonesaw")
-					) {
-						player_weapons[client][Wep_VitaSaw] = true;
-					}
-
-					else if (
-						(index == 310) &&
-						StrEqual(class, "tf_weapon_fists")
-					) {
-						player_weapons[client][Wep_WarriorSpirit] = true;
-					}
-
-					else if (
-						(index == 357) &&
-						StrEqual(class, "tf_weapon_katana")
-					) {
-						player_weapons[client][Wep_Zatoichi] = true;
 					}
 
 					else if (
@@ -3097,6 +2687,143 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						StrEqual(class, "tf_weapon_katana") )
 					) {
 						player_weapons[client][Wep_Sword] = true;
+					}
+
+					switch (index) {
+						case 1104:player_weapons[client][Wep_Airstrike] = true;
+
+						case 61: player_weapons[client][Wep_Ambassador] = true;
+
+						case 1006: player_weapons[client][Wep_Ambassador] = true;
+
+						case 450: player_weapons[client][Wep_Atomizer] = true;
+
+						case 38: player_weapons[client][Wep_Axtinguisher] = true;
+						case 47: player_weapons[client][Wep_Axtinguisher] = true;
+						case 1000: player_weapons[client][Wep_Axtinguisher] = true;
+
+						case 772: player_weapons[client][Wep_BabyFace] = true;
+
+						case 40: player_weapons[client][Wep_Backburner] = true;
+						case 1146: player_weapons[client][Wep_Backburner] = true;
+
+						case 1101: player_weapons[client][Wep_BaseJumper] = true;
+
+						case 237: player_weapons[client][Wep_RocketJumper] = true;
+
+						case 730: player_weapons[client][Wep_Beggars] = true;
+
+						case 442: player_weapons[client][Wep_Bison] = true;
+						
+						case 228: player_weapons[client][Wep_BlackBox] = true;
+						case 1085: player_weapons[client][Wep_BlackBox] = true;
+
+						case 46: player_weapons[client][Wep_Bonk] = true;
+						case 1145: player_weapons[client][Wep_Bonk] = true;
+
+						case 312: player_weapons[client][Wep_BrassBeast] = true;
+
+						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
+
+						case 232: player_weapons[client][Wep_Bushwacka] = true;
+
+						case 307: player_weapons[client][Wep_Caber] = true;
+
+						case 159: player_weapons[client][Wep_Dalokoh] = true;
+						case 433: player_weapons[client][Wep_Dalokoh] = true;
+
+						case 447: player_weapons[client][Wep_Disciplinary] = true;
+
+						case 1178: player_weapons[client][Wep_DragonFury] = true;
+
+						case 996: player_weapons[client][Wep_LooseCannon] = true;
+
+						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
+
+						case 327: player_weapons[client][Wep_Claidheamh] = true;
+
+						case 163: player_weapons[client][Wep_CritCola] = true;
+
+						case 215: player_weapons[client][Wep_Degreaser] = true;
+
+						case 460: player_weapons[client][Wep_Enforcer] = true;
+						
+						case 128: player_weapons[client][Wep_Pickaxe] = true;
+						case 775: player_weapons[client][Wep_Pickaxe] = true;
+
+						case 225: player_weapons[client][Wep_EternalReward] = true;
+						case 574: player_weapons[client][Wep_EternalReward] = true;
+
+						case 426: player_weapons[client][Wep_Eviction] = true;
+
+						case 331: player_weapons[client][Wep_FistsSteel] = true;
+
+						case 416: player_weapons[client][Wep_MarketGardener] = true;
+
+						case 239: player_weapons[client][Wep_GRU] = true;
+						case 1084: player_weapons[client][Wep_GRU] = true;
+						case 1100: player_weapons[client][Wep_GRU] = true;
+
+						case 812: player_weapons[client][Wep_Cleaver] = true;
+						case 833: player_weapons[client][Wep_Cleaver] = true;
+
+						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
+
+						case 308: player_weapons[client][Wep_LochLoad] = true;
+
+						case 41: player_weapons[client][Wep_Natascha] = true;
+
+						case 1153: player_weapons[client][Wep_PanicAttack] = true;
+
+						case 773: player_weapons[client][Wep_PocketPistol] = true;
+
+						case 588: player_weapons[client][Wep_Pomson] = true;
+
+						case 214: player_weapons[client][Wep_Powerjack] = true;
+
+						case 404: player_weapons[client][Wep_Persian] = true;
+
+						case 411: player_weapons[client][Wep_QuickFix] = true;
+
+						case 997: player_weapons[client][Wep_RescueRanger] = true;
+
+						case 415: player_weapons[client][Wep_ReserveShooter] = true;
+
+						case 59: player_weapons[client][Wep_DeadRinger] = true;
+
+						case 44: player_weapons[client][Wep_Sandman] = true;
+
+						case 130: player_weapons[client][Wep_Scottish] = true;
+
+						case 230: player_weapons[client][Wep_SydneySleeper] = true;
+
+						case 448: player_weapons[client][Wep_SodaPopper] = true;
+
+						case 413: player_weapons[client][Wep_Solemn] = true;
+
+						case 528: player_weapons[client][Wep_ShortCircuit] = true;
+
+						case 649: player_weapons[client][Wep_Spycicle] = true;
+
+						case 264: player_weapons[client][Wep_StickyJumper] = true;
+
+						case 424: player_weapons[client][Wep_Tomislav] = true;
+
+						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
+
+						case 173: player_weapons[client][Wep_VitaSaw] = true;
+
+						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
+
+						case 357: player_weapons[client][Wep_Zatoichi] = true;
+
+						case 220: {
+							player_weapons[client][Wep_Shortstop] = true;
+							if (ItemIsEnabled("shortstop")) {
+								int SCOUT_PISTOL_AMMO_TYPE = 2;
+								SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
+							}
+						}
 					}
 				}
 			}
@@ -3107,53 +2834,22 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				GetEntityClassname(wearable, class, sizeof(class));
 				index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
 
-				if (
-					(index == 405 || index == 608) &&
-					StrEqual(class, "tf_wearable")
-				) {
-					player_weapons[client][Wep_Booties] = true;
-				}
+				switch (index) {
+					case 405: player_weapons[client][Wep_Booties] = true;
+					case 608: player_weapons[client][Wep_Booties] = true;
 
-				else if (
-					(index == 642) &&
-					StrEqual(class, "tf_wearable")
-				) {
-					player_weapons[client][Wep_CozyCamper] = true;
-				}
+					case 642: player_weapons[client][Wep_CozyCamper] = true;
 
-				else if (
-					(index == 231) &&
-					StrEqual(class, "tf_wearable")
-				) {
-					player_weapons[client][Wep_Darwin] = true;
-				}
+					case 231: player_weapons[client][Wep_Darwin] = true;
 
-				else if (
-					(index == 57) &&
-					StrEqual(class, "tf_wearable_razorback")
-				) {
-					player_weapons[client][Wep_Razorback] = true;
-				}
+					case 57: player_weapons[client][Wep_Razorback] = true;
 
-				else if (
-					(index == 406) &&
-					StrEqual(class, "tf_wearable_demoshield")
-				) {
-					player_weapons[client][Wep_SplendidScreen] = true;
-				}
+					case 406: player_weapons[client][Wep_SplendidScreen] = true;
 
-				else if (
-					(index == 131) &&
-					StrEqual(class, "tf_wearable_demoshield")
-				) {
-					player_weapons[client][Wep_CharginTarge] = true;
-				}
-				
-				else if (
-					(index == 1099) &&
-					StrEqual(class, "tf_wearable_demoshield")
-				) {
-					player_weapons[client][Wep_TideTurner] = true;
+					case 131: player_weapons[client][Wep_CharginTarge] = true;
+					case 1144: player_weapons[client][Wep_CharginTarge] = true;
+
+					case 1099: player_weapons[client][Wep_TideTurner] = true;
 				}
 			}
 
