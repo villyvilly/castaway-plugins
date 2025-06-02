@@ -2682,7 +2682,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					else if (
 						( StrEqual(class, "tf_weapon_sword") ||
-						StrEqual(class, "tf_weapon_katana") )
+						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")) )
 					) {
 						player_weapons[client][Wep_Sword] = true;
 					}
