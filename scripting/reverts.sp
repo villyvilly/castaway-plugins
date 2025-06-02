@@ -140,7 +140,7 @@ enum struct Item {
 }
 
 enum struct Player {
-	int respawn; // frame to force a respawn after
+	//int respawn; // frame to force a respawn after
 
 	// gameplay vars
 	float resupply_time;
@@ -877,16 +877,16 @@ public void OnGameFrame() {
 				{
 					// respawn to apply attribs
 
-					if (players[idx].respawn > 0) {
-						if ((players[idx].respawn + 2) == GetGameTickCount()) {
-							TF2_RespawnPlayer(idx);
-							players[idx].respawn = 0;
+					// if (players[idx].respawn > 0) {
+					// 	if ((players[idx].respawn + 2) == GetGameTickCount()) {
+					// 		TF2_RespawnPlayer(idx);
+					// 		players[idx].respawn = 0;
 
-							PrintToChat(idx, "[SM] Revert changes have been applied");
-						}
+					// 		PrintToChat(idx, "[SM] Revert changes have been applied");
+					// 	}
 
-						continue;
-					}
+					// 	continue;
+					// }
 				}
 
 				{
@@ -1461,7 +1461,7 @@ public void OnGameFrame() {
 
 public void OnClientConnected(int client) {
 	// reset these per player
-	players[client].respawn = 0;
+	//players[client].respawn = 0;
 	players[client].resupply_time = 0.0;
 	players[client].medic_medigun_defidx = 0;
 	players[client].medic_medigun_charge = 0.0;
@@ -2449,13 +2449,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 			// apply attrib changes
 
-			if (IsPlayerAlive(client)) {
-				// tf2 only respawns a player's weapon/wearable entities when those entities are different from
-				// the ones that should be equipped, aka when the player changes class or equips a different weapon.
-				// we manually force it to happen by removing the entities and respawning the player a few ticks later.
-				PlayerRemoveEquipment(client);
-				players[client].respawn = GetGameTickCount();
-			}
+			// if (IsPlayerAlive(client)) {
+			// 	// tf2 only respawns a player's weapon/wearable entities when those entities are different from
+			// 	// the ones that should be equipped, aka when the player changes class or equips a different weapon.
+			// 	// we manually force it to happen by removing the entities and respawning the player a few ticks later.
+			// 	PlayerRemoveEquipment(client);
+			// 	players[client].respawn = GetGameTickCount();
+			// }
 		}
 
 		{
