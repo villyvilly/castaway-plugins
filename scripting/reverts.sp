@@ -272,24 +272,91 @@ Menu menu_main;
 int rocket_create_entity;
 int rocket_create_frame;
 
+//cookies
+Handle g_hClientMessageCookie;
+
 //weapon caching
 //this would break if you ever enabled picking up weapons from the ground!
 //add weapons to the FRONT of this enum to maintain the player_weapons array size
 enum
 {
-	Wep_CritCola,
-	Wep_Bonk,
-	Wep_BrassBeast,
-	Wep_Natascha,
+	Wep_Airblast,
+	Wep_Airstrike,
+	Wep_Ambassador,
+	Wep_Atomizer,
+	Wep_Axtinguisher,
+	Wep_BabyFace,
+	Wep_Backburner,
+	Wep_BaseJumper,
 	Wep_RocketJumper,
-	Wep_CharginTarge,
-	Wep_SplendidScreen,
-	Wep_TideTurner,
-	Wep_PersianPersuader,
+	Wep_Beggars,
+	Wep_Bison,
+	Wep_BlackBox,
+	Wep_Bonk,
+	Wep_Booties,
+	Wep_BrassBeast,
 	Wep_BuffaloSteak,
-	Wep_Placeholder
+	Wep_Bushwacka,
+	Wep_Caber,
+	Wep_CharginTarge,
+	Wep_Cleaver,
+	Wep_CozyCamper,
+	Wep_Dalokoh,
+	Wep_CleanerCarbine,
+	Wep_Claidheamh,
+	Wep_CritCola,
+	Wep_Darwin,
+	Wep_Degreaser,
+	Wep_Disciplinary,
+	Wep_DragonFury,
+	Wep_Enforcer,
+	Wep_Pickaxe,
+	Wep_EternalReward,
+	Wep_Eviction,
+	Wep_FistsSteel,
+	Wep_MarketGardener,
+	Wep_GRU,
+	Wep_LibertyLauncher,
+	Wep_LochLoad,
+	Wep_LooseCannon,
+	Wep_Minigun,
+	Wep_Natascha,
+	Wep_PanicAttack,
+	Wep_PocketPistol,
+	Wep_Pomson,
+	Wep_Powerjack,
+	Wep_Persian,
+	Wep_QuickFix,
+	Wep_Razorback,
+	Wep_RescueRanger,
+	Wep_ReserveShooter,
+	Wep_DeadRinger,
+	Wep_Saharan,
+	Wep_Sandman,
+	Wep_Scottish,
+	Wep_ShortCircuit,
+	Wep_Shortstop,
+	Wep_Sword,
+	Wep_SydneySleeper,
+	Wep_SodaPopper,
+	Wep_Solemn,
+	Wep_SplendidScreen,
+	Wep_Spycicle,
+	Wep_StickyJumper,
+	Wep_Tomislav,
+	Wep_TideTurner,
+	Wep_TribalmansShiv,
+	Wep_VitaSaw,
+	Wep_WarriorSpirit,
+	Wep_Wrangler,
+	Wep_Zatoichi,
+	//must always be at the end of the enum!
+	Wep_Placeholder,
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
+//is there a more elegant way to do this?
+bool prev_player_weapons[MAXPLAYERS+1][Wep_Placeholder];
+int itemDefs[Wep_Placeholder];
 
 // debuff conditions
 TFCond debuffs[] =
@@ -321,96 +388,96 @@ public void OnPluginStart() {
 
 	cvar_jumper_flag_run.AddChangeHook(JumperFlagRunCvarChange);
 
-	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO);
-	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER);
+	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO, Wep_Airblast);
+	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined VERDIUS_PATCHES
-	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY);
+	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY, Wep_Minigun);
 #endif
-	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy switch speed penalties", CLASSFLAG_DEMOMAN);
-	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY);
-	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT);
-	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO);
-	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO);
-	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN);
-	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT);
-	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER);
-	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped", CLASSFLAG_SOLDIER);
-	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
-	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
-	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY);
-	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER);
-	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed", CLASSFLAG_HEAVY);
-	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
-	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive", CLASSFLAG_DEMOMAN);
-	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
+	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy switch speed penalties", CLASSFLAG_DEMOMAN, Wep_Sword);
+	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY, Wep_Ambassador);
+	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT, Wep_Atomizer);
+	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO, Wep_Axtinguisher);
+	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO, Wep_Backburner);
+	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
+	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT, Wep_BabyFace);
+	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER, Wep_Beggars);
+	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped", CLASSFLAG_SOLDIER, Wep_BlackBox);
+	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT, Wep_Bonk);
+	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN, Wep_Booties);
+	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_BrassBeast);
+	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER, Wep_Bushwacka);
+	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
+	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
+	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
+	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER);
+	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
-	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
+	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT, Wep_CritCola);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY);
+	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif	
-	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER);
-	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
-	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
+	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin);
+	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY, Wep_DeadRinger);
+	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER);
+	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #endif
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage", CLASSFLAG_PYRO);
+	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage", CLASSFLAG_PYRO, Wep_DragonFury);
 #else
-	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO);
+	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
-	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY);
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER);
-	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY);
-	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY);
-	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT);
-	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death", CLASSFLAG_HEAVY);
-	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN);
-	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER);
-	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN);
-	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN);
-	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER);
-	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY);
-	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER);
-	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN);
-	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER);
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO);
-	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln", CLASSFLAG_SCOUT);
+	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
+	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
+	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
+	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
+	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
+	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
+	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad);
+	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER, Wep_MarketGardener);
+	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_Natascha);
+	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
+	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
+	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC);
+	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
-	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC);
+	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
-	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER);
+	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER, Wep_Razorback);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER);
+	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO);
-	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER);
-	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER);
-	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY);
-	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT);
-	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN);
-	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER);
-	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT);
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT);
-	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC);
-	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN);
-	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY);
-	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN);
-	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER);
-	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
-	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY);	
-	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER);
-	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN);
-	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC);
-	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health", CLASSFLAG_HEAVY);
+	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
+	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
+	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper);
+	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
+	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
+	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
+	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
+	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT, Wep_Shortstop);
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
+	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
+	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
+	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
+	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
+	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);	
+	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
+	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN, Wep_Caber);
+	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC, Wep_VitaSaw);
+	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up", CLASSFLAG_ENGINEER);
+	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up", CLASSFLAG_ENGINEER, Wep_Wrangler);
 #endif
-	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty", CLASSFLAG_SPY);
+	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty", CLASSFLAG_SPY, Wep_EternalReward);
 
 	menu_main = CreateMenu(MenuHandler_Main, (MenuAction_Select));
 	SetMenuTitle(menu_main, "Weapon Reverts");
@@ -418,10 +485,13 @@ public void OnPluginStart() {
 	SetMenuExitButton(menu_main, true);
 	AddMenuItem(menu_main, "classinfo", "Show reverts for your current class");
 	AddMenuItem(menu_main, "info", "Show information about each revert");
+	AddMenuItem(menu_main, "infotoggle", "Toggle loadout change revert info");
 
 	ItemFinalize();
 
 	AutoExecConfig(false, "reverts", "sourcemod");
+
+	g_hClientMessageCookie = RegClientCookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
 
 	hudsync = CreateHudSynchronizer();
 
@@ -1401,6 +1471,10 @@ public void OnClientConnected(int client) {
 	players[client].medic_medigun_defidx = 0;
 	players[client].medic_medigun_charge = 0.0;
 	players[client].parachute_cond_time = 0.0;
+
+	for (int i = 0; i < Wep_Placeholder; i++) {
+		prev_player_weapons[client][i] = false;
+	}
 }
 
 public void OnClientPutInServer(int client) {
@@ -2575,9 +2649,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
+		bool should_display_info_msg = false;
+
 		//cache players weapons for later funcs
 		{
+
 			for (int i = 0; i < Wep_Placeholder; i++) {
+				prev_player_weapons[client][i] = player_weapons[client][i];
 				player_weapons[client][i] = false;
 			}
 
@@ -2590,63 +2668,436 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, class, sizeof(class));
 					index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
-					if(
-						StrEqual(class,"tf_weapon_lunchbox_drink") &&
-						(index == 163)
+					if (
+						(index != 594) &&
+						(StrEqual(class, "tf_weapon_flamethrower") || 
+						StrEqual(class, "tf_weapon_rocketlauncher_fireball"))
 					) {
-						player_weapons[client][Wep_CritCola] = true;
+						player_weapons[client][Wep_Airblast] = true;
 					}
 
 					else if (
-						StrEqual(class,"tf_weapon_lunchbox_drink") &&
-						(index == 46 || index == 1145)
+						(index == 1104) &&
+						StrEqual(class, "tf_weapon_rocketlauncher_airstrike")
 					) {
-						player_weapons[client][Wep_Bonk] = true;
+						player_weapons[client][Wep_Airstrike] = true;
 					}
 
 					else if (
-						StrEqual(class,"tf_weapon_minigun") &&
-						(index == 312)
+						StrEqual(class, "tf_weapon_minigun")
 					) {
-						player_weapons[client][Wep_BrassBeast] = true;
+						player_weapons[client][Wep_Minigun] = true;
 					}
 
 					else if (
-						StrEqual(class,"tf_weapon_minigun") &&
-						(index == 41)
+						(index == 61 || index == 1006) &&
+						StrEqual(class, "tf_weapon_revolver")
 					) {
-						player_weapons[client][Wep_Natascha] = true;
+						player_weapons[client][Wep_Ambassador] = true;
 					}
 
 					else if (
-						StrEqual(class,"tf_weapon_rocketlauncher") &&
-						(index == 237)
+						(index == 450) &&
+						StrEqual(class, "tf_weapon_bat")
+					) {
+						player_weapons[client][Wep_Atomizer] = true;
+					}
+
+					else if (
+						(index == 38 || index == 457 || index == 1000) &&
+						StrEqual(class, "tf_weapon_fireaxe")
+					) {
+						player_weapons[client][Wep_Axtinguisher] = true;
+					}
+
+					else if (
+						(index == 772) &&
+						StrEqual(class, "tf_weapon_pep_brawler_blaster")
+					) {
+						player_weapons[client][Wep_BabyFace] = true;
+					}
+
+					else if (
+						(index == 40 || index == 1146 ) &&
+						StrEqual(class, "tf_weapon_flamethrower")
+					) {
+						player_weapons[client][Wep_Backburner] = true;
+					}
+
+					else if (
+						(index == 1101 ) &&
+						StrEqual(class, "tf_weapon_parachute")
+					) {
+						player_weapons[client][Wep_BaseJumper] = true;
+					}
+
+					else if (
+						(index == 237) &&
+						StrEqual(class, "tf_weapon_rocketlauncher")
 					) {
 						player_weapons[client][Wep_RocketJumper] = true;
 					}
 
 					else if (
-						StrEqual(class, "tf_weapon_sword") &&
-						(index == 404)
+						(index == 730) &&
+						StrEqual(class, "tf_weapon_rocketlauncher")
 					) {
-						player_weapons[client][Wep_PersianPersuader] = true;
+						player_weapons[client][Wep_Beggars] = true;
 					}
 
-					if(
-						StrEqual(class,"tf_weapon_lunchbox") &&
-						(index == 311)
+					else if (
+						(index == 442) &&
+						StrEqual(class, "tf_weapon_raygun")
+					) {
+						player_weapons[client][Wep_Bison] = true;
+					}
+
+					else if (
+						(index == 228 || index == 1085) &&
+						StrEqual(class, "tf_weapon_rocketlauncher")
+					) {
+						player_weapons[client][Wep_BlackBox] = true;
+					}
+
+					else if (
+						(index == 46 || index == 1145) &&
+						StrEqual(class, "tf_weapon_lunchbox_drink")
+					) {
+						player_weapons[client][Wep_Bonk] = true;
+					}
+					
+					else if (
+						(index == 312) &&
+						StrEqual(class, "tf_weapon_minigun")
+					) {
+						player_weapons[client][Wep_BrassBeast] = true;
+					}
+
+					else if (
+						(index == 311) &&
+						StrEqual(class, "tf_weapon_lunchbox")
 					) {
 						player_weapons[client][Wep_BuffaloSteak] = true;
 					}
 
-          				// shortstop primary ammo sharing with secondary pistol ammo
 					else if (
-						ItemIsEnabled("shortstop") &&
-						StrEqual(class,"tf_weapon_handgun_scout_primary")
+						(index == 232) &&
+						StrEqual(class, "tf_weapon_club")
 					) {
-						int SCOUT_PISTOL_AMMO_TYPE = 2;
-						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
-          				}
+						player_weapons[client][Wep_Bushwacka] = true;
+					}
+
+					else if (
+						(index == 307) &&
+						StrEqual(class, "tf_weapon_stickbomb")
+					) {
+						player_weapons[client][Wep_Caber] = true;
+					}
+
+					else if (
+						(index == 159 || index == 433) &&
+						StrEqual(class, "tf_weapon_lunchbox")
+					) {
+						player_weapons[client][Wep_Dalokoh] = true;
+					}
+
+					else if (
+						(index == 447) &&
+						StrEqual(class, "tf_weapon_shovel")
+					) {
+						player_weapons[client][Wep_Disciplinary] = true;
+					}
+
+					else if (
+						(index == 1178) &&
+						StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+					) {
+						player_weapons[client][Wep_DragonFury] = true;
+					}
+
+					else if (
+						(index == 996) &&
+						StrEqual(class, "tf_weapon_cannon")
+					) {
+						player_weapons[client][Wep_LooseCannon] = true;
+					}
+
+					else if (
+						(index == 751) &&
+						StrEqual(class, "tf_weapon_charged_smg")
+					) {
+						player_weapons[client][Wep_CleanerCarbine] = true;
+					}
+
+					else if (
+						(index == 327) &&
+						StrEqual(class, "tf_weapon_sword")
+					) {
+						player_weapons[client][Wep_Claidheamh] = true;
+					}
+
+					else if (
+						(index == 163) &&
+						StrEqual(class, "tf_weapon_lunchbox_drink")
+					) {
+						player_weapons[client][Wep_CritCola] = true;
+					}
+
+					else if (
+						(index == 215) &&
+						StrEqual(class, "tf_weapon_flamethrower")
+					) {
+						player_weapons[client][Wep_Degreaser] = true;
+					}
+
+					else if (
+						(index == 460) &&
+						StrEqual(class, "tf_weapon_revolver")
+					) {
+						player_weapons[client][Wep_Enforcer] = true;
+					}
+
+					else if (
+						(index == 128 || index == 775) &&
+						StrEqual(class, "tf_weapon_shovel")
+					) {
+						player_weapons[client][Wep_Pickaxe] = true; //handles both weps
+					}
+
+					else if (
+						(index == 225 || index == 574) &&
+						StrEqual(class, "tf_weapon_knife")
+					) {
+						player_weapons[client][Wep_EternalReward] = true;
+					}
+
+					else if (
+						(index == 426) &&
+						StrEqual(class, "tf_weapon_fists")
+					) {
+						player_weapons[client][Wep_Eviction] = true;
+					}
+
+					else if (
+						(index == 331) &&
+						StrEqual(class, "tf_weapon_fists")
+					) {
+						player_weapons[client][Wep_FistsSteel] = true;
+					}
+
+					else if (
+						(index == 416) &&
+						StrEqual(class, "tf_weapon_shovel")
+					) {
+						player_weapons[client][Wep_MarketGardener] = true;
+					}
+
+					else if (
+						(index == 239 || index == 1084 || index == 1100) &&
+						StrEqual(class, "tf_weapon_fists")
+					) {
+						player_weapons[client][Wep_GRU] = true;
+					}
+
+					else if (
+						(index == 812 || index == 833) &&
+						StrEqual(class, "tf_weapon_cleaver")
+					) {
+						player_weapons[client][Wep_Cleaver] = true;
+					}
+
+					else if (
+						(index == 414) &&
+						StrEqual(class, "tf_weapon_rocketlauncher")
+					) {
+						player_weapons[client][Wep_LibertyLauncher] = true;
+					}
+
+					else if (
+						(index == 308) &&
+						StrEqual(class, "tf_weapon_grenadelauncher")
+					) {
+						player_weapons[client][Wep_LochLoad] = true;
+					}
+
+					else if (
+						(index == 41) &&
+						StrEqual(class, "tf_weapon_minigun")
+					) {
+						player_weapons[client][Wep_Natascha] = true;
+					}
+
+					else if (
+						(index == 1153) &&
+						StrEqual(class, "tf_weapon_shotgun")
+					) {
+						player_weapons[client][Wep_PanicAttack] = true;
+					}
+
+					else if (
+						(index == 773) &&
+						StrEqual(class, "tf_weapon_handgun_scout_secondary")
+					) {
+						player_weapons[client][Wep_PocketPistol] = true;
+					}
+
+					else if (
+						(index == 588) &&
+						StrEqual(class, "tf_weapon_drg_pomson")
+					) {
+						player_weapons[client][Wep_Pomson] = true;
+					}
+
+					else if (
+						(index == 214) &&
+						StrEqual(class, "tf_weapon_fireaxe")
+					) {
+						player_weapons[client][Wep_Powerjack] = true;
+					}
+
+					else if (
+						(index == 404) &&
+						StrEqual(class, "tf_weapon_sword")
+					) {
+						player_weapons[client][Wep_Persian] = true;		
+					}
+
+					else if (
+						(index == 411) &&
+						StrEqual(class, "tf_weapon_medigun")
+					) {
+						player_weapons[client][Wep_QuickFix] = true;
+					}
+
+					else if (
+						(index == 997) &&
+						StrEqual(class, "tf_weapon_shotgun_building_rescue")
+					) {
+						player_weapons[client][Wep_RescueRanger] = true;
+					}
+
+					else if (
+						(index == 415) &&
+						StrEqual(class, "tf_weapon_shotgun")
+					) {
+						player_weapons[client][Wep_ReserveShooter] = true;
+					}
+
+					else if (
+						(index == 59) &&
+						StrEqual(class, "tf_weapon_invis")
+					) {
+						player_weapons[client][Wep_DeadRinger] = true;
+					}
+
+					else if (
+						(index == 44) &&
+						StrEqual(class, "tf_weapon_bat_wood")
+					) {
+						player_weapons[client][Wep_Sandman] = true;
+					}
+
+					else if (
+						(index == 130) &&
+						StrEqual(class, "tf_weapon_pipebomblauncher")
+					) {
+						player_weapons[client][Wep_Scottish] = true;
+					}
+
+					else if (
+						(index == 220) &&
+						StrEqual(class, "tf_weapon_handgun_scout_primary")
+					) {
+						player_weapons[client][Wep_Shortstop] = true;
+						if (ItemIsEnabled("shortstop")) {
+							int SCOUT_PISTOL_AMMO_TYPE = 2;
+							SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
+						}
+					}
+
+					else if (
+						(index == 230) &&
+						StrEqual(class, "tf_weapon_sniperrifle")
+					) {
+						player_weapons[client][Wep_SydneySleeper] = true;
+					}
+
+					else if (
+						(index == 448) &&
+						StrEqual(class, "tf_weapon_soda_popper")
+					) {
+						player_weapons[client][Wep_SodaPopper] = true;
+					}
+
+					else if (
+						(index == 413) &&
+						StrEqual(class, "tf_weapon_bonesaw")
+					) {
+						player_weapons[client][Wep_Solemn] = true;
+					}
+
+					else if (
+						(index == 528) &&
+						StrEqual(class, "tf_weapon_mechanical_arm")
+					) {
+						player_weapons[client][Wep_ShortCircuit] = true;
+					}
+
+					else if (
+						(index == 649) &&
+						StrEqual(class, "tf_weapon_knife")
+					) {
+						player_weapons[client][Wep_Spycicle] = true;
+					}
+
+					else if (
+						(index == 265) &&
+						StrEqual(class, "tf_weapon_pipebomblauncher")
+					) {
+						player_weapons[client][Wep_StickyJumper] = true;
+					}
+
+					else if (
+						(index == 424) &&
+						StrEqual(class, "tf_weapon_minigun")
+					) {
+						player_weapons[client][Wep_Tomislav] = true;
+					}
+
+					else if (
+						(index == 171) &&
+						StrEqual(class, "tf_weapon_club")
+					) {
+						player_weapons[client][Wep_TribalmansShiv] = true;
+					}
+
+					else if (
+						(index == 173) &&
+						StrEqual(class, "tf_weapon_bonesaw")
+					) {
+						player_weapons[client][Wep_VitaSaw] = true;
+					}
+
+					else if (
+						(index == 310) &&
+						StrEqual(class, "tf_weapon_fists")
+					) {
+						player_weapons[client][Wep_WarriorSpirit] = true;
+					}
+
+					else if (
+						(index == 357) &&
+						StrEqual(class, "tf_weapon_katana")
+					) {
+						player_weapons[client][Wep_Zatoichi] = true;
+					}
+
+					else if (
+						( StrEqual(class, "tf_weapon_sword") ||
+						StrEqual(class, "tf_weapon_katana") )
+					) {
+						player_weapons[client][Wep_Sword] = true;
+					}
 				}
 			}
 			int num_wearables = TF2Util_GetPlayerWearableCount(client);
@@ -2655,26 +3106,63 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				int wearable = TF2Util_GetPlayerWearable(client, i);			
 				GetEntityClassname(wearable, class, sizeof(class));
 				index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
-				
+
 				if (
-					StrEqual(class,"tf_wearable_demoshield") &&
-					(index == 131)
+					(index == 405 || index == 608) &&
+					StrEqual(class, "tf_wearable")
 				) {
-					player_weapons[client][Wep_CharginTarge] = true;
+					player_weapons[client][Wep_Booties] = true;
 				}
 
 				else if (
-					StrEqual(class,"tf_wearable_demoshield") &&
-					(index == 406)
+					(index == 642) &&
+					StrEqual(class, "tf_wearable")
+				) {
+					player_weapons[client][Wep_CozyCamper] = true;
+				}
+
+				else if (
+					(index == 231) &&
+					StrEqual(class, "tf_wearable")
+				) {
+					player_weapons[client][Wep_Darwin] = true;
+				}
+
+				else if (
+					(index == 57) &&
+					StrEqual(class, "tf_wearable_razorback")
+				) {
+					player_weapons[client][Wep_Razorback] = true;
+				}
+
+				else if (
+					(index == 406) &&
+					StrEqual(class, "tf_wearable_demoshield")
 				) {
 					player_weapons[client][Wep_SplendidScreen] = true;
 				}
 
 				else if (
-					StrEqual(class,"tf_wearable_demoshield") &&
-					(index == 1099)
+					(index == 131) &&
+					StrEqual(class, "tf_wearable_demoshield")
+				) {
+					player_weapons[client][Wep_CharginTarge] = true;
+				}
+				
+				else if (
+					(index == 1099) &&
+					StrEqual(class, "tf_wearable_demoshield")
 				) {
 					player_weapons[client][Wep_TideTurner] = true;
+				}
+			}
+
+			//honestly this is kind of a silly way of doing it
+			//but it works!
+			for (int i = 0; i < Wep_Placeholder; i++) {
+				if(prev_player_weapons[client][i] != player_weapons[client][i]) {
+					should_display_info_msg = true;
+					break;
 				}
 			}
 		}
@@ -2727,6 +3215,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			{
 				bool validSet = true;
 
+				//this code can be used if you want cosmetics to be a part of item sets
 				// bool validSet = false;
 				// int num_wearables = TF2Util_GetPlayerWearableCount(client);
 				// for (int i = 0; i < num_wearables; i++)
@@ -2748,13 +3237,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					{
 						case ItemSet_Saharan:
 						{
+							player_weapons[client][Wep_Saharan] = true;
 							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
 							TF2Attrib_SetByDefIndex(client, 160, 1.0); // SET BONUS: quiet unstealth
 						}
 					}
 				}
 			}
-
 		}
 
 		{
@@ -2767,6 +3256,23 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				{
 					players[client].is_under_hype = false;
 					TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
+				}
+			}
+		}
+
+		{
+
+			//help message (on loadout change)
+			if(should_display_info_msg) {
+				char msg[256];
+				if (cvar_enable.BoolValue) {
+					for (int i = 0; i < Wep_Placeholder; i++) {
+						if(player_weapons[client][i]) {
+							int idx = itemDefs[i];
+							Format(msg, sizeof(msg), "{gold}%s {lightgreen}- %s", items[idx].name, items[idx].desc);
+							CReplyToCommand(client, "%s", msg);
+						}
+					}
 				}
 			}
 		}
@@ -3836,7 +4342,7 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
-void ItemDefine(char[] name, char[] key, char[] desc, int classflags) {
+void ItemDefine(char[] name, char[] key, char[] desc, int classflags, int wep_enum) {
 	int idx;
 
 	for (idx = 0; idx < ITEMS_MAX; idx++) {
@@ -3845,6 +4351,11 @@ void ItemDefine(char[] name, char[] key, char[] desc, int classflags) {
 			strcopy(items[idx].name, sizeof(items[].name), name);
 			strcopy(items[idx].desc, sizeof(items[].desc), desc);
 			items[idx].classflags = classflags;
+			//the above can probably be consolidated into this
+			//alongside a removal of the "ITEMS_MAX" method
+			//in favor of using the weapon enum
+			//I'm too tired to implement it properly
+			itemDefs[wep_enum] = idx;
 			return;
 		}
 	}
@@ -3932,6 +4443,9 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 			}
 			else if (StrEqual(info, "classinfo")) {
 				ShowClassReverts(param1);
+			}
+			else if (StrEqual(info, "infotoggle")) {
+				ToggleSpawnInfo(param1);
 			}
 		}
 	}
@@ -4024,6 +4538,32 @@ void ShowClassReverts(int client) {
 	} else {
 		CReplyToCommand(client, "{lightgreen}There's nothing here... for some reason, all %s reverts are disabled :\\", class_names[class_idx]);
 	}
+}
+
+void ToggleSpawnInfo(int client) {
+	if (AreClientCookiesCached(client))
+	{
+		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
+		if (config_value) {
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
+			SetClientCookieInt(client,g_hClientMessageCookie,0);
+		} else {
+			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
+			SetClientCookieInt(client,g_hClientMessageCookie,1);
+		}
+	}
+}
+
+int GetClientCookieInt(int client, Handle hCookie) {
+	char sCookieValue[12];
+	GetClientCookie(client,hCookie,sCookieValue,sizeof(sCookieValue));
+	return StringToInt(sCookieValue);
+}
+
+void SetClientCookieInt(int client, Handle hCookie, int iValue) {
+	char sCookieValue[12];
+	IntToString(iValue,sCookieValue,sizeof(sCookieValue));
+	SetClientCookie(client, hCookie, sCookieValue);
 }
 
 #if defined VERDIUS_PATCHES
@@ -4440,7 +4980,7 @@ float PersuaderPackRatios[] =
 MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
 {
 	int client = GetEntityFromAddress(parameters.Get(1));
-	if (ItemIsEnabled("persuader") && player_weapons[client][Wep_PersianPersuader])
+	if (ItemIsEnabled("persuader") && player_weapons[client][Wep_Persian])
 	{
 		// Health pickup with the Persian Persuader.
 		returnValue.Value = false;
@@ -4477,7 +5017,7 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
 {
 	int client = parameters.Get(1);
-	if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader])
+	if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_Persian])
 	{
 		// Health pickup with the Persian Persuader from dropped ammo packs.
 		int health = GetClientHealth(client);
