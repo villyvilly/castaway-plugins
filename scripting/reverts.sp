@@ -2975,9 +2975,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						}
 					}
 					if(count) {
-						CReplyToCommand(client, "{day9}Weapon reverts enabled for your loadout:");
+						CPrintToChat(client, "{gold}Weapon reverts enabled for your loadout:");
 						for(int i = 0; i < count; i++) {
-							CReplyToCommand(client, "%s", msg[i]);
+							CPrintToChat(client, "%s", msg[i]);
 						}
 					}
 				}
@@ -3981,25 +3981,25 @@ bool PlayerIsCritboosted(int client) {
 	return false;
 }
 
-void PlayerRemoveEquipment(int client) {
-	int idx;
-	char class[64];
+// void PlayerRemoveEquipment(int client) {
+// 	int idx;
+// 	char class[64];
 
-	TF2_RemoveAllWeapons(client);
+// 	TF2_RemoveAllWeapons(client);
 
-	for (idx = (MaxClients + 1); idx < 2048; idx++) {
-		if (IsValidEntity(idx)) {
-			GetEntityClassname(idx, class, sizeof(class));
+// 	for (idx = (MaxClients + 1); idx < 2048; idx++) {
+// 		if (IsValidEntity(idx)) {
+// 			GetEntityClassname(idx, class, sizeof(class));
 
-			if (
-				StrContains(class, "tf_wearable") == 0 &&
-				GetEntPropEnt(idx, Prop_Send, "m_hOwnerEntity") == client
-			) {
-				TF2_RemoveWearable(client, idx);
-			}
-		}
-	}
-}
+// 			if (
+// 				StrContains(class, "tf_wearable") == 0 &&
+// 				GetEntPropEnt(idx, Prop_Send, "m_hOwnerEntity") == client
+// 			) {
+// 				TF2_RemoveWearable(client, idx);
+// 			}
+// 		}
+// 	}
+// }
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
