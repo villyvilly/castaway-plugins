@@ -2815,6 +2815,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
 
+						case 140: player_weapons[client][Wep_Wrangler] = true;
+						case 1086: player_weapons[client][Wep_Wrangler] = true;
+						case 30668: player_weapons[client][Wep_Wrangler] = true;
+
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
 
 						case 220: {
