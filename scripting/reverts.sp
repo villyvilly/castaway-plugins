@@ -141,6 +141,7 @@ enum struct Item {
 
 enum struct Player {
 	//int respawn; // frame to force a respawn after
+	bool received_help_notice;
 
 	// gameplay vars
 	float resupply_time;
@@ -512,6 +513,7 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_revertsinfo", Command_Info, (PLUGIN_NAME ... " - Show reverts info in console"), 0);
 	RegConsoleCmd("sm_classrevert", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
 	RegConsoleCmd("sm_classreverts", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
+	RegConsoleCmd("sm_toggleinfo", Command_ToggleInfo, (PLUGIN_NAME ... " - Toggle the revert info dump in chat when changing loadouts"), 0);
 
 	HookEvent("player_spawn", OnGameEvent, EventHookMode_Post);
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
@@ -1482,6 +1484,7 @@ public void OnClientConnected(int client) {
 	players[client].medic_medigun_defidx = 0;
 	players[client].medic_medigun_charge = 0.0;
 	players[client].parachute_cond_time = 0.0;
+	players[client].received_help_notice = false;
 
 	for (int i = 0; i < NUM_ITEMS; i++) {
 		prev_player_weapons[client][i] = false;
@@ -3014,6 +3017,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					for(int i = 0; i < count; i++) {
 						CPrintToChat(client, "%s", msg[i]);
 					}
+					//one time notice about disabling the help info
+					if (!players[client].received_help_notice) {
+						CPrintToChat(client,"{gold}Disable these messages in the !revert menu or with !toggleinfo");
+						players[client].received_help_notice = true;
+					}
 				}
 			}
 		}
@@ -3941,6 +3949,13 @@ Action Command_ClassInfo(int client, int args) {
 	return Plugin_Handled;
 }
 
+Action Command_ToggleInfo(int client, int args) {
+	if (client > 0) {
+		ToggleSpawnInfo(client);
+	}
+
+	return Plugin_Handled;
+}
 
 void SetConVarMaybe(Handle cvar, const char[] value, bool maybe) {
 	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
