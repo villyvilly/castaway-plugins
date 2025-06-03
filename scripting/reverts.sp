@@ -2825,7 +2825,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 						case 649: player_weapons[client][Wep_Spycicle] = true;
 
-						case 264: player_weapons[client][Wep_StickyJumper] = true;
+						case 265: player_weapons[client][Wep_StickyJumper] = true;
 
 						case 424: player_weapons[client][Wep_Tomislav] = true;
 
