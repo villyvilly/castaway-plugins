@@ -3951,7 +3951,7 @@ Action Command_ClassInfo(int client, int args) {
 
 Action Command_ToggleInfo(int client, int args) {
 	if (client > 0) {
-		ToggleSpawnInfo(client);
+		ToggleLoadoutInfo(client);
 	}
 
 	return Plugin_Handled;
@@ -4148,7 +4148,7 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 				ShowClassReverts(param1);
 			}
 			else if (StrEqual(info, "infotoggle")) {
-				ToggleSpawnInfo(param1);
+				ToggleLoadoutInfo(param1);
 			}
 		}
 	}
@@ -4242,7 +4242,7 @@ void ShowClassReverts(int client) {
 	}
 }
 
-void ToggleSpawnInfo(int client) {
+void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
 		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
