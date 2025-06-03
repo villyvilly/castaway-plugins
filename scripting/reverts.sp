@@ -2983,24 +2983,26 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 
 			//help message (on loadout change)
-			if(should_display_info_msg) {
-				if (cvar_enable.BoolValue) {
-					char msg[6][256];
-					int count = 0;
-					for (int i = 0; i < NUM_ITEMS; i++) {
-						if(
-							player_weapons[client][i] &&
-							ItemIsEnabled(i)
-						) {
-							Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items[i].desc);
-							count++;
-						}
+			if(
+				should_display_info_msg &&
+				cvar_enable.BoolValue &&
+				!GetClientCookieInt(client,g_hClientMessageCookie) //inverted because the default is zero
+			) {
+				char msg[6][256];
+				int count = 0;
+				for (int i = 0; i < NUM_ITEMS; i++) {
+					if(
+						player_weapons[client][i] &&
+						ItemIsEnabled(i)
+					) {
+						Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items[i].desc);
+						count++;
 					}
-					if(count) {
-						CPrintToChat(client, "{gold}Weapon reverts enabled for your loadout:");
-						for(int i = 0; i < count; i++) {
-							CPrintToChat(client, "%s", msg[i]);
-						}
+				}
+				if(count) {
+					CPrintToChat(client, "{gold}Weapon reverts enabled for your loadout:");
+					for(int i = 0; i < count; i++) {
+						CPrintToChat(client, "%s", msg[i]);
 					}
 				}
 			}
@@ -4220,10 +4222,10 @@ void ToggleSpawnInfo(int client) {
 	{
 		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
 		if (config_value) {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
+			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
 			SetClientCookieInt(client,g_hClientMessageCookie,0);
 		} else {
-			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
 			SetClientCookieInt(client,g_hClientMessageCookie,1);
 		}
 	}
