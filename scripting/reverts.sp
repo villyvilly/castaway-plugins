@@ -190,6 +190,7 @@ ConVar cvar_enable;
 ConVar cvar_extras;
 ConVar cvar_jumper_flag_run;
 ConVar cvar_old_falldmg_sfx;
+ConVar cvar_dropped_weapon_enable;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -252,6 +253,7 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
+Handle dhook_CTFPlayer_PickupWeaponFromOther;
 Handle dhook_CAmmoPack_MyTouch;
 Handle dhook_CTFAmmoPack_PackTouch;
 
@@ -380,8 +382,10 @@ public void OnPluginStart() {
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
+	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Keep dropped weapons but disallow picking them up"), _, true, 0.0, true, 1.0);
 
-	cvar_jumper_flag_run.AddChangeHook(JumperFlagRunCvarChange);
+	cvar_jumper_flag_run.AddChangeHook(OnJumperFlagRunCvarChange);
+	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO, Wep_Airblast);
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -550,6 +554,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
+		dhook_CTFPlayer_PickupWeaponFromOther = DHookCreateFromConf(conf, "CTFPlayer::PickupWeaponFromOther");
 		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
@@ -683,12 +688,14 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
+	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
   	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
   	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
+	DHookEnableDetour(dhook_CTFPlayer_PickupWeaponFromOther, false, DHookCallback_CTFPlayer_PickupWeaponFromOther);
 	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
@@ -697,8 +704,13 @@ public void OnPluginStart() {
 	}
 }
 
-public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const char[] newValue) {
+public void OnJumperFlagRunCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	UpdateJumperDescription();
+}
+
+public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	// weapon pickups are disabled to ensure attribute consistency
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
 }
 
 void UpdateJumperDescription() {
@@ -726,6 +738,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
 	UpdateJumperDescription();
 }
 
@@ -1444,9 +1457,6 @@ public void OnGameFrame() {
 	if (frame % 66 == 0) {
 		{
 			// set all the convars needed
-
-			// weapon pickups are disabled to ensure attribute consistency
-			SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
 
 			// these cvars are changed just-in-time, reset them
 			ResetConVar(cvar_ref_tf_airblast_cray);
@@ -4722,6 +4732,14 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
 			RemoveEntity(entity);
 		}
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (cvar_dropped_weapon_enable.BoolValue) {
+		returnValue.Value = false;
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
