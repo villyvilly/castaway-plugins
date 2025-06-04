@@ -475,7 +475,7 @@ public void OnPluginStart() {
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up", CLASSFLAG_ENGINEER, Wep_Wrangler);
+	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second dying", CLASSFLAG_ENGINEER, Wep_Wrangler);
 #endif
 	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty", CLASSFLAG_SPY, Wep_EternalReward);
 
