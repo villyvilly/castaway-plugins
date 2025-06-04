@@ -2543,7 +2543,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		if (
 			client > 0 &&
 			client <= MaxClients &&
-			IsClientInGame(client) && ItemIsEnabled("wrangler")
+			IsClientInGame(client) && 
+			ItemIsEnabled(Wep_Wrangler)
 		) {
 			// 1 second sentry disable if wrangler shield active && engineer dies.
 			// should not effect the normal 3 second disable on engineer weapon switch etc.
