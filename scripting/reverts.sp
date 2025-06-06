@@ -744,7 +744,6 @@ public void OnConfigsExecuted() {
 #endif
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
-	UpdateJumperDescription();
 }
 
 #if defined VERDIUS_PATCHES
