@@ -742,7 +742,6 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
-	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 }
 
