@@ -2805,136 +2805,64 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					switch (index) {
 						case 1104:player_weapons[client][Wep_Airstrike] = true;
-
 						case 61: player_weapons[client][Wep_Ambassador] = true;
-
 						case 1006: player_weapons[client][Wep_Ambassador] = true;
-
 						case 450: player_weapons[client][Wep_Atomizer] = true;
-
-						case 38: player_weapons[client][Wep_Axtinguisher] = true;
-						case 47: player_weapons[client][Wep_Axtinguisher] = true;
-						case 1000: player_weapons[client][Wep_Axtinguisher] = true;
-
+						case 38, 47, 1000: player_weapons[client][Wep_Axtinguisher] = true;
 						case 772: player_weapons[client][Wep_BabyFace] = true;
-
-						case 40: player_weapons[client][Wep_Backburner] = true;
-						case 1146: player_weapons[client][Wep_Backburner] = true;
-
+						case 40, 1146: player_weapons[client][Wep_Backburner] = true;
 						case 1101: player_weapons[client][Wep_BaseJumper] = true;
-
 						case 237: player_weapons[client][Wep_RocketJumper] = true;
-
 						case 730: player_weapons[client][Wep_Beggars] = true;
-
 						case 442: player_weapons[client][Wep_Bison] = true;
-
-						case 228: player_weapons[client][Wep_BlackBox] = true;
-						case 1085: player_weapons[client][Wep_BlackBox] = true;
-
-						case 46: player_weapons[client][Wep_Bonk] = true;
-						case 1145: player_weapons[client][Wep_Bonk] = true;
-
+						case 228, 1085: player_weapons[client][Wep_BlackBox] = true;
+						case 46, 1145: player_weapons[client][Wep_Bonk] = true;
 						case 312: player_weapons[client][Wep_BrassBeast] = true;
-
 						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
-
 						case 232: player_weapons[client][Wep_Bushwacka] = true;
-
 						case 307: player_weapons[client][Wep_Caber] = true;
-
-						case 159: player_weapons[client][Wep_Dalokoh] = true;
-						case 433: player_weapons[client][Wep_Dalokoh] = true;
-
+						case 159, 433: player_weapons[client][Wep_Dalokoh] = true;
 						case 447: player_weapons[client][Wep_Disciplinary] = true;
-
 						case 1178: player_weapons[client][Wep_DragonFury] = true;
-
 						case 996: player_weapons[client][Wep_LooseCannon] = true;
-
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
-
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
-
 						case 163: player_weapons[client][Wep_CritCola] = true;
-
 						case 215: player_weapons[client][Wep_Degreaser] = true;
-
 						case 460: player_weapons[client][Wep_Enforcer] = true;
-
-						case 128: player_weapons[client][Wep_Pickaxe] = true;
-						case 775: player_weapons[client][Wep_Pickaxe] = true;
-
-						case 225: player_weapons[client][Wep_EternalReward] = true;
-						case 574: player_weapons[client][Wep_EternalReward] = true;
-
+						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
+						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
 						case 426: player_weapons[client][Wep_Eviction] = true;
-
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
-
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
-
-						case 239: player_weapons[client][Wep_GRU] = true;
-						case 1084: player_weapons[client][Wep_GRU] = true;
-						case 1100: player_weapons[client][Wep_GRU] = true;
-
-						case 812: player_weapons[client][Wep_Cleaver] = true;
-						case 833: player_weapons[client][Wep_Cleaver] = true;
-
+						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
+						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
-
 						case 308: player_weapons[client][Wep_LochLoad] = true;
-
 						case 41: player_weapons[client][Wep_Natascha] = true;
-
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
-
 						case 773: player_weapons[client][Wep_PocketPistol] = true;
-
 						case 588: player_weapons[client][Wep_Pomson] = true;
-
 						case 214: player_weapons[client][Wep_Powerjack] = true;
-
 						case 404: player_weapons[client][Wep_Persian] = true;
-
 						case 411: player_weapons[client][Wep_QuickFix] = true;
-
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
-
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
-
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
-
 						case 44: player_weapons[client][Wep_Sandman] = true;
-
 						case 130: player_weapons[client][Wep_Scottish] = true;
-
 						case 230: player_weapons[client][Wep_SydneySleeper] = true;
-
 						case 448: player_weapons[client][Wep_SodaPopper] = true;
-
 						case 413: player_weapons[client][Wep_Solemn] = true;
-
 						case 528: player_weapons[client][Wep_ShortCircuit] = true;
-
 						case 649: player_weapons[client][Wep_Spycicle] = true;
-
 						case 265: player_weapons[client][Wep_StickyJumper] = true;
-
 						case 424: player_weapons[client][Wep_Tomislav] = true;
-
 						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
-
 						case 173: player_weapons[client][Wep_VitaSaw] = true;
-
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
-
-						case 140: player_weapons[client][Wep_Wrangler] = true;
-						case 1086: player_weapons[client][Wep_Wrangler] = true;
-						case 30668: player_weapons[client][Wep_Wrangler] = true;
-
+						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
-
 						case 220: {
 							player_weapons[client][Wep_Shortstop] = true;
 							if (ItemIsEnabled(Wep_Shortstop)) {
