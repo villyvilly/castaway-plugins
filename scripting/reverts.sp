@@ -1035,10 +1035,9 @@ public void OnGameFrame() {
 								GetEntityClassname(weapon, class, sizeof(class));
 
 								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-									// Shortstop shove leftover code from Bakugo
 									// disable secondary attack
 									// this is somewhat broken, can still shove by holding m2 when reload ends
-									// SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
+									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
 								}
 							}
 						}
@@ -2059,14 +2058,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(item1, 1);
 			TF2Items_SetAttribute(item1, 0, 10, 1.25); // +25% ÜberCharge rate
 		}}
-		#if defined VERDIUS_PATCHES
+#if defined VERDIUS_PATCHES
 		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 1);
 			TF2Items_SetAttribute(item1, 0, 469, 130.0); //ranged pickup metal cost
 		}}
-		#endif
+#endif
 		case 415: { if (ItemIsEnabled(Wep_ReserveShooter) && GetItemVariant(Wep_ReserveShooter) == 1) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2249,18 +2248,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 	if (StrEqual(name, "player_spawn")) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
 		players[client].ticks_since_switch = 0;
-
-		{
-			// apply attrib changes
-
-			// if (IsPlayerAlive(client)) {
-			// 	// tf2 only respawns a player's weapon/wearable entities when those entities are different from
-			// 	// the ones that should be equipped, aka when the player changes class or equips a different weapon.
-			// 	// we manually force it to happen by removing the entities and respawning the player a few ticks later.
-			// 	PlayerRemoveEquipment(client);
-			// 	players[client].respawn = GetGameTickCount();
-			// }
-		}
 
 		{
 			// vitasaw charge apply
@@ -3791,26 +3778,6 @@ bool PlayerIsCritboosted(int client) {
 
 	return false;
 }
-
-// void PlayerRemoveEquipment(int client) {
-// 	int idx;
-// 	char class[64];
-
-// 	TF2_RemoveAllWeapons(client);
-
-// 	for (idx = (MaxClients + 1); idx < 2048; idx++) {
-// 		if (IsValidEntity(idx)) {
-// 			GetEntityClassname(idx, class, sizeof(class));
-
-// 			if (
-// 				StrContains(class, "tf_wearable") == 0 &&
-// 				GetEntPropEnt(idx, Prop_Send, "m_hOwnerEntity") == client
-// 			) {
-// 				TF2_RemoveWearable(client, idx);
-// 			}
-// 		}
-// 	}
-// }
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
