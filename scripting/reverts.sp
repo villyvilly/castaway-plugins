@@ -3089,6 +3089,7 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						// melee damage is always 35
 						damage = 35.0;
+						LogMessage("Caber damage set to melee for %N attacking %N - %d, %f", attacker, victim, damage_custom, damage);
 						return Plugin_Changed;
 					}
 
@@ -3111,8 +3112,10 @@ Action SDKHookCB_OnTakeDamage(
 							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
 						}
 
+						LogMessage("Caber damage set to explosion for %N attacking %N", attacker, victim);
 						return Plugin_Changed;
 					}
+					LogMessage("Caber damage passed through for %N attacking %N - %d, %f", attacker, victim, damage_custom, damage);
 				}
 			}
 
