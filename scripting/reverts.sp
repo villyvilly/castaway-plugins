@@ -237,19 +237,18 @@ MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
 MemoryPatch Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat;
 MemoryPatch Verdius_RevertDalokohsBar_MOV_400;
 
+MemoryPatch Patch_DroppedWeapon;
+
 float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for revert
 
 // Address of our float to use for the MOVSS part of revert:
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 // ========================================================
 
+Handle dhook_CTFAmmoPack_MakeHolidayPack;
+
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
-// TODO: WINDOWSSSSSSSSSSSSS
-#if !defined WIN32
-MemoryPatch Patch_DroppedWeapon;
-Handle dhook_CTFAmmoPack_MakeHolidayPack;
-#endif
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -561,8 +560,8 @@ public void OnPluginStart() {
 		sdkcall_JarExplode = EndPrepSDKCall();
 
 		StartPrepSDKCall(SDKCall_Entity);
-    	PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CAmmoPack::GetPowerupSize");
-   		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CAmmoPack::GetPowerupSize");
+		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
 
 		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
@@ -641,12 +640,10 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
-#if !defined WIN32
 		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
-#endif
 
 		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -682,9 +679,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
-#if !defined WIN32
 		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
-#endif
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
 
@@ -731,13 +726,11 @@ public void OnPluginStart() {
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
-#if !defined WIN32
 	if (convar.BoolValue) {
 		Patch_DroppedWeapon.Enable();
 	} else {
 		Patch_DroppedWeapon.Disable();
 	}
-#endif
 }
 
 public void OnConfigsExecuted() {
@@ -760,20 +753,20 @@ bool ValidateAndNullCheck(MemoryPatch patch) {
 
 Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 {
-    char cvarName[128];
-    event.GetString("cvarname", cvarName, sizeof(cvarName));
-    if (StrContains(cvarName, "sm_reverts__item_") != -1)
-    {
-    	char item[64];
+	char cvarName[128];
+	event.GetString("cvarname", cvarName, sizeof(cvarName));
+	if (StrContains(cvarName, "sm_reverts__item_") != -1)
+	{
+		char item[64];
 		strcopy(item,sizeof(item),cvarName[strlen("sm_reverts__item_")]);
 		for (int i; i < NUM_ITEMS; i++) {
 			if (StrEqual(items[i].key,item)) {
 				VerdiusTogglePatches(ItemIsEnabled(i),i);
-        		return Plugin_Handled;
+				return Plugin_Handled;
 			}
 		}
 	}
-    return Plugin_Continue;
+	return Plugin_Continue;
 }
 
 void VerdiusTogglePatches(bool enable, int wep_enum) {
@@ -2310,9 +2303,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				if (sentry != -1) {
 					int isControlled = GetEntProp(sentry, Prop_Send, "m_bPlayerControlled");
 					if (isControlled > 0) {
-					    Address sentryBaseAddr = GetEntityAddress(sentry); // Get base address of sentry.
+						Address sentryBaseAddr = GetEntityAddress(sentry); // Get base address of sentry.
 
-					    // Offset to m_flShieldFadeTime and input our own value.
+						// Offset to m_flShieldFadeTime and input our own value.
 #if !defined WIN32
 						// Offset for Linux (0xB50)
 						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB50), GetGameTime() + 1.0, NumberType_Int32);
@@ -3744,7 +3737,7 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 
 int GetFeignBuffsEnd(int client)
 {
-    return players[client].ticks_since_feign_ready + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
+	return players[client].ticks_since_feign_ready + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
 }
 
 bool PlayerIsInvulnerable(int client) {
@@ -3991,119 +3984,119 @@ void ToggleLoadoutInfo(int client) {
 
 #if defined VERDIUS_PATCHES
 int HealBuilding(int buildingIndex, int engineerIndex) {
-    float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
-    RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
-    int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
-    //int maxHealth = GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth");
-    int RepairAmount = RoundToNearest(RepairAmountFloat);
-    if (RepairAmountFloat > 0.0) {
+	float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
+	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
+	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
+	//int maxHealth = GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth");
+	int RepairAmount = RoundToNearest(RepairAmountFloat);
+	if (RepairAmountFloat > 0.0) {
 
-    //Need to calc limits ourself.
+	//Need to calc limits ourself.
 
-    SetVariantInt(RepairAmount);
-    AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
-    int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
-    Event event = CreateEvent("building_healed");
+	SetVariantInt(RepairAmount);
+	AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
+	int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
+	Event event = CreateEvent("building_healed");
 
-    if (event != null)
-    {
-        event.SetInt("priority", 1); // HLTV event priority, not transmitted
-        event.SetInt("building", buildingIndex); // self-explanatory.
-        event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
-        event.SetInt("amount", currentHealth - newHealth); // Repairamount to display. Will be something between 1-75.
+	if (event != null)
+	{
+		event.SetInt("priority", 1); // HLTV event priority, not transmitted
+		event.SetInt("building", buildingIndex); // self-explanatory.
+		event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
+		event.SetInt("amount", currentHealth - newHealth); // Repairamount to display. Will be something between 1-75.
 
-        FireEvent(event); // FIRE IN THE HOLE!!!!!!!
-    }
+		FireEvent(event); // FIRE IN THE HOLE!!!!!!!
+	}
 
-    // Check if building owner and the engineer who shot the bolt
-    // are the same person, if not. Give them progress on
-    // the "Circle the Wagons" achivement.
-    int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
-    if (buildingOwner != engineerIndex) {
-        AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
-    }
-    } else {RepairAmount = 0;}
+	// Check if building owner and the engineer who shot the bolt
+	// are the same person, if not. Give them progress on
+	// the "Circle the Wagons" achivement.
+	int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
+	if (buildingOwner != engineerIndex) {
+		AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
+	}
+	} else {RepairAmount = 0;}
 
-    return RepairAmount;
+	return RepairAmount;
 }
 
 int GetEntityOwner(int entityIndex)
 {
-    if (!IsValidEntity(entityIndex))
-        return -1; // Invalid entity
+	if (!IsValidEntity(entityIndex))
+		return -1; // Invalid entity
 
-    int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+	int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
 
-    if (!IsFakeClient(owner) || IsFakeClient(owner))
-        return owner; // Returns the player (or bot) index of the owner
+	if (!IsFakeClient(owner) || IsFakeClient(owner))
+		return owner; // Returns the player (or bot) index of the owner
 
-    return -1; // Owner not found
+	return -1; // Owner not found
 }
 
 bool AreEntitiesOnSameTeam(int entity1, int entity2)
 {
-    if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
-        return false;
+	if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
+		return false;
 
-    int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
-    int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
+	int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
+	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
 
-    return (team1 == team2);
+	return (team1 == team2);
 }
 
 bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 {
-    if (!IsValidEntity(buildingIndex))
-        return false;
+	if (!IsValidEntity(buildingIndex))
+		return false;
 
-    char classname[64];
-    GetEntityClassname(buildingIndex, classname, sizeof(classname));
+	char classname[64];
+	GetEntityClassname(buildingIndex, classname, sizeof(classname));
 
-    if (!StrEqual(classname, "obj_sentrygun", false)
-     && !StrEqual(classname, "obj_teleporter", false)
-     && !StrEqual(classname, "obj_dispenser", false))
-    {
-        //PrintToChatAll("Entity did not match buildings");
-        return false;
-    }
+	if (!StrEqual(classname, "obj_sentrygun", false)
+	 && !StrEqual(classname, "obj_teleporter", false)
+	 && !StrEqual(classname, "obj_dispenser", false))
+	{
+		//PrintToChatAll("Entity did not match buildings");
+		return false;
+	}
 
 	if (GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper")
 	 || GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable")
 	 || GetEntProp(buildingIndex, Prop_Send, "m_bBuilding")
 	 || GetEntProp(buildingIndex, Prop_Send, "m_bPlacing"))
 	{
-	    //PrintToChatAll("Big if statement about sappers etc triggered");
-	    return false;
+		//PrintToChatAll("Big if statement about sappers etc triggered");
+		return false;
 	}
 
 	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
-	    //PrintToChatAll("Entities were not on the same team");
-	    return false;
+		//PrintToChatAll("Entities were not on the same team");
+		return false;
 	}
 
-    return true;
+	return true;
 }
 
 void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
 {
-    if (!IsValidEntity(entityIndex))
-    return;
+	if (!IsValidEntity(entityIndex))
+	return;
 
-    TE_Start("TFParticleEffect");
+	TE_Start("TFParticleEffect");
 
-    TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
-    TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
-    TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
+	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
+	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
+	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
 
-    TE_SendToAll();
+	TE_SendToAll();
 }
 
 public float fmin(float a, float b) {
-    return a < b ? a : b;
+	return a < b ? a : b;
 }
 
 public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
-    if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
+	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
 	}
 
@@ -4120,18 +4113,18 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 
 int FindSentryGunOwnedByClient(int client)
 {
-    if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-        return -1;
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
 
-    int ent = -1;
-    while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
-    {
-        int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-        if (owner == client)
-            return ent;
-    }
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (owner == client)
+			return ent;
+	}
 
-    return -1;
+	return -1;
 }
 
 
@@ -4497,19 +4490,19 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 #if defined VERDIUS_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
-    // Just ignore PreHealing moment and do everything in post.
-    if (ItemIsEnabled(Wep_RescueRanger)) {
-        return MRES_Supercede;
-    }
+	// Just ignore PreHealing moment and do everything in post.
+	if (ItemIsEnabled(Wep_RescueRanger)) {
+		return MRES_Supercede;
+	}
 
-    // If fix is not enabled, then let the game execute function as normal.
-    return MRES_Ignored;
+	// If fix is not enabled, then let the game execute function as normal.
+	return MRES_Ignored;
 }
 
 MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-	    int buildingIndex = parameters.Get(1);
-	    int engineerIndex = GetEntityOwner(arrowEntity);
+		int buildingIndex = parameters.Get(1);
+		int engineerIndex = GetEntityOwner(arrowEntity);
 
 		// Sentry and Engineer must be on the same team for heal to happen.
 		if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
@@ -4531,21 +4524,19 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 			}
 		}
 
-	    return MRES_Supercede;
-	    }
+		return MRES_Supercede;
+		}
 
 	// If fix is not enabled, then let the game execute function as normal.
 	return MRES_Ignored;
 }
 
-#if !defined WIN32
 MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	if (cvar_dropped_weapon_enable.BoolValue) {
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
-#endif
 #endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
@@ -4572,54 +4563,54 @@ int abs(int x)
 
 MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
 {
-    if (ItemIsEnabled(Wep_Spycicle))
-    {
-        // Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
-        returnValue.Value = false;
-        return MRES_Supercede;
-    }
-    return MRES_Ignored;
+	if (ItemIsEnabled(Wep_Spycicle))
+	{
+		// Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+		returnValue.Value = false;
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
 }
 
 //Get the smaller integral value
 int intMin(int x, int y)
 {
-    return x > y ? y : x;
+	return x > y ? y : x;
 }
 
 int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
 {
-    return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
+	return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
 }
 
 int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
 {
-    static int offs_RefEHandle;
-    if (offs_RefEHandle)
-    {
-        return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
-    }
+	static int offs_RefEHandle;
+	if (offs_RefEHandle)
+	{
+		return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
+	}
 
-    // if we don't have it already, attempt to lookup offset based on SDK information
-    // CWorld is derived from CBaseEntity so it should have both offsets
-    int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
-    if (offs_angRotation == -1)
-    {
-        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
-    }
-    else if (offs_vecViewOffset == -1)
-    {
-        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
-    }
-    else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04))
-    {
-        char game[32];
-        GetGameFolderName(game, sizeof(game));
-        ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
-                ... "(incorrect assumption for game '%s'?)", game);
-    }
+	// if we don't have it already, attempt to lookup offset based on SDK information
+	// CWorld is derived from CBaseEntity so it should have both offsets
+	int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
+	if (offs_angRotation == -1)
+	{
+		ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
+	}
+	else if (offs_vecViewOffset == -1)
+	{
+		ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
+	}
+	else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04))
+	{
+		char game[32];
+		GetGameFolderName(game, sizeof(game));
+		ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
+				... "(incorrect assumption for game '%s'?)", game);
+	}
 
-    // offset seems right, cache it for the next call
-    offs_RefEHandle = offs_angRotation + 0x0C;
-    return GetEntityFromAddress(pEntity);
+	// offset seems right, cache it for the next call
+	offs_RefEHandle = offs_angRotation + 0x0C;
+	return GetEntityFromAddress(pEntity);
 }
