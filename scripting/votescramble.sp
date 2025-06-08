@@ -77,9 +77,9 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	if (timer != -1)
 	{
 		float end_time = GetEntPropFloat(timer, Prop_Send, "m_flTimerEndTime");
-		LogMessage("Scramble issued at time: %f, round end time: %f",GetGameTime(),end_time);
+		LogMessage("Round Start at time: %f, round end time: %f",GetGameTime(),end_time);
 	} else {
-		LogMessage("Scramble issued at time: %f, round timer not found",GetGameTime());
+		LogMessage("Round Start at time: %f, round timer not found",GetGameTime());
 	}
 }
 
