@@ -573,9 +573,8 @@ void ScrambleTeams()
 	int timer = FindEntityByClassname(-1, "team_round_timer");
 	if (timer != -1)
 	{
-		float m_flTimerEndTime = GetEntPropFloat(timer, Prop_Send, "m_flTimerEndTime");
 		int m_nSetupTimeLength = GetEntProp(timer, Prop_Send, "m_nSetupTimeLength");
-		SetEntPropFloat(timer,Prop_Send,"m_flTimerEndTime",m_flTimerEndTime + m_nSetupTimeLength);
+		SetEntPropFloat(timer,Prop_Send,"m_flTimerEndTime",GetGameTime() + m_nSetupTimeLength);
 	}
 }
 
