@@ -72,15 +72,6 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 		g_bScrambleTeams = false;
 		ScheduleScramble();
 	}
-
-	int timer = FindEntityByClassname(-1, "team_round_timer");
-	if (timer != -1)
-	{
-		float end_time = GetEntPropFloat(timer, Prop_Send, "m_flTimerEndTime");
-		LogMessage("Round Start at time: %f, round end time: %f",GetGameTime(),end_time);
-	} else {
-		LogMessage("Round Start at time: %f, round timer not found",GetGameTime());
-	}
 }
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
@@ -610,6 +601,14 @@ void ScrambleTeams()
 
 	g_bScrambleTeamsInProgress = false;
 
+	//reset setup timer
+	int timer = FindEntityByClassname(-1, "team_round_timer");
+	if (timer != -1)
+	{
+		float m_flTimerEndTime = GetEntPropFloat(timer, Prop_Send, "m_flTimerEndTime");
+		int m_nSetupTimeLength = GetEntProp(timer, Prop_Send, "m_nSetupTimeLength");
+		SetEntPropFloat(timer,Prop_Send,"m_flTimerEndTime",m_flTimerEndTime + m_nSetupTimeLength);
+	}
 }
 
 bool FindAndSwapPlayers(ArrayList clientList, int &delta)
