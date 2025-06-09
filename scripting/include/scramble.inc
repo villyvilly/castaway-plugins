@@ -1,9 +1,37 @@
+#define SPECTATOR 1
+#define RED 2
+#define BLU 3
+#define AUTOASSIGN 5
+
+bool g_bScrambleTeamsInProgress = false;
+int g_iTeamManagerRed;
+int g_iTeamManagerBlue;
+int g_iPlayerManager;
+
+enum struct ScoreData
+{
+	int client;
+	int score;
+}
+
 void ScrambleTeams()
 {
 	g_bScrambleTeamsInProgress = true;
 	Event scramble_team_alert = CreateEvent("teamplay_alert");
 	scramble_team_alert.SetInt("alert_type", 0);
 	scramble_team_alert.Fire();
+
+	g_iPlayerManager = GetPlayerResourceEntity();
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "tf_team")) != -1)
+	{
+		switch(GetEntProp(ent,Prop_Send,"m_iTeamNum"))
+		{
+			case RED: g_iTeamManagerRed = ent;
+			case BLU: g_iTeamManagerBlue = ent;
+		}
+	}
+
 	// replica of the way scrambles are performed in the TF2 code
 	// src/game/shared/tf/tf_gamerules.cpp:L16071
 	ArrayList clientList = new ArrayList(sizeof(ScoreData));

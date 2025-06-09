@@ -29,31 +29,16 @@ ConVar cvarVoteMenuPercent;
 ConVar cvarMinimumVotesNeeded;
 ConVar cvarSkipSecondVote;
 
-int g_iTeamManagerRed;
-int g_iTeamManagerBlue;
-int g_iPlayerManager;
 int g_iVoters;
 int g_iVotes;
 int g_iVotesNeeded;
 bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
-bool g_bScrambleTeamsInProgress;
 bool g_bCanScramble;
 bool g_bIsArena;
 bool g_bServerWaitingForPlayers;
 Handle g_tRoundResetTimer;
-
-#define SPECTATOR 1
-#define RED 2
-#define BLU 3
-#define AUTOASSIGN 5
-
-enum struct ScoreData
-{
-	int client;
-	int score;
-}
 
 public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast)
 {
@@ -75,11 +60,6 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
-{
-	if (!event.GetBool("silent")) event.BroadcastDisabled = g_bScrambleTeamsInProgress;
-}
-
 public void OnPluginStart()
 {
 	CreateConVar("nano_votescramble_version", PLUGIN_VERSION, "Vote Scramble Version", FCVAR_DONTRECORD);
@@ -92,10 +72,6 @@ public void OnPluginStart()
 	cvarMinimumVotesNeeded = CreateConVar("nano_votescramble_minimum", "3", "What are the minimum number of votes needed to initiate a chat vote?", 0);
 	cvarSkipSecondVote = CreateConVar("nano_votescramble_skip_second_vote", "0", "Should the second vote be skipped?", 0, true, 0.0, true, 1.0);
 
-	// cvarTimeLimit = FindConVar("mp_timelimit");
-	// cvarMaxRounds = FindConVar("mp_maxrounds");
-	// cvarWinLimit = FindConVar("mp_winlimit");
-
 	RegConsoleCmd("sm_votescramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_vscramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_scramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
@@ -104,8 +80,6 @@ public void OnPluginStart()
 	HookEvent("teamplay_win_panel", Event_RoundWin);
 	HookEvent("teamplay_round_start", Event_RoundStart);
 	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
-
-	// CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
 
 	AutoExecConfig(true);
 }
@@ -137,23 +111,12 @@ public void OnMapStart()
 	g_bServerWaitingForPlayers = false;
 	g_bCanScramble = false;
 	g_bIsArena = false;
-	g_iPlayerManager = GetPlayerResourceEntity();
 
 	int ent = -1;
 	while ((ent = FindEntityByClassname(ent, "tf_logic_arena")) != -1)
 	{
 		g_bIsArena = true;
 		break;
-	}
-
-	ent = -1;
-	while ((ent = FindEntityByClassname(ent, "tf_team")) != -1)
-	{
-		switch(GetEntProp(ent,Prop_Send,"m_iTeamNum"))
-		{
-			case RED: g_iTeamManagerRed = ent;
-			case BLU: g_iTeamManagerBlue = ent;
-		}
 	}
 }
 
@@ -355,43 +318,11 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 	return 0;
 }
 
-// public Action Timer_CountMinutes(Handle timer) {
-// 	g_iMinutesSinceLastScramble++;
-// 	return Plugin_Continue;
-// }
-
 public Action Timer_Scramble(Handle timer) {
 	PrintToChatAll("Scrambling the teams due to vote.");
 	ScrambleTeams();
 	return Plugin_Continue;
 }
-
-// public Action Timer_DelayLimitsUpdate(Handle timer) {
-// 	// subtract from maxrounds/winlimit after scramble to prevent artificial superextension of maps
-// 	// assume no limit if 0, don't set negatives
-// 	if (cvarMaxRounds.IntValue != 0) {
-// 		SetConVarInt(cvarMaxRounds, cvarMaxRounds.IntValue - g_iRoundsSinceLastScramble, false, true);
-// 	}
-
-// 	if (cvarWinLimit.IntValue != 0) {
-// 		int rounds;
-// 		rounds = cvarWinLimit.IntValue - g_iRoundsSinceLastScramble;
-// 		rounds = rounds > 1 ? rounds : 1;
-// 		SetConVarInt(cvarWinLimit, rounds, false, true);
-// 	}
-
-// 	if (cvarTimeLimit.IntValue != 0) {
-// 		int time = cvarTimeLimit.IntValue - g_iMinutesSinceLastScramble;
-// 		time = time > 5 ? time : 5;
-// 		LogMessage("Time: %d, time limit: %d, minutes since scramble: %d",time,cvarTimeLimit.IntValue,g_iMinutesSinceLastScramble);
-// 		SetConVarInt(cvarTimeLimit, time, false, true);
-// 	}
-
-// 	g_iRoundsSinceLastScramble = 0;
-// 	g_iMinutesSinceLastScramble = 0;
-
-// 	return Plugin_Continue;
-// }
 
 public Action Timer_Retry(Handle timer)
 {
@@ -402,8 +333,6 @@ public Action Timer_Retry(Handle timer)
 void ScheduleScramble()
 {
 	CreateTimer(0.1, Timer_Scramble);
-	//unnecessary now?
-	//CreateTimer(1.0, Timer_DelayLimitsUpdate);
 }
 
 public Action Timer_PreventScramble(Handle timer)
@@ -425,4 +354,10 @@ void ForceRespawn()
 public Action Post_RespawnCommandRun(Handle timer, int flags) {
 	SetCommandFlags("mp_forcerespawnplayers", flags);
 	return Plugin_Continue;
+}
+
+//hides the team swap message
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+	if (!event.GetBool("silent")) event.BroadcastDisabled = g_bScrambleTeamsInProgress;
 }
