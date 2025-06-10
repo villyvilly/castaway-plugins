@@ -73,7 +73,7 @@
 #define PLUGIN_VERSION_GIT PLUGIN_VERSION ... "%GIT_COMMIT%"
 #endif
 
-#define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
+#define PLUGIN_URL "https://castaway.tf"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
