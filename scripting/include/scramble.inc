@@ -119,7 +119,9 @@ void ScrambleTeams()
 	if (timer != -1)
 	{
 		int m_nSetupTimeLength = GetEntProp(timer, Prop_Send, "m_nSetupTimeLength");
-		SetEntPropFloat(timer,Prop_Send,"m_flTimerEndTime",GetGameTime() + m_nSetupTimeLength);
+		if (m_nSetupTimeLength > 10) {
+			SetEntPropFloat(timer,Prop_Send,"m_flTimerEndTime",GetGameTime() + m_nSetupTimeLength);
+		}
 	}
 }
 
