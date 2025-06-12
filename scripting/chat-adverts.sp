@@ -51,11 +51,11 @@ public Action Timer_SendAdvert(Handle timer)
 public Action EventRoundStart(Event event, const char[] name, bool dontbroadcast) {
     int time = GetTime();
 
-    char day_str[2];
+    char day_str[8];
     FormatTime(day_str,sizeof(day_str),"%d",time);
     int day = StringToInt(day_str);
 
-    char month_str[2];
+    char month_str[8];
     FormatTime(month_str,sizeof(month_str),"%m",time);
     int month = StringToInt(month_str);
 
