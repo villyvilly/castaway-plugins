@@ -234,7 +234,7 @@ void ForceRespawn()
 	CreateTimer(0.1, Post_RespawnCommandRun, flags);
 }
 
-public Action Post_RespawnCommandRun(Handle timer, int flags) {
+Action Post_RespawnCommandRun(Handle timer, int flags) {
 	SetCommandFlags("mp_forcerespawnplayers", flags);
 	return Plugin_Continue;
 }
