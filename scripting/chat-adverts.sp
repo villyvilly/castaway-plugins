@@ -34,7 +34,6 @@ public void OnPluginStart()
     //add custom color(s) to morecolors
     CCheckTrie();
     SetTrieValue(CTrie,"day9",0xFFA71A);
-    SetTrieValue(CTrie,"castawayblue",0x96D0F6);
 
     CreateTimer(480.0, Timer_SendAdvert,_,TIMER_REPEAT);
     
@@ -60,7 +59,7 @@ public Action EventRoundStart(Event event, const char[] name, bool dontbroadcast
     int month = StringToInt(month_str);
 
     if(month==6 && day > 11 && day < 20) {
-        CPrintToChatAll("{castawayblue}Happy birthday Castaway!");
+        CPrintToChatAll("{legendary}Happy birthday Castaway!");
     }
     return Plugin_Continue;
 }
