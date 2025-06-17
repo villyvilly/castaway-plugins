@@ -2725,15 +2725,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					case 1099: player_weapons[client][Wep_TideTurner] = true;
 				}
 			}
-
-			//honestly this is kind of a silly way of doing it
-			//but it works!
-			for (int i = 0; i < NUM_ITEMS; i++) {
-				if(prev_player_weapons[client][i] != player_weapons[client][i]) {
-					should_display_info_msg = true;
-					break;
-				}
-			}
 		}
 
 		//item sets
@@ -2832,6 +2823,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
+			//honestly this is kind of a silly way of doing it
+			//but it works!
+			for (int i = 0; i < NUM_ITEMS; i++) {
+				if(prev_player_weapons[client][i] != player_weapons[client][i]) {
+					should_display_info_msg = true;
+					break;
+				}
+			}
 
 			//help message (on loadout change)
 			if(
