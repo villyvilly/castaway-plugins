@@ -278,10 +278,16 @@ Cookie g_hClientMessageCookie;
 //add weapons to the FRONT of this enum to maintain the player_weapons array size
 enum
 {
-	Wep_Airblast,
+	//Generic class features
+	Feat_Airblast,
+	Feat_Minigun, // All Miniguns
+	Feat_Sword, // All Swords	
+
+	//Item sets
+	Set_Saharan,
+	
+	//Specific weapons
 	Wep_Airstrike,
-	Wep_Minigun, // All Miniguns
-	Wep_Sword, // All Swords	
 	Wep_Ambassador,
 	Wep_Atomizer,
 	Wep_Axtinguisher,
@@ -331,7 +337,6 @@ enum
 	Wep_ReserveShooter,
 	Wep_Bison, // Righteous Bison	
 	Wep_RocketJumper,
-	Wep_Saharan,
 	Wep_Sandman,
 	Wep_Scottish,
 	Wep_ShortCircuit,
@@ -394,12 +399,12 @@ public void OnPluginStart() {
 
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
-	ItemDefine("airblast", "Airblast_0", CLASSFLAG_PYRO, Wep_Airblast);
+	ItemDefine("airblast", "Airblast_0", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_0", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
-	ItemDefine("miniramp", "Minigun_ramp_0", CLASSFLAG_HEAVY, Wep_Minigun);
+	ItemDefine("miniramp", "Minigun_ramp_0", CLASSFLAG_HEAVY, Feat_Minigun);
 #endif
-	ItemDefine("swords", "Swords_0", CLASSFLAG_DEMOMAN, Wep_Sword);
+	ItemDefine("swords", "Swords_0", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_0", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("atomizer", "Atomizer_0", CLASSFLAG_SCOUT, Wep_Atomizer);
 	ItemDefine("axtinguish", "Axtinguisher_0", CLASSFLAG_PYRO, Wep_Axtinguisher);
@@ -483,7 +488,7 @@ public void OnPluginStart() {
 	ItemDefine("bison", "Bison_0", CLASSFLAG_SOLDIER, Wep_Bison);
 	ItemDefine("rocketjmp", "RocketJmp_0", CLASSFLAG_SOLDIER, Wep_RocketJumper);
 	ItemVariant(Wep_RocketJumper, "RocketJmp_1");
-	ItemDefine("saharan", "Saharan_0", CLASSFLAG_SPY, Wep_Saharan);
+	ItemDefine("saharan", "Saharan_0", CLASSFLAG_SPY, Set_Saharan);
 	ItemDefine("sandman", "Sandman_0", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("scottish", "Scottish_0", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_0", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
@@ -745,7 +750,7 @@ public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Minigun),Wep_Minigun);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
@@ -815,7 +820,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #endif
 			}
 		}
-		case Wep_Minigun: {
+		case Feat_Minigun: {
 			if (enable) {
 				patch_RevertMiniguns_RampupNerf_Dmg.Enable();
 				patch_RevertMiniguns_RampupNerf_Spread.Enable();
@@ -1901,7 +1906,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
 			item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
-			bool swords = ItemIsEnabled(Wep_Sword);
+			bool swords = ItemIsEnabled(Feat_Sword);
 			TF2Items_SetNumAttributes(item1, swords ? 5 : 3);
 			TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
 			TF2Items_SetAttribute(item1, 1, 128, 0.0); // provide on active
@@ -2123,7 +2128,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
-			bool swords = ItemIsEnabled(Wep_Sword);
+			bool swords = ItemIsEnabled(Feat_Sword);
 			TF2Items_SetNumAttributes(item1, swords ? 8 : 6);
 			TF2Items_SetAttribute(item1, 0, 77, 1.00); // -0% max primary ammo on wearer
 			TF2Items_SetAttribute(item1, 1, 79, 1.00); // -0% max secondary ammo on wearer
@@ -2302,8 +2307,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	if (
-		ItemIsEnabled(Wep_Sword) &&
-		!sword_reverted && //must be set to true on every weapon that implements Wep_Sword check! 
+		ItemIsEnabled(Feat_Sword) &&
+		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
 		( StrEqual(class, "tf_weapon_sword") ||
 		(!ItemIsEnabled(Wep_Zatoichi) && (index == 357)) )
 	) {
@@ -2587,20 +2592,20 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(StrEqual(class, "tf_weapon_flamethrower") ||
 						StrEqual(class, "tf_weapon_rocketlauncher_fireball"))
 					) {
-						player_weapons[client][Wep_Airblast] = true;
+						player_weapons[client][Feat_Airblast] = true;
 					}
 
 					else if (
 						StrEqual(class, "tf_weapon_minigun")
 					) {
-						player_weapons[client][Wep_Minigun] = true;
+						player_weapons[client][Feat_Minigun] = true;
 					}
 
 					else if (
 						( StrEqual(class, "tf_weapon_sword") ||
 						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")) )
 					) {
-						player_weapons[client][Wep_Sword] = true;
+						player_weapons[client][Feat_Sword] = true;
 					}
 
 					switch (index) {
@@ -2696,7 +2701,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		//item sets
 		if (
-			ItemIsEnabled(Wep_Saharan)
+			ItemIsEnabled(Set_Saharan)
 		) {
 			// reset set bonuses on loadout changes
 			TFClassType client_class = TF2_GetPlayerClass(client);
@@ -2726,7 +2731,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					// Saharan Spy
 					if(
-						ItemIsEnabled(Wep_Saharan) &&
+						ItemIsEnabled(Set_Saharan) &&
 						(StrEqual(classname, "tf_weapon_revolver") &&
 						(item_index == 224)) ||
 						(StrEqual(classname, "tf_weapon_knife") &&
@@ -2764,7 +2769,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					{
 						case ItemSet_Saharan:
 						{
-							player_weapons[client][Wep_Saharan] = true;
+							player_weapons[client][Set_Saharan] = true;
 							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
 							TF2Attrib_SetByDefIndex(client, 160, 1.0); // SET BONUS: quiet unstealth
 						}
@@ -4381,7 +4386,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		) {
 			// airblast set type cvar
 
-			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled(Wep_Airblast));
+			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled(Feat_Airblast));
 
 			return MRES_Ignored;
 		}
