@@ -1,83 +1,20 @@
 ## Introduction
 Repository for plugins used on [castaway.tf](https://castaway.tf/)
 
-Check out the [weapon reverts changelog here](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog).
+Check out the [Wiki](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki) for information regarding some of the plugins in this repo
 
 The only entirely custom plugins here are ones credited only to random (chat-adverts, etc.). Everything else is a plugin made by someone else. The credits for said plugins can be found unmodified at the top of each plugin's .sp file.
 
-This is not a comprehensive list of all plugins used on the server, however it does include all the most relevant ones to the player experience such as the map voting, team scrambling, and weapon revert plugins. 
+This is not a comprehensive list of all plugins used on the server, however it does include all the most relevant ones to the player experience such as the map voting, team scrambling, and weapon revert plugins.
 
-## Compiling
+## Weapon Reverts
+The Weapon Reverts plugin is the main feature of this repository.
 
-To compile the plugins, download a recent Sourcemod stable version and merge the scripting directory into the scripting directory of this repo, then use `./compile.sh <plugin_name>` to compile each plugin. 
+Documentation for the plugin and how to use/compile it can be found [here](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-(reverts.sp)) 
 
-In addition to the dependencies below, the reverts plugin has special compile instructions. Read the Memory Patches section for more information.
+A list of all reverts, as well as revert variants, and their respective cvar values can be found [here](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Revert-List)
 
-The reverts plugin has the following dependencies:
-- 32 bit server/sourcemod - 64 bit sourcemod is not yet fully working for all plugins
-- [TF2Items](https://github.com/nosoop/SMExt-TF2Items)
-- [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
-- [TF2Utils](https://github.com/nosoop/SM-TFUtils)
-- [TF2 Condition Hooks](https://github.com/Scags/TF2-Condition-Hooks) ([modified source file](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/blob/master/scripting/tf2condhooks.sp), [gamedata](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/blob/master/gamedata/tf2.condmgr.txt))
-- [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble) - Only required if using the memory patches (see Usage for more info)
-
-No other plugins have any external dependencies, and the include files for the above dependencies are within this repo.
-
-## Usage
-
-The reverts plugin, after installing all the required dependencies, should work out of the box. 
-
-### Memory Patches
-
-There are a few revert patches within the revert plugin by default that utilize sourcescramble. If the reverts plugin does not work correctly with the reverts that use memory patching for any reason, it is advised to not compile the plugin with them enabled. These reverts may break on game updates.
-
-To disable reverts that come from memory patches, comment the following line near the top of the reverts.sp file before you compile:
-```
-#define MEMORY_PATCHES
-```
-Alternatively, you can pass in `NO_MEMPATCHES=` as a parameter to spcomp.
-
-Additionally, before you compile the reverts.sp file, check what operating system your server is using.
-
-If your server is on Windows, you need to uncomment the WIN32 line near the top of the reverts.sp file:
-```
-//#define WIN32
-```
-Alternatively you can pass in `WIN32=` as a parameter to spcomp.exe.
-
-If your server is on Linux, you do not need to do anything, it should work as-is.
-
-The following weapons use memory patches for their reverts:
-- All Heavy Miniguns (Minigun, Tomislav, Brass Beast, Natascha, Huo-Long Heater, etc.)
-- Cozy Camper
-- Dragon's Fury
-- Disciplinary Action
-- Quick-Fix
-- Wrangler
-- Rescue Ranger
-
-### Toggling Reverts
-
-If you want to disable a specific weapon revert, you can create a config file called `reverts.cfg` in your `tf/cfg/sourcemod` folder. To disable a specific revert, you set the following:
-
-```
-sm_reverts__item_<name> 1/0
-```
-
-The below would disable the Equalizer and Sandman reverts
-```
-sm_reverts__item_equalizer 0
-sm_reverts__item_sandman 0
-```
-
-Some reverts have multiple variants and can be set to values larger than 1 to use different versions. An example is the Soda Popper, which has two revert variants:
-```
-sm_reverts__item_sodapop 2/1
-```
-
-To get the name to use, open up the reverts.sp file and find the `ItemDefine` block near the top inside of OnPluginStart, and use the second value in the params.
-
-By default, all reverts are on with value of 1.
+The castaway.tf reverts changelog can be found [here](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog)
 
 ## Additional Credits
 Some or all of these plugins have been modified in some way, sometimes in major ways. I do not claim credit for these plugins and all credit goes to their original creators.
