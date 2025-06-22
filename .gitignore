@@ -44,6 +44,9 @@ translations/*
 !translations/chi/
 !translations/chi/reverts.phrases.txt
 
+!cfg/
+!cfg/*
+
 !.github/
 .github/*
 !.github/workflows/
