@@ -2671,21 +2671,21 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							}
 						}
 						// Expert's Ordnance
-						case: 307, 308: {
+						case 307, 308: {
 							if(ItemIsEnabled(Set_Expert)) {
 								wep_count++;
 								if(wep_count == 2) active_set = Set_Expert;
 							}
 						}
 						// Hibernating Bear
-						case: 310, 311, 312: {
+						case 310, 311, 312: {
 							if(ItemIsEnabled(Set_Hibernate)) {
 								wep_count++;
 								if(wep_count == 3) active_set = Set_Hibernate;
 							}
 						}
 						// Croc-o-Style Kit
-						case: 230, 232: {
+						case 230, 232: {
 							if(ItemIsEnabled(Set_CrocoStyle)) {
 								wep_count++;
 								if(wep_count == 2) active_set = Set_CrocoStyle;
