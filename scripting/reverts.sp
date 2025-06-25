@@ -2655,80 +2655,49 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, classname, sizeof(class));
 					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
-					// Special Delivery (set)
-					if(
-						ItemIsEnabled(Set_SpDelivery) &&
-						(StrEqual(classname, "tf_weapon_handgun_scout_primary") &&
-						(item_index == 220)) ||
-						(StrEqual(classname, "tf_weapon_jar_milk") &&
-						(item_index == 222)) ||
-						(StrEqual(classname, "tf_weapon_bat_fish") &&
-						(item_index == 221))
-					) {
-						wep_count++;
-						if(wep_count == 3) active_set = Set_SpDelivery;
-					}
-
-					// Gas Jockey's Gear
-					if(
-						ItemIsEnabled(Set_GasJockey) &&
-						(StrEqual(classname, "tf_weapon_flamethrower") &&
-						(item_index == 215)) ||
-						(StrEqual(classname, "tf_weapon_fireaxe") &&
-						(item_index == 214))
-					) {
-						wep_count++;
-						if(wep_count == 2) active_set = Set_GasJockey;
-					}
-
-					// Expert's Ordnance
-					if(
-						ItemIsEnabled(Set_Expert) &&
-						(StrEqual(classname, "tf_weapon_grenadelauncher") &&
-						(item_index == 308)) ||
-						(StrEqual(classname, "tf_weapon_stickbomb") &&
-						(item_index == 307))
-					) {
-						wep_count++;
-						if(wep_count == 2) active_set = Set_Expert;
-					}
-
-					// Hibernating Bear
-					if(
-						ItemIsEnabled(Set_Hibernate) &&
-						(StrEqual(classname, "tf_weapon_minigun") &&
-						(item_index == 312)) ||
-						(StrEqual(classname, "tf_weapon_lunchbox") &&
-						(item_index == 311)) ||
-						(StrEqual(classname, "tf_weapon_fists") &&
-						(item_index == 310))
-					) {
-						wep_count++;
-						if(wep_count == 3) active_set = Set_Hibernate;
-					}
-
-					// Croc-o-Style Kit
-					if(
-						ItemIsEnabled(Set_CrocoStyle) &&
-						(StrEqual(classname, "tf_weapon_sniperrifle") &&
-						(item_index == 230)) ||
-						(StrEqual(classname, "tf_weapon_club") &&
-						(item_index == 232))
-					) {
-						wep_count++;
-						if(wep_count == 2) active_set = Set_CrocoStyle;
-					}
-
-					// Saharan Spy
-					if(
-						ItemIsEnabled(Set_Saharan) &&
-						(StrEqual(classname, "tf_weapon_revolver") &&
-						(item_index == 224)) ||
-						(StrEqual(classname, "tf_weapon_knife") &&
-						(item_index == 225 || item_index == 574))
-					) {
-						wep_count++;
-						if(wep_count == 2) active_set = Set_Saharan;
+					switch(item_index) {
+						// Special Delivery
+						case 220, 221, 222: {
+							if(ItemIsEnabled(Set_SpDelivery)) {
+								wep_count++;
+								if(wep_count == 3) active_set = Set_SpDelivery;
+							}
+						}
+						// Gas Jockey's Gear
+						case 214, 215: {
+							if(ItemIsEnabled(Set_GasJockey)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_GasJockey;
+							}
+						}
+						// Expert's Ordnance
+						case: 307, 308: {
+							if(ItemIsEnabled(Set_Expert)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_Expert;
+							}
+						}
+						// Hibernating Bear
+						case: 310, 311, 312: {
+							if(ItemIsEnabled(Set_Hibernate)) {
+								wep_count++;
+								if(wep_count == 3) active_set = Set_Hibernate;
+							}
+						}
+						// Croc-o-Style Kit
+						case: 230, 232: {
+							if(ItemIsEnabled(Set_CrocoStyle)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_CrocoStyle;
+							}
+						}
+						// Saharan Spy
+						case 224, 225, 574: {
+							if(ItemIsEnabled(Set_Saharan)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_Saharan;
+							}
+						}
 					}
 				}
 			}
