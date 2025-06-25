@@ -265,6 +265,10 @@
 	{
 		"en"	"Hibernating Bear"
 	}
+	"jag"
+	{
+		"en"	"Jag"
+	}	
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
@@ -623,6 +627,14 @@
 	{
 		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
 	}
+	"Jag_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, no damage penalty against buildings (destroy Sappers in 2 hits)"
+	}
+	"Jag_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no damage penalty against buildings (destroy Sappers in 2 hits), no repair rate penalty, no faster firing speed bonus"
+	}	
 	"Liberty_Release"
 	{
 		"en"	"Reverted to release, +40%% projectile speed, -25%% clip size"
