@@ -451,6 +451,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
 	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN, Set_Expert);
 	ItemDefine("fiststeel", "FistSteel_PreJI", CLASSFLAG_HEAVY, Wep_FistsSteel);
+	ItemVariant(Wep_FistsSteel, "FistSteel_PreTB");
+	ItemVariant(Wep_FistsSteel, "FistSteel_Release");
 	ItemDefine("guillotine", "Guillotine_PreJI", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO, Set_GasJockey);
 	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
@@ -470,6 +472,7 @@ public void OnPluginStart() {
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
+	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Powerjack_Release");
 	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");	
@@ -1983,9 +1986,30 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
-			TF2Items_SetNumAttributes(itemNew, 2);
-			TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
-			TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active
+			switch(GetItemVariant(Wep_FistsSteel)) {
+				case 0: {
+				// Pre-Inferno FoS
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
+					TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active
+				}
+				case 1: {
+				// Pre-Tough Break FoS
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
+					TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active					
+					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
+					TF2Items_SetAttribute(itemNew, 3, 177, 1.2); // 20% longer weapon switch; mult_deploy_time
+				}
+				case 2: {
+				// Release FoS
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
+					TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active
+					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
+					TF2Items_SetAttribute(itemNew, 3, 205, 0.4); // -60% damage from ranged sources while active; dmg_from_ranged
+				}
+			}	
 		}}
 		case 416: { if (ItemIsEnabled(Wep_MarketGardener)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -3101,7 +3125,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 
 					if (StrEqual(class, "tf_weapon_drg_pomson")) {
 						if (
-							ItemIsEnabled(Wep_Pomson) &&
+							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 && // Check if variant isn't the historical pre-GM Pomson
 							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
 						) {
 							return Plugin_Handled;
