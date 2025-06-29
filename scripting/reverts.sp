@@ -3155,11 +3155,25 @@ Action SDKHookCB_Touch(int entity, int other) {
 					owner > 0 &&
 					weapon > 0
 				) {
+					// Bison and Pomson lighting up friendly Huntsman arrows
 					GetEntityClassname(weapon, class, sizeof(class));
 
-					if (StrEqual(class, "tf_weapon_drg_pomson")) {
+					if (
+						(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
+						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")) &&
+						TF2_GetClientTeam(other) == TF2_GetClientTeam(GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity"))
+					) {
+						weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
+						if (weapon > 0) {
+							GetEntityClassname(weapon, class, sizeof(class));
+							if (StrEqual(class, "tf_weapon_compound_bow") && weapon == GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon")) 
+								SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
+						}
+						
+						// Pomson pass through teammates
+						// If Pomson variant is pre-Gun Mettle, block its projectiles passing through teammates.
 						if (
-							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 && // Check if variant isn't the historical pre-GM Pomson
+							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 &&
 							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
 						) {
 							return Plugin_Handled;
