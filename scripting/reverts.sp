@@ -531,7 +531,7 @@ public void OnPluginStart() {
 
 	ItemFinalize();
 
-	AutoExecConfig(false, "reverts", "sourcemod");
+	AutoExecConfig(true, "reverts", "sourcemod");
 
 	g_hClientMessageCookie = RegClientCookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
 
