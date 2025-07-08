@@ -1813,38 +1813,36 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 4, GetItemVariant(Wep_Axtinguisher) == 1 ? 638 : 20, 1.0); // axtinguisher properties, crit on burning players
 		}}
 		case 772: { if (ItemIsEnabled(Wep_BabyFace)) {
-			bool release = GetItemVariant(Wep_BabyFace) == 1;
-			TF2Items_SetNumAttributes(itemNew, release ? 6 : 2);
-			TF2Items_SetAttribute(itemNew, 0, 733, 0.0); // lose hype on take damage
-			if (release)
-			{
-				TF2Items_SetAttribute(itemNew, 1, 1, 0.70); // damage penalty
-				TF2Items_SetAttribute(itemNew, 2, 3, 1.00); // clip size penalty
-				TF2Items_SetAttribute(itemNew, 3, 54, 0.65); // move speed penalty
-				TF2Items_SetAttribute(itemNew, 4, 106, 0.60); // weapon spread bonus
-				TF2Items_SetAttribute(itemNew, 5, 419, 100.0); // hype resets on jump
-			}
-			else
-			{
-				TF2Items_SetAttribute(itemNew, 1, 419, 25.0); // hype resets on jump
+			switch (GetItemVariant(Wep_BabyFace)) {
+				case 1: { //release
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 733, 0.0); // lose hype on take damage
+					TF2Items_SetAttribute(itemNew, 1, 1, 0.70); // damage penalty
+					TF2Items_SetAttribute(itemNew, 2, 3, 1.00); // clip size penalty
+					TF2Items_SetAttribute(itemNew, 3, 54, 0.65); // move speed penalty
+					TF2Items_SetAttribute(itemNew, 4, 106, 0.60); // weapon spread bonus
+					TF2Items_SetAttribute(itemNew, 5, 419, 100.0); // hype resets on jump
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 733, 0.0); // lose hype on take damage
+					TF2Items_SetAttribute(itemNew, 1, 419, 25.0); // hype resets on jump
+				}
 			}
 		}}
 		case 40, 1146: { if (ItemIsEnabled(Wep_Backburner)) {
-			bool airblast = GetItemVariant(Wep_Backburner) == 0;
-			TF2Items_SetNumAttributes(itemNew, airblast ? 1 : 2);
-			switch(GetItemVariant(Wep_Backburner)) 
-			{
-				case 0: 
-				{
+			switch (GetItemVariant(Wep_Backburner)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 2, 1.1); // 10% damage bonus; mult_dmg
 				}
-				case 1: 
-				{
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 2, 1.2); // 20% damage bonus
 					TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast; airblast_disabled
 				}
-				case 2:
-				{
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 26, 50.0); // +50 max health on wearer; add_maxhealth
 					TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast; airblast_disabled
 				}
@@ -1917,18 +1915,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			sword_reverted = true;
 		}}
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
-			switch (GetItemVariant(Wep_CritCola))
-			{
-				case 0, 1, 2:
-				{
+			switch (GetItemVariant(Wep_CritCola)) {
+				case 0, 1, 2: {
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
 					// +25% or +10% damage vulnerability while under the effect, depending on variant
 					float vuln = GetItemVariant(Wep_CritCola) == 2 ? 1.25 : 1.10;
 					TF2Items_SetAttribute(itemNew, 1, 798, vuln);
 				}
-				case 3, 4:
-				{
+				case 3, 4: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
 					// Mini-crit vulnerability handled elsewhere
@@ -1936,14 +1931,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
-			bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;
-			TF2Items_SetNumAttributes(itemNew, dmg_mods ? 5 : 3);
-			TF2Items_SetAttribute(itemNew, 0, 60, 1.0); // +0% fire damage resistance on wearer
-			TF2Items_SetAttribute(itemNew, 1, 527, 0.0); // remove afterburn immunity
-			TF2Items_SetAttribute(itemNew, 2, 26, 25.0); // +25 max health on wearer
-			if (dmg_mods) {
-				TF2Items_SetAttribute(itemNew, 3, 66, 0.85); // +15% bullet damage resistance on wearer
-				TF2Items_SetAttribute(itemNew, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
+			switch (GetItemVariant(Wep_Darwin)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 60, 1.0); // +0% fire damage resistance on wearer
+					TF2Items_SetAttribute(itemNew, 1, 527, 0.0); // remove afterburn immunity
+					TF2Items_SetAttribute(itemNew, 2, 26, 25.0); // +25 max health on wearer
+					TF2Items_SetAttribute(itemNew, 3, 66, 0.85); // +15% bullet damage resistance on wearer
+					TF2Items_SetAttribute(itemNew, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 60, 1.0); // +0% fire damage resistance on wearer
+					TF2Items_SetAttribute(itemNew, 1, 527, 0.0); // remove afterburn immunity
+					TF2Items_SetAttribute(itemNew, 2, 26, 25.0); // +25 max health on wearer
+				}
 			}
 		}}
 		case 215: { if (ItemIsEnabled(Wep_Degreaser)) {
@@ -1956,18 +1958,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 5, 547, 1.00); // single wep deploy time decreased
 		}}
 		case 460: { if (ItemIsEnabled(Wep_Enforcer)) {
-			bool releaseVer = GetItemVariant(Wep_Enforcer) == 1;
-			TF2Items_SetNumAttributes(itemNew, releaseVer ? 6 : 3);
-			TF2Items_SetAttribute(itemNew, 0, 797, 0.0); // dmg pierces resists absorbs
-			TF2Items_SetAttribute(itemNew, 1, 2, 1.20); // 20% damage bonus
-			// When the Spy fires while disguised, he gives less damage to both players and buildings.
-			if (releaseVer) {
-				TF2Items_SetAttribute(itemNew, 2, 5, 1.00); // increase back the firing rate to same as stock revolver; fire rate penalty attribute
-				TF2Items_SetAttribute(itemNew, 3, 15, 1.0); // add back random crits; crit mod enabled 
-				TF2Items_SetAttribute(itemNew, 4, 253, 0.5); // 0.5 sec increase in time taken to cloak
-				TF2Items_SetAttribute(itemNew, 5, 410, 1.0); // remove damage bonus while disguised
-			} else {
-				TF2Items_SetAttribute(itemNew, 2, 410, 1.0 / 1.2); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total
+			switch (GetItemVariant(Wep_Enforcer)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 797, 0.0); // dmg pierces resists absorbs
+					TF2Items_SetAttribute(itemNew, 1, 2, 1.20); // 20% damage bonus
+					TF2Items_SetAttribute(itemNew, 2, 5, 1.00); // increase back the firing rate to same as stock revolver; fire rate penalty attribute
+					TF2Items_SetAttribute(itemNew, 3, 15, 1.0); // add back random crits; crit mod enabled 
+					TF2Items_SetAttribute(itemNew, 4, 253, 0.5); // 0.5 sec increase in time taken to cloak
+					TF2Items_SetAttribute(itemNew, 5, 410, 1.0); // remove damage bonus while disguised
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 797, 0.0); // dmg pierces resists absorbs
+					TF2Items_SetAttribute(itemNew, 1, 2, 1.20); // 20% damage bonus
+					TF2Items_SetAttribute(itemNew, 2, 410, 1.0 / 1.2); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total
+				}
 			}
 		}}
 		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
@@ -1985,19 +1991,23 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 155, 1.00); // cannot disguise
 		}}		
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
-			bool gunMettleVer = GetItemVariant(Wep_Eviction) == 1;
-			TF2Items_SetNumAttributes(itemNew, gunMettleVer ? 3 : 2);
-			TF2Items_SetAttribute(itemNew, 0, 855, 0.0); // mod maxhealth drain rate
-			if (gunMettleVer) {
-				TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
-				TF2Items_SetAttribute(itemNew, 2, 6, 0.50); // set faster firing speed to +50%; 
-			} else {
-				TF2Items_SetAttribute(itemNew, 1, 852, 1.20); // dmg taken increased
+			switch (GetItemVariant(Wep_Eviction)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 855, 0.0); // mod maxhealth drain rate
+					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
+					TF2Items_SetAttribute(itemNew, 2, 6, 0.50); // set faster firing speed to +50%; 
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 855, 0.0); // mod maxhealth drain rate
+					TF2Items_SetAttribute(itemNew, 1, 852, 1.20); // dmg taken increased
+				}
 			}
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
-			switch(GetItemVariant(Wep_FistsSteel)) {
+			switch (GetItemVariant(Wep_FistsSteel)) {
 				case 0: {
 				// Pre-Inferno FoS
 					TF2Items_SetNumAttributes(itemNew, 2);
@@ -2027,10 +2037,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty
 		}}
 		case 239, 1084, 1100: { if (ItemIsEnabled(Wep_GRU)) {
-			TF2Items_SetNumAttributes(itemNew, 4);
 			switch (GetItemVariant(Wep_GRU)) {
 				case 0: {
 					// Pre-Tough Break version of the GRU
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.75); // damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 414, 3.0); // self mark for death
 					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time increased
@@ -2038,6 +2048,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 				case 1: {
 					// Pre-Pyromania version of the GRU
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.50); // 50% damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 191, -6.0); // drain 6HP/s while actve; small knockback while active is supposed to happen (called GRU jumping)
 					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time is normal
@@ -2054,12 +2065,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
 		}}
 		case 329: { if (ItemIsEnabled(Wep_Jag)) {
-			bool preToughBreak = GetItemVariant(Wep_Jag) == 1;
-			TF2Items_SetNumAttributes(itemNew, preToughBreak ? 3 : 1);
-			TF2Items_SetAttribute(itemNew, 0, 775, 1.00); // -0% damage penalty vs buildings
-			if (preToughBreak) {
-				TF2Items_SetAttribute(itemNew, 1, 6, 1.00); // +0% faster firing speed
-				TF2Items_SetAttribute(itemNew, 2, 95, 1.00); // -0% slower repair rate
+			switch (GetItemVariant(Wep_Jag))  {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 775, 1.00); // -0% damage penalty vs buildings
+					TF2Items_SetAttribute(itemNew, 1, 6, 1.00); // +0% faster firing speed
+					TF2Items_SetAttribute(itemNew, 2, 95, 1.00); // -0% slower repair rate
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 775, 1.00); // -0% damage penalty vs buildings
+				}
 			}
 		}}		
 		case 414: { if (ItemIsEnabled(Wep_LibertyLauncher)) {
@@ -2070,15 +2086,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 3, 135, 1.00); // rocket jump damage reduction
 		}}
 		case 308: { if (ItemIsEnabled(Wep_LochLoad)) {
-			bool pre2014 = GetItemVariant(Wep_LochLoad) == 1;
-			TF2Items_SetNumAttributes(itemNew, pre2014 ? 6 : 2);
-			TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // damage bonus
-			TF2Items_SetAttribute(itemNew, 1, 137, 1.00); // dmg bonus vs buildings
-			if (pre2014) {
-				TF2Items_SetAttribute(itemNew, 2, 207, 1.25); // self damage
-				TF2Items_SetAttribute(itemNew, 3, 100, 1.00); // radius penalty
-				TF2Items_SetAttribute(itemNew, 4, 3, 0.50); // clip size
-				TF2Items_SetAttribute(itemNew, 5, 681, 0.00); // grenade no spin
+			switch (GetItemVariant(Wep_LochLoad)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 137, 1.00); // dmg bonus vs buildings
+					TF2Items_SetAttribute(itemNew, 2, 207, 1.25); // self damage
+					TF2Items_SetAttribute(itemNew, 3, 100, 1.00); // radius penalty
+					TF2Items_SetAttribute(itemNew, 4, 3, 0.50); // clip size
+					TF2Items_SetAttribute(itemNew, 5, 681, 0.00); // grenade no spin
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 137, 1.00); // dmg bonus vs buildings
+				}
 			}
 		}}
 		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
@@ -2101,27 +2123,36 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 10, 710, 1.00); // Attrib_AutoFiresFullClipNegative
 		}}
 		case 773: { if (ItemIsEnabled(Wep_PocketPistol)) {
-			bool release = GetItemVariant(Wep_PocketPistol) == 0;
-			TF2Items_SetNumAttributes(itemNew, release ? 8 : 1);
-			if (release) {
-				TF2Items_SetAttribute(itemNew, 0, 6, 1.0); // fire rate bonus
-				TF2Items_SetAttribute(itemNew, 1, 16, 0.0); // heal on hit
-				TF2Items_SetAttribute(itemNew, 2, 3, 1.0); // clip size
-				TF2Items_SetAttribute(itemNew, 3, 5, 1.25); // fire rate penalty
-				TF2Items_SetAttribute(itemNew, 4, 128, 0.0); // provide on active
-				TF2Items_SetAttribute(itemNew, 5, 26, 15.0); // max health additive bonus
-				TF2Items_SetAttribute(itemNew, 6, 275, 1.0); // cancel falling damage
-				TF2Items_SetAttribute(itemNew, 7, 61, 1.50); // dmg taken from fire increased
-			} else {
-				TF2Items_SetAttribute(itemNew, 0, 16, 7.0); // On Hit: Gain up to +7 health
+			switch (GetItemVariant(Wep_PocketPistol)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 8);
+					TF2Items_SetAttribute(itemNew, 0, 6, 1.0); // fire rate bonus
+					TF2Items_SetAttribute(itemNew, 1, 16, 0.0); // heal on hit
+					TF2Items_SetAttribute(itemNew, 2, 3, 1.0); // clip size
+					TF2Items_SetAttribute(itemNew, 3, 5, 1.25); // fire rate penalty
+					TF2Items_SetAttribute(itemNew, 4, 128, 0.0); // provide on active
+					TF2Items_SetAttribute(itemNew, 5, 26, 15.0); // max health additive bonus
+					TF2Items_SetAttribute(itemNew, 6, 275, 1.0); // cancel falling damage
+					TF2Items_SetAttribute(itemNew, 7, 61, 1.50); // dmg taken from fire increased
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 16, 7.0); // On Hit: Gain up to +7 health
+				}
 			}
 		}}
 		case 588: { if (ItemIsEnabled(Wep_Pomson)) {
-			bool release = GetItemVariant(Wep_Pomson) == 1;
-			TF2Items_SetNumAttributes(itemNew, release ? 2 : 1);
-			TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
-			if (release)
-				TF2Items_SetAttribute(itemNew, 1, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+			switch (GetItemVariant(Wep_Pomson)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
+					TF2Items_SetAttribute(itemNew, 1, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
+				}
+			}
 		}}		
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			// health bonus with overheal for all variants handled elsewhere
@@ -2130,7 +2161,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					// Pre-Gun Mettle Powerjack (pre-2015)
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 180, 0.0); // remove +25 hp on kill attribute
-					}
+				}
 				case 1: {
 					// Release Powerjack (2010)
 					TF2Items_SetNumAttributes(itemNew, 5);
@@ -2139,7 +2170,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
 					TF2Items_SetAttribute(itemNew, 3, 2, 1.25); // add +25% damage bonus
 					TF2Items_SetAttribute(itemNew, 4, 15, 0.0); // no random crits mod
-					}
+				}
 				case 2: {
 					// Hatless Update Powerjack (2011 to 2013)
 					TF2Items_SetNumAttributes(itemNew, 4);
@@ -2198,19 +2229,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
 		}}			
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
-			bool preGunMettle = GetItemVariant(Wep_DeadRinger) == 0;
-			TF2Items_SetNumAttributes(itemNew, preGunMettle ? 5 : 3);
-			if (preGunMettle) {
-				TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
-				TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
-				TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
-				TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
-				TF2Items_SetAttribute(itemNew, 4, 810, 0.0); // mod cloak no regen from items
-			}
-			else {
-				TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
-				TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
-				TF2Items_SetAttribute(itemNew, 2, 729, 0.65); // ReducedCloakFromAmmo; this means 35% LESS cloak from ammo packs, NOT -35% max cloak from ammo packs!!!
+			switch (GetItemVariant(Wep_DeadRinger)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
+					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
+					TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
+					TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
+					TF2Items_SetAttribute(itemNew, 4, 810, 0.0); // mod cloak no regen from items
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
+					TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
+					TF2Items_SetAttribute(itemNew, 2, 729, 0.65); // ReducedCloakFromAmmo; this means 35% LESS cloak from ammo packs, NOT -35% max cloak from ammo packs!!!
+				}
 			}
 		}}
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
@@ -2250,11 +2283,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
 		}}
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
-			bool minicrits = GetItemVariant(Wep_SodaPopper) == 0;
-			TF2Items_SetNumAttributes(itemNew, minicrits ? 2 : 1);
-			TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
-			if (minicrits) {
-				TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+			switch (GetItemVariant(Wep_SodaPopper)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
+					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
+				}
 			}
 		}}
 		case 413: { if (ItemIsEnabled(Wep_Solemn)) {
@@ -2272,11 +2310,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 156, 1.0); // silent killer
 		}}
 		case 265: { if (ItemIsEnabled(Wep_StickyJumper)) {
-			bool flag_pickup = GetItemVariant(Wep_StickyJumper) == 1;
-			TF2Items_SetNumAttributes(itemNew, flag_pickup ? 2 : 1);
-			TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
-			if (flag_pickup) {
-				TF2Items_SetAttribute(itemNew, 1, 400, 0.0);
+			switch (GetItemVariant(Wep_StickyJumper)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0);
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+				}
 			}
 		}}
 		case 131, 1144: { if (ItemIsEnabled(Wep_CharginTarge)) {
