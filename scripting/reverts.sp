@@ -2198,16 +2198,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
 		}}			
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
-			bool preGunMettle = (GetItemVariant(Wep_DeadRinger) == 0);
+			bool preGunMettle = GetItemVariant(Wep_DeadRinger) == 0;
 			TF2Items_SetNumAttributes(itemNew, preGunMettle ? 5 : 3);
-			if(preGunMettle) {
+			if (preGunMettle) {
 				TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 				TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
 				TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
 				TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
 				TF2Items_SetAttribute(itemNew, 4, 810, 0.0); // mod cloak no regen from items
 			}
-			else if (!preGunMettle) {
+			else {
 				TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
 				TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
 				TF2Items_SetAttribute(itemNew, 2, 729, 0.65); // ReducedCloakFromAmmo; this means 35% LESS cloak from ammo packs, NOT -35% max cloak from ammo packs!!!
