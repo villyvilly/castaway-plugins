@@ -533,16 +533,18 @@
 	// pyromania update: https://wiki.teamfortress.com/wiki/Pyromania_Update/zh-hant
 	// manniversary: https://wiki.teamfortress.com/wiki/Manniversary_Update_%26_Sale/zh-hant
 	"Airblast_PreJI"
+	// "All flamethrowers' airblast mechanics are reverted to pre-inferno"
 	{
 		"zho"	"所有火焰噴射器、壓縮氣爆機制返璞到叢林煉獄更新前"
 	}
 	"Airstrike_PreTB"
+	// "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping"
 	{
-		"zho"	"回調到艱難假日更新前，爆炸起跳過程中不會有爆炸範圍減少"
+		"zho"	"返璞到艱難假日更新前，爆炸起跳過程中爆炸範圍不會減少"
 	}
 	"Minigun_ramp_PreLW"
 	{
-		"zho"	"回調到愛情與戰爭更新前，轉輪機槍不再有剛開火時的傷害和精確度縮水"
+		"zho"	"返璞到愛情與戰爭更新前，轉輪機槍不再有剛開火時的傷害和精確度縮水"
 	}
 	"Swords_PreTB"
 	{
