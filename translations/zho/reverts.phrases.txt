@@ -56,7 +56,7 @@
 	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
 	// "Disable these messages in the !revert menu or with !toggleinfo"
 	{
-		"zho"	"開啟 !revert 菜單或使用 !toggleinfo 以隱藏提示"
+		"zho"	"開啟 !revert 選單或使用 !toggleinfo 以隱藏提示"
 	}
 	"REVERT_REVERTS_DISABLED"
 	// "Weapon reverts are not enabled right now"
@@ -76,7 +76,7 @@
 	"REVERT_EMPTY_REVERTS"
 	// "There's nothing here... for some reason, all item cvars are off"
 	{
-		"zho"	"沒有啟用武器返璞的武器"
+		"zho"	"不知為何...什麼也沒有，所有武器的cvar都已關閉"
 	}
 	"REVERT_INVALID_TEAM"
 	// "You need to be in a team to use this command"
@@ -86,40 +86,47 @@
 	"REVERT_INVALID_CLASS"
 	// "Your class needs to be valid to use this command"
 	{
-		"zho"	"你必須選擇適當兵種才能使用這個命令"
+		"zho"	"你必須選擇適當職業才能使用這個命令"
 	}
 	"REVERT_ENABLED_CLASS_REVERTS_HINT"
 	// "Weapon reverts currently enabled for %t:"
 	{
-		"zho"	"爲%t開啓的武器返璞:"
+		"zho"	"爲%t啟用的武器返璞:"
 	}
 	"REVERT_EMPTY_CLASS_REVERTS"
+	// "There's nothing here... for some reason, all %t reverts are disabled"
 	{
-		"zho"	"沒有爲%t開啓的武器回調"
+		"zho"	"不知為何...什麼也沒有，所有%t的返璞現已停用"
 	}
 	"REVERT_LOADOUT_CHANGE_ENABLED"
+	// "Enabled loadout change revert info. They will be shown the next time you change loadouts."
 	{
-		"zho"	"已打開配置更改時武器回調的顯示，下一次配置更改時會顯示目前配置所開啓的武器回調"
+		"zho"	"更改裝備時武器返璞的資訊顯示已開啟，下一次更改裝備時會顯示目前裝備所啟用的武器返璞。"
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
+	// "Disabled loadout change revert info. Enable them again by typing !toggleinfo or opening the reverts menu."
 	{
-		"zho"	"已關閉配置更改時武器回調的顯示，用 !revertsinfo 或 !reverts 菜單開啓"
+		"zho"	"更改裝備時武器返璞的資訊顯示已關閉，使用 !toggleinfo 或開啟 !revert 選單以再次開啟資訊顯示。"
 	}
 	"REVERT_MENU_TITLE"
+	// "Weapon Reverts"
 	{
-		"zho"	"武器回調"
+		"zho"	"武器返璞"
 	}
 	"REVERT_MENU_SHOW_CLASSINFO"
+	// "Show reverts for your current class"
 	{
-		"zho"	"顯示目前兵種的武器回調"
+		"zho"	"顯示目前職業的返璞"
 	}
 	"REVERT_MENU_SHOW_ALL"
+	// "Show information about each revert"
 	{
-		"zho"	"顯示服務器上所有開啓的武器回調"
+		"zho"	"顯示每個返璞的資訊"
 	}
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	// "Toggle loadout change revert info"
 	{
-		"zho"	"打開/關閉配置更改時武器回調顯示"
+		"zho"	"切換更改裝備時返璞的資訊顯示"
 	}
 
 	// item names
@@ -527,7 +534,7 @@
 	// manniversary: https://wiki.teamfortress.com/wiki/Manniversary_Update_%26_Sale/zh-hant
 	"Airblast_PreJI"
 	{
-		"zho"	"所有火焰噴射器壓縮空氣機制回調到叢林煉獄更新前"
+		"zho"	"所有火焰噴射器、壓縮氣爆機制返璞到叢林煉獄更新前"
 	}
 	"Airstrike_PreTB"
 	{
