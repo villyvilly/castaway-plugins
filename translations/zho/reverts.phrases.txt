@@ -5,6 +5,7 @@
 // Original translation is from Simplified Chinese by Eric Zhang	https://steamcommunity.com/id/ericzhang456/
 // Refinemnt & Grammar correction made by Villy	@VillyVilly on YouTube/Steam
 // NOTE from Villy: I refer the plugin as "武器返璞" instead of "武器回調", and I log my progress of checking by adding the original En. ver.
+// Major diff. I found is that the names given to the updates, weapons vary between trad. Chin. & simp. Chin.
 
 "Phrases"
 {
@@ -540,19 +541,22 @@
 	"Airstrike_PreTB"
 	// "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping"
 	{
-		"zho"	"返璞到艱難假日更新前，爆炸起跳過程中爆炸範圍不會減少"
+		"zho"	"返璞到倒楣假期更新前，爆炸起跳過程中爆炸範圍不會減少"
 	}
 	"Minigun_ramp_PreLW"
+	// "Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
 	{
-		"zho"	"返璞到愛情與戰爭更新前，轉輪機槍不再有剛開火時的傷害和精確度縮水"
+		"zho"	"返璞到愛與戰爭更新前，所有格林機槍類武器開火後的準度與傷害力立即到達最大值"
 	}
 	"Swords_PreTB"
+	// "Reverted to pre-toughbreak, no holster and deploy switch speed penalties"
 	{
-		"zho"	"回調到艱難假日更新前，不會有取出和收回速度減慢"
+		"zho"	"返璞到倒楣假期更新前，不會有較慢的裝備及收起速度"
 	}
 	"Ambassador_PreJI"
+	// "Reverted to pre-inferno, deals full headshot damage (102) at all ranges"
 	{
-		"zho"	"回調到叢林煉獄更新前，在所有距離都能做完整的爆頭傷害（102）"
+		"zho"	"返璞到叢林煉獄更新前，在所有距離都能做完整的爆頭傷害（102）"
 	}
 	"Atomizer_PreJI"
 	{
