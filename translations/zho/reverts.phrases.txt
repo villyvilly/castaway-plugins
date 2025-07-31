@@ -556,15 +556,17 @@
 	"Ambassador_PreJI"
 	// "Reverted to pre-inferno, deals full headshot damage (102) at all ranges"
 	{
-		"zho"	"返璞到叢林煉獄更新前，在所有距離都能做完整的爆頭傷害（102）"
+		"zho"	"返璞到叢林煉獄更新前，在所有距離都能造成完整的爆頭傷害（102）"
 	}
 	"Atomizer_PreJI"
+	// "Reverted to pre-inferno, can always triple jump, taking 10 damage each time"
 	{
-		"zho"	"回調到叢林煉獄更新前，任何時候都能進行三連跳，每次三連跳會受到 10 點傷害"
+		"zho"	"返璞到叢林煉獄更新前，任何時候都能進行三連跳，每次三連跳會受到 10 點傷害"
 	}
 	"Axtinguisher_PreLW"
+	// "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill"
 	{
-		"zho"	"回調到到愛情與戰爭更新前，任何時候都能對着火敵人做 195 點全暴擊傷害，擊殺着火敵人後不會提高移動速度"
+		"zho"	"返璞到愛與戰爭更新前，任何時候都能對着火敵人造成 195 點全暴擊傷害，擊殺着火敵人後不會提高移動速度"
 	}
 	"Axtinguisher_PreTB"
 	{
